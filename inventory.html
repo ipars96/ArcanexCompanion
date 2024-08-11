@@ -101,6 +101,18 @@
             width: 100%;
             margin-top: 10px;
         }
+        .unlock-button {
+            background-color: white;
+            color: #071013;
+            border: 2px solid #AAAAAA;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
         .revert-item {
             background-color: white;
             color: #071013;
@@ -232,6 +244,7 @@
                 <div id="inventoryCounter">0/25</div>
             </div>
             <button class="add-item" id="addItemButton" onclick="addItem()">+ Add Item</button>
+            <button id="unlockButton" class="unlock-button" onclick="showUnlockPopup()" style="display: none;">Unlock More Inventory</button>
             <!-- Default section for items without a category -->
             <div id="defaultCategory"></div>
             <!-- Categories -->
@@ -257,6 +270,9 @@
             <h3>Weapons</h3>
             <div id="weaponsCategory"></div>
             <div class="category-divider"></div>
+
+            <!-- Revert Inventory Button -->
+            <button id="revertItemButton" class="revert-item" onclick="showRevertPopup()">Revert Inventory</button>
         </div>
 
         <!-- Right Column: Character Icon and Gear -->
@@ -369,7 +385,8 @@
             const unlockButton = document.getElementById('unlockButton');
 
             if (currentInventoryCount >= inventoryLimit) {
-                showUnlockButton();
+                addItemButton.style.display = 'none';
+                unlockButton.style.display = 'block';
             } else {
                 addItemButton.style.display = 'block';
                 unlockButton.style.display = 'none';
@@ -507,15 +524,31 @@
             popup.style.display = 'none';
         }
 
-        function showUnlockButton() {
-            const addItemButton = document.getElementById('addItemButton');
-            const unlockButton = document.getElementById('unlockButton');
-
-            addItemButton.style.display = 'none';
-            unlockButton.style.display = 'block';
-        }
-
         function showUnlockPopup() {
+            const packMuleLevel = inventoryLimit / 25;
+            const unlockMessage = document.getElementById('unlockMessage');
+            
+            let packMuleText;
+            switch (inventoryLimit) {
+                case 25:
+                    packMuleText = "Pack Mule";
+                    break;
+                case 50:
+                    packMuleText = "Pack Mule II";
+                    break;
+                case 75:
+                    packMuleText = "Pack Mule III";
+                    break;
+                case 100:
+                    packMuleText = "Pack Mule IV";
+                    break;
+                default:
+                    packMuleText = "Pack Mule";
+                    break;
+            }
+
+            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the ${packMuleText} skill.`;
+
             const unlockPopup = document.getElementById('unlockPopup');
             unlockPopup.style.display = 'flex';
         }
@@ -540,7 +573,27 @@
             const packMuleLevel = inventoryLimit / 25;
             const nextPackMuleLevel = packMuleLevel + 1;
             const unlockMessage = document.getElementById('unlockMessage');
-            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the Pack Mule ${nextPackMuleLevel > 1 ? `III` : nextPackMuleLevel > 2 ? `IV` : ''} skill.`;
+            
+            let packMuleText;
+            switch (inventoryLimit) {
+                case 50:
+                    packMuleText = "Pack Mule II";
+                    break;
+                case 75:
+                    packMuleText = "Pack Mule III";
+                    break;
+                case 100:
+                    packMuleText = "Pack Mule IV";
+                    break;
+                case 150:
+                    packMuleText = "No Further Upgrades";
+                    break;
+                default:
+                    packMuleText = "Pack Mule";
+                    break;
+            }
+
+            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the ${packMuleText} skill.`;
         }
 
         function showRevertPopup() {
@@ -565,7 +618,27 @@
 
             const packMuleLevel = inventoryLimit / 25;
             const unlockMessage = document.getElementById('unlockMessage');
-            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the Pack Mule ${packMuleLevel > 1 ? `II` : packMuleLevel > 2 ? `III` : packMuleLevel > 3 ? `IV` : ''} skill.`;
+            
+            let packMuleText;
+            switch (inventoryLimit) {
+                case 25:
+                    packMuleText = "Pack Mule";
+                    break;
+                case 50:
+                    packMuleText = "Pack Mule II";
+                    break;
+                case 75:
+                    packMuleText = "Pack Mule III";
+                    break;
+                case 100:
+                    packMuleText = "Pack Mule IV";
+                    break;
+                default:
+                    packMuleText = "Pack Mule";
+                    break;
+            }
+
+            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the ${packMuleText} skill.`;
         }
 
         fetch('nav.html')
