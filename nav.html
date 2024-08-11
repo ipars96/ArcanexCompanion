@@ -9,16 +9,16 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 20px;
+        position: relative;
     }
     nav a {
         color: #071013;
         text-decoration: none;
-        margin: 0 10px;
+        margin: 0 20px;
         font-weight: bold;
         font-size: 18px;
         position: relative;
-        padding: 10px;
+        padding: 10px 20px;
     }
     nav a::before {
         content: '';
@@ -30,8 +30,19 @@
         background-color: #AAAAAA;
         transform: translateY(-50%);
     }
+    nav a:first-child::before {
+        left: -15px;
+        right: auto;
+    }
     nav a:last-child::before {
-        content: none; /* Remove separator after the last item */
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: -15px;
+        width: 1px;
+        height: 30px;
+        background-color: #AAAAAA;
+        transform: translateY(-50%);
     }
     nav a:hover::after,
     nav a.active::after {
@@ -67,4 +78,3 @@
         }
     });
 </script>
-
