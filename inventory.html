@@ -21,6 +21,7 @@
             margin-top: 20px;
             display: flex;
             gap: 20px;
+            padding: 0 20px;
         }
         .left-column, .right-column {
             background-color: #DFE0E2;
@@ -42,6 +43,8 @@
             position: relative;
             flex-wrap: nowrap;
             padding-right: 15px;
+            padding-left: 10px;
+            flex: 1;
         }
         .inventory-item input {
             padding: 8px;
@@ -54,9 +57,9 @@
         }
         .inventory-item input[name="itemName"] {
             flex: 2;
-            min-width: 35%;
+            min-width: 20%;
         }
-        .inventory-item select[name="itemType"] {
+        .inventory-item select[name="itemType"], .inventory-item select[name="weaponType"] {
             flex: 1.5;
             padding: 8px;
             border-radius: 5px;
@@ -64,9 +67,17 @@
             background-color: white;
             color: #071013;
             font-family: inherit;
+            max-width: 120px;
+            min-width: 100px;
         }
         .inventory-item input[name="itemValue"] {
             width: 60px;
+            flex-shrink: 0;
+        }
+        .inventory-item input[name="equipped"] {
+            width: 25px;
+            height: 25px;
+            margin-right: 5px;
             flex-shrink: 0;
         }
         .info-button, .delete-button {
@@ -141,7 +152,7 @@
             background-color: #DFE0E2;
             padding: 20px;
             border-radius: 10px;
-            width: 400px;
+            width: 450px;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -198,6 +209,7 @@
             background-color: #071013;
             margin: 5px;
             border-radius: 5px;
+            position: relative;
         }
         .gear-box {
             display: flex;
@@ -213,6 +225,7 @@
             border-radius: 5px;
             border: 1px solid #AAAAAA;
             width: calc(100% - 20px);
+            position: relative;
         }
         .tooltip {
             position: absolute;
@@ -230,6 +243,82 @@
         .category-divider {
             border-bottom: 1px solid #AAAAAA;
             margin: 20px 0;
+        }
+
+        /* Updated CSS */
+        .popup .image-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 20px; /* Add more space below the image */
+        }
+
+        .popup .image-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer; /* Indicate the image is clickable */
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            justify-content: flex-end; /* Align to the right */
+        }
+
+        .form-group label {
+            flex: 0 0 80px; /* Set width for labels */
+            margin-right: 10px; /* Space between label and input */
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .form-group .aligned-input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #AAAAAA;
+        }
+
+        #popupItemDescription {
+            height: 120px; /* Make the description input larger */
+            width: 100%; /* Extend description box to full width */
+        }
+
+        .details {
+            width: 100%; /* Make the details section full width */
+        }
+
+        .popup .form-group,
+        .popup label,
+        .popup input,
+        .popup select {
+            width: 100%;
+            max-width: 350px; /* Align with the width of the description box */
+        }
+
+        .popup .inline-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .popup .inline-group label, .popup .inline-group select {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .popup .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .popup #popupWeaponType {
+            width: 160px;
         }
     </style>
 </head>
@@ -335,32 +424,50 @@
         <div class="popup">
             <div class="popup-header">
                 <div class="image-container">
-                    <img src="https://via.placeholder.com/100" alt="Item Image" id="itemImage">
-                    <input type="file" id="uploadImage" style="display: none;">
+                    <img src="https://via.placeholder.com/150" alt="Item Image" id="itemImage" onclick="triggerImageUpload()">
+                    <input type="file" id="uploadImage" style="display: none;" accept="image/*" onchange="handleImageUpload(event)">
                 </div>
                 <div class="details">
-                    <label for="popupItemName">Name</label>
-                    <input type="text" id="popupItemName" placeholder="Item Name">
-                    <label for="popupItemType">Type</label>
-                    <select id="popupItemType" onchange="moveItemToCategory(this)">
-                        <option value="">Select Type</option>
-                        <option value="Consumable">Consumable</option>
-                        <option value="Weapon">Weapon</option>
-                        <option value="Equipment">Equipment</option>
-                        <option value="Crafting">Crafting</option>
-                        <option value="Loot">Loot</option>
-                        <option value="Notes">Notes</option>
-                        <option value="Quest Items">Quest Items</option>
-                    </select>
-                    <div class="side-by-side">
-                        <div class="value-container">
-                            <label for="popupItemValue">Value</label>
-                            <input type="number" id="popupItemValue" placeholder="Value">
+                    <div class="form-group">
+                        <label for="popupItemName">Item Name</label>
+                        <input type="text" id="popupItemName" class="aligned-input" placeholder="Item Name">
+                    </div>
+                    <div class="inline-group">
+                        <div class="form-group">
+                            <label for="popupItemType">Type</label>
+                            <select id="popupItemType" class="aligned-input" onchange="toggleWeaponFields(this)">
+                                <option value="">Select Type</option>
+                                <option value="Consumable">Consumable</option>
+                                <option value="Weapon">Weapon</option>
+                                <option value="Equipment">Equipment</option>
+                                <option value="Crafting">Crafting</option>
+                                <option value="Loot">Loot</option>
+                                <option value="Notes">Notes</option>
+                                <option value="Quest Items">Quest Items</option>
+                            </select>
                         </div>
-                        <div class="quantity-container">
-                            <label for="popupItemQuantity">Quantity</label>
-                            <input type="number" id="popupItemQuantity" placeholder="Quantity">
+                        <div class="form-group" id="weaponTypeGroup" style="display:none;">
+                            <label for="popupWeaponType">Weapon Type</label>
+                            <select id="popupWeaponType" class="aligned-input">
+                                <option value="Light Melee">Light Melee</option>
+                                <option value="Heavy Melee">Heavy Melee</option>
+                                <option value="Light Ranged">Light Ranged</option>
+                                <option value="Heavy Ranged">Heavy Ranged</option>
+                                <option value="Shield">Shield</option>
+                            </select>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="popupItemValue">Value</label>
+                        <input type="number" id="popupItemValue" class="aligned-input" placeholder="Value">
+                    </div>
+                    <div class="form-group">
+                        <label for="popupItemQuantity">Quantity</label>
+                        <input type="number" id="popupItemQuantity" class="aligned-input" placeholder="Quantity">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="popupItemEquipped" style="width: 25px; height: 25px;">
+                        <label for="popupItemEquipped">Equipped</label>
                     </div>
                 </div>
             </div>
@@ -378,6 +485,56 @@
         let currentInventoryCount = 0;
         let currentItemEditing = null;
         let itemToDelete = null;
+
+        // Handle image upload and display
+        function triggerImageUpload() {
+            document.getElementById('uploadImage').click();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('itemImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Tooltip logic for inventory input fields
+        const tooltip = document.getElementById('tooltip');
+        let tooltipTimeout;
+
+        function showTooltip(event, text) {
+            tooltip.textContent = text;
+            tooltip.style.left = event.pageX + 'px';
+            tooltip.style.top = event.pageY + 'px';
+            tooltip.style.opacity = 1;
+        }
+
+        function hideTooltip() {
+            tooltip.style.opacity = 0;
+        }
+
+        const inventoryInputs = document.querySelectorAll('.inventory-item input, .inventory-item select');
+
+        inventoryInputs.forEach(input => {
+            input.addEventListener('mouseover', function(event) {
+                const label = this.placeholder || this.name; // Use placeholder text or name as the tooltip text
+                tooltipTimeout = setTimeout(() => showTooltip(event, label), 1000); // Show tooltip after 1 second
+            });
+
+            input.addEventListener('mousemove', function(event) {
+                tooltip.style.left = event.pageX + 'px';
+                tooltip.style.top = event.pageY + 'px';
+            });
+
+            input.addEventListener('mouseout', function() {
+                clearTimeout(tooltipTimeout); // Clear the timeout if mouse leaves before tooltip appears
+                hideTooltip();
+            });
+        });
 
         function updateInventoryCounter() {
             document.getElementById('inventoryCounter').textContent = `${currentInventoryCount}/${inventoryLimit}`;
@@ -414,7 +571,15 @@
                     <option value="Notes">Notes</option>
                     <option value="Quest Items">Quest Items</option>
                 </select>
+                <select name="weaponType" style="display:none; max-width: 120px;">
+                    <option value="Light Melee">Light Melee</option>
+                    <option value="Heavy Melee">Heavy Melee</option>
+                    <option value="Light Ranged">Light Ranged</option>
+                    <option value="Heavy Ranged">Heavy Ranged</option>
+                    <option value="Shield">Shield</option>
+                </select>
                 <input type="number" name="itemValue" placeholder="Value">
+                <input type="checkbox" name="equipped" style="width: 25px; height: 25px;">
                 <button class="info-button" onclick="showInfoPopup(this)">Info</button>
                 <button class="delete-button" onclick="showDeleteConfirmation(this)">🗑️</button>
             `;
@@ -430,6 +595,13 @@
         function moveItemToCategory(selectElement) {
             const item = selectElement.closest('.inventory-item');
             const itemType = selectElement.value;
+
+            const weaponTypeSelect = item.querySelector('select[name="weaponType"]');
+            if (itemType === 'Weapon') {
+                weaponTypeSelect.style.display = 'inline';
+            } else {
+                weaponTypeSelect.style.display = 'none';
+            }
 
             const defaultCategory = document.getElementById('defaultCategory');
             const categories = {
@@ -488,13 +660,19 @@
 
             const itemName = currentItemEditing.querySelector('input[name="itemName"]').value;
             const itemType = currentItemEditing.querySelector('select[name="itemType"]').value;
+            const weaponType = currentItemEditing.querySelector('select[name="weaponType"]').value;
             const itemValue = currentItemEditing.querySelector('input[name="itemValue"]').value;
             const itemQuantity = currentItemEditing.querySelector('input[name="itemQuantity"]').value;
+            const isEquipped = currentItemEditing.querySelector('input[name="equipped"]').checked;
 
             document.getElementById('popupItemName').value = itemName;
             document.getElementById('popupItemType').value = itemType;
+            document.getElementById('popupWeaponType').value = weaponType;
             document.getElementById('popupItemValue').value = itemValue;
             document.getElementById('popupItemQuantity').value = itemQuantity;
+            document.getElementById('popupItemEquipped').checked = isEquipped;
+
+            toggleWeaponFields(document.getElementById('popupItemType'));
 
             const infoPopup = document.getElementById('infoPopup');
             infoPopup.style.display = 'flex';
@@ -504,18 +682,31 @@
             if (currentItemEditing) {
                 const itemName = document.getElementById('popupItemName').value;
                 const itemType = document.getElementById('popupItemType').value;
+                const weaponType = document.getElementById('popupWeaponType').value;
                 const itemValue = document.getElementById('popupItemValue').value;
                 const itemQuantity = document.getElementById('popupItemQuantity').value;
+                const isEquipped = document.getElementById('popupItemEquipped').checked;
 
                 currentItemEditing.querySelector('input[name="itemName"]').value = itemName;
                 currentItemEditing.querySelector('select[name="itemType"]').value = itemType;
+                currentItemEditing.querySelector('select[name="weaponType"]').value = weaponType;
                 currentItemEditing.querySelector('input[name="itemValue"]').value = itemValue;
                 currentItemEditing.querySelector('input[name="itemQuantity"]').value = itemQuantity;
+                currentItemEditing.querySelector('input[name="equipped"]').checked = isEquipped;
 
                 closePopup('infoPopup');
 
                 // Move the edited item to the correct category
                 moveItemToCategory(currentItemEditing.querySelector('select[name="itemType"]'));
+            }
+        }
+
+        function toggleWeaponFields(selectElement) {
+            const weaponTypeGroup = document.getElementById('weaponTypeGroup');
+            if (selectElement.value === 'Weapon') {
+                weaponTypeGroup.style.display = 'flex';
+            } else {
+                weaponTypeGroup.style.display = 'none';
             }
         }
 
