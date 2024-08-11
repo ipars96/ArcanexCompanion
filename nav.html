@@ -1,1 +1,70 @@
+<!-- nav.html -->
+<style>
+    nav {
+        width: 100%;
+        background-color: #DFE0E2;
+        padding: 15px 0;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+    nav a {
+        color: #071013;
+        text-decoration: none;
+        margin: 0 10px;
+        font-weight: bold;
+        font-size: 18px;
+        position: relative;
+        padding: 10px;
+    }
+    nav a::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: -15px;
+        width: 1px;
+        height: 30px;
+        background-color: #AAAAAA;
+        transform: translateY(-50%);
+    }
+    nav a:last-child::before {
+        content: none; /* Remove separator after the last item */
+    }
+    nav a:hover::after,
+    nav a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #EB5160;
+        z-index: -1;
+        border-radius: 5px;
+    }
+    nav a.active {
+        color: white; /* Change text color when active */
+    }
+</style>
+
+<nav>
+    <a href="index.html" class="nav-link" data-page="index.html">Character Sheet</a>
+    <a href="inventory.html" class="nav-link" data-page="inventory.html">Inventory</a>
+    <a href="spells.html" class="nav-link" data-page="spells.html">Spells</a>
+    <a href="ship.html" class="nav-link" data-page="ship.html">Ship & Crew</a>
+    <a href="affinity.html" class="nav-link" data-page="affinity.html">Affinity</a>
+</nav>
+
+<script>
+    // Highlight the current page in the navigation
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => {
+        if (link.getAttribute('href') === window.location.pathname.split('/').pop()) {
+            link.classList.add('active');
+        }
+    });
+</script>
 
