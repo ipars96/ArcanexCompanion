@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcanex Character Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #071013;
+            color: #071013;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        nav {
+            width: 100%;
+            background-color: #DFE0E2;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        nav a {
+            color: #071013;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .character-image {
+            background-color: #071013;
+            width: 180px;
+            height: 180px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            border: 2px solid #DFE0E2;
+        }
+        .character-image input {
+            display: none;
+        }
+        .character-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            clip-path: polygon(25% 5%, 75% 5%, 95% 25%, 95% 75%, 75% 95%, 25% 95%, 5% 75%, 5% 25%);
+            border: 2px solid #DFE0E2;
+            display: none;
+        }
+        .character-image::after {
+            content: '+';
+            color: #AAAAAA;
+            font-size: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .character-image img.show {
+            display: block;
+        }
+        .title-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #DFE0E2;
+            padding: 20px;
+            border-radius: 15px;
+            flex-grow: 1;
+            height: 180px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .title-box label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .title-box input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #AAAAAA;
+            width: calc(100% - 20px);
+        }
+        .info-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+        .info-box {
+            background-color: #DFE0E2;
+            padding: 10px;
+            border-radius: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .attributes {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .attribute {
+            background-color: #DFE0E2;
+            width: 120px;
+            padding: 10px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .attribute label {
+            font-weight: bold;
+            margin-bottom: 15px; /* Increased padding between title and input fields */
+            font-size: 16px;
+        }
+        .attribute .input-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0px; /* Reduced space between the input fields and the Total field */
+            gap: 10px; /* Added gap between the two input fields */
+        }
+        .attribute input {
+            width: 45%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #AAAAAA;
+            font-size: 16px;
+            text-align: center;
+        }
+        .attribute .total {
+            background-color: #AAAAAA;
+            color: #FFFFFF;
+            font-weight: bold;
+            border-radius: 5px;
+            padding: 5px;
+            margin-top: 0px;
+            font-size: 20px;
+            text-align: center;
+        }
+        .total-label, .base-label, .bonus-label {
+            display: block;
+            margin-top: 3px; /* Reduced space between labels and the input fields */
+            font-size: 14px;
+        }
+        .base-bonus-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3px; /* Adjust space between input fields and labels */
+        }
+        .stat-inspiration-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background-color: #DFE0E2;
+            padding: 10px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex-grow: 1;
+        }
+        .stat-box label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .stat-box input {
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #AAAAAA;
+            text-align: center;
+        }
+        .arrows {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .arrow {
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            font-size: 24px;
+            color: #EB5160;
+            margin: 0 10px;
+        }
+        .inspiration-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #DFE0E2;
+            padding: 10px;
+            border-radius: 15px;
+            flex-grow: 1;
+        }
+        .inspiration-box label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .inspiration-points-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .inspiration-points {
+            display: flex;
+            gap: 5px;
+        }
+        .inspiration-point {
+            width: 30px;
+            height: 30px;
+            background-color: #071013;
+            border: 2px solid #DFE0E2;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .inspiration-point.checked {
+            background-color: #EB5160;
+        }
+        .inspiration-box input {
+            text-align: center;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #DFE0E2;
+            color: #071013;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 1000;
+        }
+        .popup button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #EB5160;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#">Character Sheet</a>
+        <a href="#">Inventory</a>
+        <a href="#">Spells</a>
+        <a href="#">Ship & Crew</a>
+        <a href="#">Affinity</a>
+    </nav>
+
+    <div class="container">
+        <div class="character-image">
+            <input type="file" id="uploadImage" accept="image/*">
+            <img id="characterImg" class="show" alt="">
+        </div>
+        <div class="title-box">
+            <div class="info-container">
+                <div class="info-box">
+                    <label for="characterName">Name:</label>
+                    <input type="text" id="characterName" name="characterName">
+                </div>
+                <div class="info-box">
+                    <label for="characterSpecies">Species:</label>
+                    <input type="text" id="characterSpecies" name="characterSpecies">
+                </div>
+                <div class="info-box">
+                    <label for="characterBackground">Background:</label>
+                    <input type="text" id="characterBackground" name="characterBackground">
+                </div>
+            </div>
+            <div class="info-container">
+                <div class="info-box">
+                    <label for="characterLevel">Level:</label>
+                    <input type="text" id="characterLevel" name="characterLevel">
+                </div>
+                <div class="info-box">
+                    <label for="characterTBD">TBD:</label>
+                    <input type="text" id="characterTBD" name="characterTBD">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="attributes container">
+        <div class="attribute">
+            <label for="strength">Strength</label>
+            <div class="input-row">
+                <input type="number" id="strengthBase" name="strengthBase" oninput="updateTotal('strength')">
+                <input type="number" id="strengthBonus" name="strengthBonus" oninput="updateTotal('strength')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="strengthTotal" class="total">0</div>
+        </div>
+        <div class="attribute">
+            <label for="agility">Agility</label>
+            <div class="input-row">
+                <input type="number" id="agilityBase" name="agilityBase" oninput="updateTotal('agility')">
+                <input type="number" id="agilityBonus" name="agilityBonus" oninput="updateTotal('agility')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="agilityTotal" class="total">0</div>
+        </div>
+        <div class="attribute">
+            <label for="perception">Perception</label>
+            <div class="input-row">
+                <input type="number" id="perceptionBase" name="perceptionBase" oninput="updateTotal('perception')">
+                <input type="number" id="perceptionBonus" name="perceptionBonus" oninput="updateTotal('perception')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="perceptionTotal" class="total">0</div>
+        </div>
+        <div class="attribute">
+            <label for="intelligence">Intelligence</label>
+            <div class="input-row">
+                <input type="number" id="intelligenceBase" name="intelligenceBase" oninput="updateTotal('intelligence')">
+                <input type="number" id="intelligenceBonus" name="intelligenceBonus" oninput="updateTotal('intelligence')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="intelligenceTotal" class="total">0</div>
+        </div>
+        <div class="attribute">
+            <label for="charisma">Charisma</label>
+            <div class="input-row">
+                <input type="number" id="charismaBase" name="charismaBase" oninput="updateTotal('charisma')">
+                <input type="number" id="charismaBonus" name="charismaBonus" oninput="updateTotal('charisma')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="charismaTotal" class="total">0</div>
+        </div>
+        <div class="attribute">
+            <label for="arcana">Arcana</label>
+            <div class="input-row">
+                <input type="number" id="arcanaBase" name="arcanaBase" oninput="updateTotal('arcana')">
+                <input type="number" id="arcanaBonus" name="arcanaBonus" oninput="updateTotal('arcana')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="arcanaTotal" class="total">0</div>
+        </div>
+        <div class="attribute">
+            <label for="spirituality">Spirituality</label>
+            <div class="input-row">
+                <input type="number" id="spiritualityBase" name="spiritualityBase" oninput="updateTotal('spirituality')">
+                <input type="number" id="spiritualityBonus" name="spiritualityBonus" oninput="updateTotal('spirituality')">
+            </div>
+            <div class="base-bonus-container">
+                <span class="base-label">Base</span>
+                <span class="bonus-label">Bonus</span>
+            </div>
+            <span class="total-label">Total</span>
+            <div id="spiritualityTotal" class="total">0</div>
+        </div>
+    </div>
+
+    <div class="stat-inspiration-container container">
+        <div class="stat-box">
+            <label for="healthPoints">Health Points</label>
+            <div class="arrows">
+                <div class="arrow" onclick="incrementValue('healthPoints', -1)">&#9664;</div>
+                <input type="number" id="healthPoints" name="healthPoints" value="0">
+                <div class="arrow" onclick="incrementValue('healthPoints', 1)">&#9654;</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <label for="actionPoints">Action Points</label>
+            <div class="arrows">
+                <div class="arrow" onclick="incrementValue('actionPoints', -1)">&#9664;</div>
+                <input type="number" id="actionPoints" name="actionPoints" value="0">
+                <div class="arrow" onclick="incrementValue('actionPoints', 1)">&#9654;</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <label for="manaPoints">Mana Points</label>
+            <div class="arrows">
+                <div class="arrow" onclick="incrementValue('manaPoints', -1)">&#9664;</div>
+                <input type="number" id="manaPoints" name="manaPoints" value="0">
+                <div class="arrow" onclick="incrementValue('manaPoints', 1)">&#9654;</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-inspiration-container container">
+        <div class="inspiration-box">
+            <label>Inspiration Points</label>
+            <div class="inspiration-points-container">
+                <div class="arrow" onclick="incrementInspirationPoints(-1)">&#9664;</div>
+                <div class="inspiration-points">
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                    <div class="inspiration-point"></div>
+                </div>
+                <div class="arrow" onclick="incrementInspirationPoints(1)">&#9654;</div>
+            </div>
+        </div>
+        <div class="inspiration-box">
+            <label for="inspirationDice">Inspiration Dice</label>
+            <input type="number" id="inspirationDice" name="inspirationDice" value="0" style="text-align: center;">
+        </div>
+    </div>
+
+    <div class="popup" id="popup">
+        <p>You have gained an Inspiration Dice!</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        document.getElementById("uploadImage").addEventListener("change", function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById("characterImg");
+                    img.src = e.target.result;
+                    img.classList.add("show");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateTotal(attribute) {
+            const base = parseInt(document.getElementById(attribute + "Base").value) || 0;
+            const bonus = parseInt(document.getElementById(attribute + "Bonus").value) || 0;
+            const total = base + bonus;
+            document.getElementById(attribute + "Total").textContent = total;
+        }
+
+        function incrementValue(id, amount) {
+            const input = document.getElementById(id);
+            let value = parseInt(input.value) || 0;
+            value += amount;
+            if (value < 0) value = 0; // Prevent negative values
+            input.value = value;
+        }
+
+        function incrementInspirationPoints(amount) {
+            const points = document.querySelectorAll('.inspiration-point');
+            let currentCount = Array.from(points).filter(point => point.classList.contains('checked')).length;
+            let newCount = currentCount + amount;
+
+            if (newCount > 10) newCount = 10;
+            if (newCount < 0) newCount = 0;
+
+            points.forEach((point, index) => {
+                if (index < newCount) {
+                    point.classList.add('checked');
+                } else {
+                    point.classList.remove('checked');
+                }
+            });
+
+            if (newCount === 10) {
+                incrementValue('inspirationDice', 1);
+                showPopup();
+                resetInspirationPoints();
+            }
+        }
+
+        function resetInspirationPoints() {
+            const points = document.querySelectorAll('.inspiration-point');
+            points.forEach(point => point.classList.remove('checked'));
+        }
+
+        function showPopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
