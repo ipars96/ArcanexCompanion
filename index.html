@@ -12,16 +12,13 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: flex-start; /* Align content to the left */
-            align-items: flex-start;
-            height: 100vh;
-            overflow: hidden;
+            flex-direction: column;
+            align-items: center;
         }
         .container {
-            max-width: 900px; /* Adjusted width to create space for chatbox */
+            max-width: 1200px;
             width: 100%;
             margin-top: 20px;
-            margin-left: 20px; /* Added left margin to balance layout */
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
@@ -255,15 +252,6 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        #chatboxContainer {
-            width: 320px;
-            height: calc(100vh - 20px);
-            position: fixed;
-            right: 0;
-            top: 50px; /* Aligns below the navigation bar */
-            bottom: 0;
-            overflow-y: auto;
-        }
     </style>
 </head>
 <body>
@@ -454,9 +442,6 @@
         <button onclick="closePopup()">Close</button>
     </div>
 
-    <!-- Chatbox Container -->
-    <div id="chatboxContainer"></div>
-
     <script>
         document.getElementById("uploadImage").addEventListener("change", function() {
             const file = this.files[0];
@@ -529,13 +514,6 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('navbar').innerHTML = data;
-            });
-
-        // Load the chatbox
-        fetch('chatbox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('chatboxContainer').innerHTML = data;
             });
     </script>
 </body>
