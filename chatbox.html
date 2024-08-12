@@ -5,19 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbox</title>
     <style>
-        #chatbox {
-            width: 300px; /* Adjusted width */
-            height: calc(100vh - 50px); /* Full height minus some padding for navbar */
-            border: 2px solid #DFE0E2;
-            border-radius: 10px;
-            background-color: #071013;
-            color: #DFE0E2;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+        /* Chatbox container styles, adjusted to remove ID duplication */
         #chatboxHeader {
             font-size: 18px;
             font-weight: bold;
@@ -53,15 +41,14 @@
     </style>
 </head>
 <body>
-    <div id="chatbox">
-        <div id="chatboxHeader">Chatbox</div>
-        <div id="chatboxMessages">
-            <!-- Messages will be loaded here -->
-        </div>
-        <div id="chatboxInput">
-            <input type="text" id="chatMessage" placeholder="Type a message...">
-            <button type="button" onclick="sendMessage()">Send</button>
-        </div>
+    <!-- Direct chatbox content, without an outer container -->
+    <div id="chatboxHeader">Chatbox</div>
+    <div id="chatboxMessages">
+        <!-- Messages will be loaded here -->
+    </div>
+    <div id="chatboxInput">
+        <input type="text" id="chatMessage" placeholder="Type a message...">
+        <button type="button" onclick="sendMessage()">Send</button>
     </div>
 
     <script>
