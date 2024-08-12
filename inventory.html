@@ -14,6 +14,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            height: 100vh;
+            margin-top: 60px; /* Adjusted to accommodate the navbar */
         }
         .container {
             max-width: 1200px;
@@ -22,6 +24,7 @@
             display: flex;
             gap: 20px;
             padding: 0 20px;
+            flex-grow: 1; /* Ensure the container grows to fill available space */
         }
         .left-column, .right-column {
             background-color: #DFE0E2;
@@ -457,6 +460,21 @@
             justify-content: center;
             font-size: 16px;
         }
+
+        /* Chatbox container styles */
+        #chatbox {
+            width: 300px;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ccc;
+            border: 2px solid #DFE0E2;
+            border-radius: 10px;
+            background-color: #071013;
+            color: #DFE0E2;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -555,6 +573,8 @@
                 </div>
             </div>
         </div>
+
+        <div id="chatbox"></div> <!-- Placeholder for the chatbox -->
     </div>
 
     <!-- Tooltip Element -->
@@ -1121,6 +1141,30 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('navbar').innerHTML = data;
+            });
+
+        fetch('chatbox.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('chatbox').innerHTML = data;
+
+                // Re-initialize chatbox-related scripts
+                const script = document.createElement('script');
+                script.textContent = `
+                    function sendMessage() {
+                        const messageInput = document.getElementById('chatMessage');
+                        const messageText = messageInput.value.trim();
+
+                        if (messageText) {
+                            const messageContainer = document.createElement('div');
+                            messageContainer.textContent = messageText;
+                            document.getElementById('chatboxMessages').appendChild(messageContainer);
+                            messageInput.value = '';
+                            messageInput.focus();
+                        }
+                    }
+                `;
+                document.body.appendChild(script);
             });
     </script>
 </body>
