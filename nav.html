@@ -9,7 +9,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        position: relative;
+        position: fixed; /* Fix navbar to the top */
+        top: 0;
+        left: 0;
+        z-index: 1000; /* Ensure it stays above other content */
     }
     nav a {
         color: #071013;
@@ -24,25 +27,14 @@
         content: '';
         position: absolute;
         top: 50%;
-        right: -15px;
+        left: -15px;
         width: 1px;
         height: 30px;
         background-color: #AAAAAA;
         transform: translateY(-50%);
     }
     nav a:first-child::before {
-        left: -15px;
-        right: auto;
-    }
-    nav a:last-child::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        right: -15px;
-        width: 1px;
-        height: 30px;
-        background-color: #AAAAAA;
-        transform: translateY(-50%);
+        display: none; /* Remove the left border on the first item */
     }
     nav a:hover::after,
     nav a.active::after {
