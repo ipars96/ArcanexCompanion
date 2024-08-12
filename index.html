@@ -15,6 +15,7 @@
             flex-direction: column;
             align-items: center;
             height: 100vh;
+            margin-top: 60px; /* Ensure content starts below the navbar */
         }
         .container {
             max-width: 1200px;
@@ -138,7 +139,7 @@
             margin-bottom: 10px;
         }
         .attribute .input-row input {
-            width: 60%;
+            width: 75%; /* Increase the width of the input fields */
             padding: 5px;
             border-radius: 5px;
             border: 1px solid #AAAAAA;
@@ -149,6 +150,9 @@
             display: block;
             font-size: 14px;
             margin-bottom: 5px;
+            width: 25%; /* Make the label width consistent */
+            text-align: right;
+            padding-right: 5px;
         }
         .attribute .total-label {
             font-size: 14px;
@@ -305,7 +309,7 @@
             <div class="top-row">
                 <div class="character-image">
                     <input type="file" id="uploadImage" accept="image/*">
-                    <img id="characterImg" class="show" alt="">
+                    <img id="characterImg" alt="">
                 </div>
                 <div class="title-box">
                     <div class="info-container">
@@ -516,6 +520,7 @@
     </div>
 
     <script>
+        // Handle character image upload
         document.getElementById("uploadImage").addEventListener("change", function() {
             const file = this.files[0];
             if (file) {
@@ -529,6 +534,7 @@
             }
         });
 
+        // Update total attribute score
         function updateTotal(attribute) {
             const base = parseInt(document.getElementById(attribute + "Base").value) || 0;
             const bonus = parseInt(document.getElementById(attribute + "Bonus").value) || 0;
@@ -536,6 +542,7 @@
             document.getElementById(attribute + "Total").textContent = total;
         }
 
+        // Increment stat points
         function incrementValue(id, amount) {
             const input = document.getElementById(id);
             let value = parseInt(input.value) || 0;
@@ -544,6 +551,7 @@
             input.value = value;
         }
 
+        // Handle inspiration points increment and dice awarding
         function incrementInspirationPoints(amount) {
             const points = document.querySelectorAll('.inspiration-point');
             let currentCount = Array.from(points).filter(point => point.classList.contains('checked')).length;
@@ -568,21 +576,25 @@
             }
         }
 
+        // Reset inspiration points display
         function resetInspirationPoints() {
             const points = document.querySelectorAll('.inspiration-point');
             points.forEach(point => point.classList.remove('checked'));
         }
 
+        // Show popup
         function showPopup() {
             const popup = document.getElementById('popup');
             popup.style.display = 'block';
         }
 
+        // Close popup
         function closePopup() {
             const popup = document.getElementById('popup');
             popup.style.display = 'none';
         }
 
+        // Send inspiration dice message
         function sendInspirationDiceMessage() {
             const characterName = document.getElementById('characterName').value || "A player";
             const chatboxContent = document.getElementById('chatboxMessages');
