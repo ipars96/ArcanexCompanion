@@ -12,13 +12,15 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row;
+            justify-content: flex-start; /* Align content to the left */
+            align-items: flex-start;
         }
         .container {
-            max-width: 1200px;
+            max-width: 900px; /* Adjusted width to create space for chatbox */
             width: 100%;
             margin-top: 20px;
+            margin-left: 20px; /* Added left margin to balance layout */
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
@@ -252,6 +254,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        #chatboxContainer {
+            width: 320px;
+            margin-left: 20px; /* Space between character sheet and chatbox */
+        }
     </style>
 </head>
 <body>
@@ -442,7 +448,7 @@
         <button onclick="closePopup()">Close</button>
     </div>
 
-    <!-- Load chatbox into main content -->
+    <!-- Chatbox Container -->
     <div id="chatboxContainer"></div>
 
     <script>
