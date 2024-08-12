@@ -12,9 +12,10 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: row;
             justify-content: flex-start; /* Align content to the left */
             align-items: flex-start;
+            height: 100vh;
+            overflow: hidden;
         }
         .container {
             max-width: 900px; /* Adjusted width to create space for chatbox */
@@ -256,7 +257,12 @@
         }
         #chatboxContainer {
             width: 320px;
-            margin-left: 20px; /* Space between character sheet and chatbox */
+            height: calc(100vh - 20px);
+            position: fixed;
+            right: 0;
+            top: 50px; /* Aligns below the navigation bar */
+            bottom: 0;
+            overflow-y: auto;
         }
     </style>
 </head>
