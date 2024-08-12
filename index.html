@@ -12,15 +12,24 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
         }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin-top: 20px;
+        .content-wrapper {
             display: flex;
-            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .main-container {
+            flex: 1;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .top-row {
+            display: flex;
             gap: 20px;
         }
         .character-image {
@@ -95,37 +104,46 @@
             flex-direction: column;
             justify-content: center;
         }
-        .attributes {
+        .attribute-row, .stat-row, .inspiration-row {
             display: flex;
             justify-content: space-between;
-            width: 100%;
-            margin-top: 20px;
+            gap: 20px;
         }
         .attribute {
             background-color: #DFE0E2;
-            width: 120px;
-            padding: 10px;
+            padding: 15px;
             border-radius: 15px;
             text-align: center;
+            flex: 1;
         }
-        .attribute label {
+        .attribute .title {
             font-weight: bold;
-            margin-bottom: 15px; /* Increased padding between title and input fields */
-            font-size: 16px;
+            font-size: 18px;
+            margin-bottom: 10px;
         }
         .attribute .input-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0px; /* Reduced space between the input fields and the Total field */
-            gap: 10px; /* Added gap between the two input fields */
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        .attribute input {
-            width: 45%;
+        .attribute .input-row input {
+            width: 60%; /* Increased the width to make fields longer */
             padding: 5px;
             border-radius: 5px;
             border: 1px solid #AAAAAA;
             font-size: 16px;
             text-align: center;
+        }
+        .attribute .input-row label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .attribute .total-label {
+            font-size: 14px;
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
         .attribute .total {
             background-color: #AAAAAA;
@@ -133,77 +151,56 @@
             font-weight: bold;
             border-radius: 5px;
             padding: 5px;
-            margin-top: 0px;
             font-size: 20px;
             text-align: center;
-        }
-        .total-label, .base-label, .bonus-label {
-            display: block;
-            margin-top: 3px; /* Reduced space between labels and the input fields */
-            font-size: 14px;
-        }
-        .base-bonus-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 3px; /* Adjust space between input fields and labels */
-        }
-        .stat-inspiration-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 20px;
         }
         .stat-box {
             background-color: #DFE0E2;
             padding: 10px;
             border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            flex-grow: 1;
+            text-align: center;
+            flex: 1;
         }
         .stat-box label {
             font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
             display: block;
-            margin-bottom: 5px;
-            text-align: center;
         }
-        .stat-box input {
+        .stat-box .arrows {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .stat-box .arrows .arrow {
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            font-size: 36px; /* Increased size by 1.5x */
+            color: red; /* Changed color to red */
+        }
+        .stat-box .arrows input {
             width: 100%;
             padding: 5px;
             border-radius: 5px;
             border: 1px solid #AAAAAA;
+            font-size: 16px;
             text-align: center;
         }
-        .arrows {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            margin-top: 5px;
-        }
-        .arrow {
-            cursor: pointer;
-            user-select: none;
-            font-weight: bold;
-            font-size: 24px;
-            color: #EB5160;
-            margin: 0 10px;
-        }
         .inspiration-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             background-color: #DFE0E2;
             padding: 10px;
             border-radius: 15px;
-            flex-grow: 1;
+            display: flex;
+            flex-grow: 3;
+            flex-direction: column;
+            align-items: center;
         }
         .inspiration-box label {
             font-weight: bold;
             margin-bottom: 10px;
-            text-align: center;
             font-size: 16px;
+            text-align: center;
         }
         .inspiration-points-container {
             display: flex;
@@ -226,7 +223,21 @@
         .inspiration-point.checked {
             background-color: #EB5160;
         }
-        .inspiration-box input {
+        .inspiration-dice {
+            background-color: #DFE0E2;
+            padding: 10px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .inspiration-dice label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
             text-align: center;
         }
         .popup {
@@ -252,189 +263,236 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        /* Inspiration Points Arrow styling */
+        .inspiration-points-container .arrow {
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            font-size: 36px; /* Match the size of other arrows */
+            color: red; /* Set to red */
+        }
+
+        /* Chatbox container styles */
+        #chatbox {
+            width: 300px;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
-    <div id="navbar"></div> <!-- Placeholder for the navigation bar -->
+    <div class="content-wrapper">
+        <div class="main-container">
+            <!-- Top Row: Character Image and Title Box -->
+            <div class="top-row">
+                <div class="character-image">
+                    <input type="file" id="uploadImage" accept="image/*">
+                    <img id="characterImg" class="show" alt="">
+                </div>
+                <div class="title-box">
+                    <div class="info-container">
+                        <div class="info-box">
+                            <label for="characterName">Name:</label>
+                            <input type="text" id="characterName" name="characterName">
+                        </div>
+                        <div class="info-box">
+                            <label for="characterSpecies">Species:</label>
+                            <input type="text" id="characterSpecies" name="characterSpecies">
+                        </div>
+                        <div class="info-box">
+                            <label for="characterBackground">Background:</label>
+                            <input type="text" id="characterBackground" name="characterBackground">
+                        </div>
+                    </div>
+                    <div class="info-container">
+                        <div class="info-box">
+                            <label for="characterLevel">Level:</label>
+                            <input type="text" id="characterLevel" name="characterLevel">
+                        </div>
+                        <div class="info-box">
+                            <label for="characterTBD">TBD:</label>
+                            <input type="text" id="characterTBD" name="characterTBD">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div class="container">
-        <div class="character-image">
-            <input type="file" id="uploadImage" accept="image/*">
-            <img id="characterImg" class="show" alt="">
-        </div>
-        <div class="title-box">
-            <div class="info-container">
-                <div class="info-box">
-                    <label for="characterName">Name:</label>
-                    <input type="text" id="characterName" name="characterName">
+            <!-- Second Row: Attribute Points -->
+            <div class="attribute-row">
+                <div class="attribute">
+                    <div class="title">Strength</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="strengthBase">Base</label>
+                            <input type="number" id="strengthBase" name="strengthBase" oninput="updateTotal('strength')">
+                        </div>
+                        <div>
+                            <label for="strengthBonus">Bonus</label>
+                            <input type="number" id="strengthBonus" name="strengthBonus" oninput="updateTotal('strength')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="strengthTotal" class="total">0</div>
                 </div>
-                <div class="info-box">
-                    <label for="characterSpecies">Species:</label>
-                    <input type="text" id="characterSpecies" name="characterSpecies">
+                <div class="attribute">
+                    <div class="title">Agility</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="agilityBase">Base</label>
+                            <input type="number" id="agilityBase" name="agilityBase" oninput="updateTotal('agility')">
+                        </div>
+                        <div>
+                            <label for="agilityBonus">Bonus</label>
+                            <input type="number" id="agilityBonus" name="agilityBonus" oninput="updateTotal('agility')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="agilityTotal" class="total">0</div>
                 </div>
-                <div class="info-box">
-                    <label for="characterBackground">Background:</label>
-                    <input type="text" id="characterBackground" name="characterBackground">
+                <div class="attribute">
+                    <div class="title">Perception</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="perceptionBase">Base</label>
+                            <input type="number" id="perceptionBase" name="perceptionBase" oninput="updateTotal('perception')">
+                        </div>
+                        <div>
+                            <label for="perceptionBonus">Bonus</label>
+                            <input type="number" id="perceptionBonus" name="perceptionBonus" oninput="updateTotal('perception')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="perceptionTotal" class="total">0</div>
+                </div>
+                <div class="attribute">
+                    <div class="title">Intelligence</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="intelligenceBase">Base</label>
+                            <input type="number" id="intelligenceBase" name="intelligenceBase" oninput="updateTotal('intelligence')">
+                        </div>
+                        <div>
+                            <label for="intelligenceBonus">Bonus</label>
+                            <input type="number" id="intelligenceBonus" name="intelligenceBonus" oninput="updateTotal('intelligence')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="intelligenceTotal" class="total">0</div>
+                </div>
+                <div class="attribute">
+                    <div class="title">Charisma</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="charismaBase">Base</label>
+                            <input type="number" id="charismaBase" name="charismaBase" oninput="updateTotal('charisma')">
+                        </div>
+                        <div>
+                            <label for="charismaBonus">Bonus</label>
+                            <input type="number" id="charismaBonus" name="charismaBonus" oninput="updateTotal('charisma')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="charismaTotal" class="total">0</div>
+                </div>
+                <div class="attribute">
+                    <div class="title">Arcana</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="arcanaBase">Base</label>
+                            <input type="number" id="arcanaBase" name="arcanaBase" oninput="updateTotal('arcana')">
+                        </div>
+                        <div>
+                            <label for="arcanaBonus">Bonus</label>
+                            <input type="number" id="arcanaBonus" name="arcanaBonus" oninput="updateTotal('arcana')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="arcanaTotal" class="total">0</div>
+                </div>
+                <div class="attribute">
+                    <div class="title">Spirituality</div>
+                    <div class="input-row">
+                        <div>
+                            <label for="spiritualityBase">Base</label>
+                            <input type="number" id="spiritualityBase" name="spiritualityBase" oninput="updateTotal('spirituality')">
+                        </div>
+                        <div>
+                            <label for="spiritualityBonus">Bonus</label>
+                            <input type="number" id="spiritualityBonus" name="spiritualityBonus" oninput="updateTotal('spirituality')">
+                        </div>
+                    </div>
+                    <div class="total-label">Total</div>
+                    <div id="spiritualityTotal" class="total">0</div>
                 </div>
             </div>
-            <div class="info-container">
-                <div class="info-box">
-                    <label for="characterLevel">Level:</label>
-                    <input type="text" id="characterLevel" name="characterLevel">
-                </div>
-                <div class="info-box">
-                    <label for="characterTBD">TBD:</label>
-                    <input type="text" id="characterTBD" name="characterTBD">
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="attributes container">
-        <div class="attribute">
-            <label for="strength">Strength</label>
-            <div class="input-row">
-                <input type="number" id="strengthBase" name="strengthBase" oninput="updateTotal('strength')">
-                <input type="number" id="strengthBonus" name="strengthBonus" oninput="updateTotal('strength')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="strengthTotal" class="total">0</div>
-        </div>
-        <div class="attribute">
-            <label for="agility">Agility</label>
-            <div class="input-row">
-                <input type="number" id="agilityBase" name="agilityBase" oninput="updateTotal('agility')">
-                <input type="number" id="agilityBonus" name="agilityBonus" oninput="updateTotal('agility')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="agilityTotal" class="total">0</div>
-        </div>
-        <div class="attribute">
-            <label for="perception">Perception</label>
-            <div class="input-row">
-                <input type="number" id="perceptionBase" name="perceptionBase" oninput="updateTotal('perception')">
-                <input type="number" id="perceptionBonus" name="perceptionBonus" oninput="updateTotal('perception')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="perceptionTotal" class="total">0</div>
-        </div>
-        <div class="attribute">
-            <label for="intelligence">Intelligence</label>
-            <div class="input-row">
-                <input type="number" id="intelligenceBase" name="intelligenceBase" oninput="updateTotal('intelligence')">
-                <input type="number" id="intelligenceBonus" name="intelligenceBonus" oninput="updateTotal('intelligence')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="intelligenceTotal" class="total">0</div>
-        </div>
-        <div class="attribute">
-            <label for="charisma">Charisma</label>
-            <div class="input-row">
-                <input type="number" id="charismaBase" name="charismaBase" oninput="updateTotal('charisma')">
-                <input type="number" id="charismaBonus" name="charismaBonus" oninput="updateTotal('charisma')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="charismaTotal" class="total">0</div>
-        </div>
-        <div class="attribute">
-            <label for="arcana">Arcana</label>
-            <div class="input-row">
-                <input type="number" id="arcanaBase" name="arcanaBase" oninput="updateTotal('arcana')">
-                <input type="number" id="arcanaBonus" name="arcanaBonus" oninput="updateTotal('arcana')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="arcanaTotal" class="total">0</div>
-        </div>
-        <div class="attribute">
-            <label for="spirituality">Spirituality</label>
-            <div class="input-row">
-                <input type="number" id="spiritualityBase" name="spiritualityBase" oninput="updateTotal('spirituality')">
-                <input type="number" id="spiritualityBonus" name="spiritualityBonus" oninput="updateTotal('spirituality')">
-            </div>
-            <div class="base-bonus-container">
-                <span class="base-label">Base</span>
-                <span class="bonus-label">Bonus</span>
-            </div>
-            <span class="total-label">Total</span>
-            <div id="spiritualityTotal" class="total">0</div>
-        </div>
-    </div>
-
-    <div class="stat-inspiration-container container">
-        <div class="stat-box">
-            <label for="healthPoints">Health Points</label>
-            <div class="arrows">
-                <div class="arrow" onclick="incrementValue('healthPoints', -1)">&#9664;</div>
-                <input type="number" id="healthPoints" name="healthPoints" value="0">
-                <div class="arrow" onclick="incrementValue('healthPoints', 1)">&#9654;</div>
-            </div>
-        </div>
-        <div class="stat-box">
-            <label for="actionPoints">Action Points</label>
-            <div class="arrows">
-                <div class="arrow" onclick="incrementValue('actionPoints', -1)">&#9664;</div>
-                <input type="number" id="actionPoints" name="actionPoints" value="0">
-                <div class="arrow" onclick="incrementValue('actionPoints', 1)">&#9654;</div>
-            </div>
-        </div>
-        <div class="stat-box">
-            <label for="manaPoints">Mana Points</label>
-            <div class="arrows">
-                <div class="arrow" onclick="incrementValue('manaPoints', -1)">&#9664;</div>
-                <input type="number" id="manaPoints" name="manaPoints" value="0">
-                <div class="arrow" onclick="incrementValue('manaPoints', 1)">&#9654;</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-inspiration-container container">
-        <div class="inspiration-box">
-            <label>Inspiration Points</label>
-            <div class="inspiration-points-container">
-                <div class="arrow" onclick="incrementInspirationPoints(-1)">&#9664;</div>
-                <div class="inspiration-points">
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
-                    <div class="inspiration-point"></div>
+            <!-- Third Row: Stat Points -->
+            <div class="stat-row">
+                <div class="stat-box">
+                    <label for="healthPoints">Health Points</label>
+                    <div class="arrows">
+                        <div class="arrow" onclick="incrementValue('healthPoints', -1)">&#9664;</div>
+                        <input type="number" id="healthPoints" name="healthPoints" value="0">
+                        <div class="arrow" onclick="incrementValue('healthPoints', 1)">&#9654;</div>
+                    </div>
                 </div>
-                <div class="arrow" onclick="incrementInspirationPoints(1)">&#9654;</div>
+                <div class="stat-box">
+                    <label for="actionPoints">Action Points</label>
+                    <div class="arrows">
+                        <div class="arrow" onclick="incrementValue('actionPoints', -1)">&#9664;</div>
+                        <input type="number" id="actionPoints" name="actionPoints" value="0">
+                        <div class="arrow" onclick="incrementValue('actionPoints', 1)">&#9654;</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <label for="manaPoints">Mana Points</label>
+                    <div class="arrows">
+                        <div class="arrow" onclick="incrementValue('manaPoints', -1)">&#9664;</div>
+                        <input type="number" id="manaPoints" name="manaPoints" value="0">
+                        <div class="arrow" onclick="incrementValue('manaPoints', 1)">&#9654;</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <label for="shieldCapacity">Shield Capacity</label>
+                    <div class="arrows">
+                        <div class="arrow" onclick="incrementValue('shieldCapacity', -1)">&#9664;</div>
+                        <input type="number" id="shieldCapacity" name="shieldCapacity" value="0">
+                        <div class="arrow" onclick="incrementValue('shieldCapacity', 1)">&#9654;</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fourth Row: Inspiration Points and Dice -->
+            <div class="inspiration-row">
+                <div class="inspiration-box">
+                    <label>Inspiration Points</label>
+                    <div class="inspiration-points-container">
+                        <div class="arrow" onclick="incrementInspirationPoints(-1)">&#9664;</div>
+                        <div class="inspiration-points">
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                            <div class="inspiration-point"></div>
+                        </div>
+                        <div class="arrow" onclick="incrementInspirationPoints(1)">&#9654;</div>
+                    </div>
+                </div>
+                <div class="inspiration-dice">
+                    <label for="inspirationDice">Inspiration Dice</label>
+                    <input type="number" id="inspirationDice" name="inspirationDice" value="0" style="text-align: center;">
+                </div>
             </div>
         </div>
-        <div class="inspiration-box">
-            <label for="inspirationDice">Inspiration Dice</label>
-            <input type="number" id="inspirationDice" name="inspirationDice" value="0" style="text-align: center;">
-        </div>
+        <div id="chatbox"></div> <!-- Placeholder for the chatbox -->
     </div>
 
     <div class="popup" id="popup">
@@ -489,8 +547,9 @@
 
             if (newCount === 10) {
                 incrementValue('inspirationDice', 1);
-                showPopup();
                 resetInspirationPoints();
+                showPopup();
+                sendInspirationDiceMessage();
             }
         }
 
@@ -509,11 +568,35 @@
             popup.style.display = 'none';
         }
 
+        function sendInspirationDiceMessage() {
+            const characterName = document.getElementById('characterName').value || "A player";
+            const chatboxContent = document.getElementById('chatboxContent');
+            if (chatboxContent) {
+                const timestamp = new Date().toLocaleTimeString();
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('chat-message');
+
+                messageElement.innerHTML = `
+                    <div class="message-header">${characterName} @ ${timestamp}</div>
+                    <div class="message-body">${characterName} has gained an Inspiration Dice!</div>
+                `;
+                chatboxContent.appendChild(messageElement);
+                chatboxContent.scrollTop = chatboxContent.scrollHeight;
+            }
+        }
+
         // Load the navigation bar
         fetch('nav.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('navbar').innerHTML = data;
+            });
+
+        // Load the chatbox
+        fetch('chatbox.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('chatbox').innerHTML = data;
             });
     </script>
 </body>
