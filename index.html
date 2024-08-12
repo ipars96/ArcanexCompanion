@@ -128,7 +128,7 @@
             margin-bottom: 10px;
         }
         .attribute .input-row input {
-            width: 60%; /* Increased the width to make fields longer */
+            width: 60%;
             padding: 5px;
             border-radius: 5px;
             border: 1px solid #AAAAAA;
@@ -176,8 +176,8 @@
             cursor: pointer;
             user-select: none;
             font-weight: bold;
-            font-size: 36px; /* Increased size by 1.5x */
-            color: red; /* Changed color to red */
+            font-size: 36px;
+            color: red;
         }
         .stat-box .arrows input {
             width: 100%;
@@ -263,16 +263,13 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        /* Inspiration Points Arrow styling */
         .inspiration-points-container .arrow {
             cursor: pointer;
             user-select: none;
             font-weight: bold;
-            font-size: 36px; /* Match the size of other arrows */
-            color: red; /* Set to red */
+            font-size: 36px;
+            color: red;
         }
-
         /* Chatbox container styles */
         #chatbox {
             width: 300px;
@@ -280,6 +277,12 @@
             display: flex;
             flex-direction: column;
             border-left: 1px solid #ccc;
+            border: 2px solid #DFE0E2;
+            border-radius: 10px;
+            background-color: #071013;
+            color: #DFE0E2;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -570,7 +573,7 @@
 
         function sendInspirationDiceMessage() {
             const characterName = document.getElementById('characterName').value || "A player";
-            const chatboxContent = document.getElementById('chatboxContent');
+            const chatboxContent = document.getElementById('chatboxMessages');
             if (chatboxContent) {
                 const timestamp = new Date().toLocaleTimeString();
                 const messageElement = document.createElement('div');
