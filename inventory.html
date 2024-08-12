@@ -75,6 +75,8 @@
         .inventory-item input[name="itemValue"] {
             width: 60px;
             flex-shrink: 0;
+            position: relative;
+            padding-right: 20px; /* Space for UGC text */
         }
         .info-button, .delete-button {
             background-color: #AAAAAA;
@@ -397,6 +399,64 @@
         .dragging-over {
             border: 2px dashed #071013;
         }
+
+        /* Currency Styling */
+        .currency-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        #currencyField {
+            width: 80px;
+            padding-right: 25px;
+            border-radius: 5px;
+            border: 1px solid #AAAAAA;
+            text-align: right;
+            position: relative;
+            font-size: 16px;
+        }
+
+        #currencyField::after {
+            content: "ugc";
+            font-size: 10px;
+            color: #555;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Ensure the same for itemValue fields */
+        .inventory-item input[name="itemValue"]::after {
+            content: "ugc";
+            font-size: 10px;
+            color: #555;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .currency-button {
+            background-color: #EB5160;
+            color: white;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -406,8 +466,16 @@
         <!-- Left Column: Inventory Items -->
         <div class="left-column">
             <div class="inventory-header">
-                <h2>Inventory</h2>
-                <div id="inventoryCounter">0/25</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h2>Inventory</h2>
+                    <div id="inventoryCounter">0/25</div>
+                </div>
+                <div class="currency-container">
+                    <label for="currencyField">Currency</label>
+                    <input type="text" id="currencyField" value="0" oninput="formatCurrency(this)">
+                    <button class="currency-button" id="addCurrencyButton">+</button>
+                    <button class="currency-button" id="subtractCurrencyButton">-</button>
+                </div>
             </div>
             <button class="add-item" id="addItemButton" onclick="addItem()">+ Add Item</button>
             <button id="unlockButton" class="unlock-button" onclick="showUnlockPopup()" style="display: none;">Unlock More Inventory</button>
@@ -443,7 +511,7 @@
 
         <!-- Right Column: Equipment and Gear -->
         <div class="right-column">
-            <h2>Equipment</h2>
+            <h2>Equipment</h3>
             <div class="equipment-grid">
                 <div class="equipment-item" data-slot="main-hand" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
                     <label for="main-hand">Main Hand</label>
@@ -581,7 +649,7 @@
                     </div>
                     <div class="form-group">
                         <label for="popupItemValue">Value</label>
-                        <input type="number" id="popupItemValue" class="aligned-input" placeholder="Value">
+                        <input type="number" id="popupItemValue" class="aligned-input" placeholder="Value" oninput="formatCurrency(this)">
                     </div>
                     <div class="form-group">
                         <label for="popupItemQuantity">Quantity</label>
@@ -607,6 +675,7 @@
         let draggedItem = null; // Item being dragged
         let targetSlot = null; // Target equipment slot
         let equipmentSlots = {}; // Track equipped items by slot
+        let items = {}; // Store all items by ID
 
         // Handle image upload and display
         function triggerImageUpload() {
@@ -615,10 +684,12 @@
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
-            if (file) {
+            if (file && currentItemEditing) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('itemImage').src = e.target.result;
+                    const itemId = currentItemEditing.dataset.itemId;
+                    items[itemId].image = e.target.result;
+                    currentItemEditing.querySelector('img').src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -683,6 +754,9 @@
             newItem.draggable = true; // Make item draggable
             newItem.ondragstart = handleDragStart; // Handle drag start
             newItem.ondragend = handleDragEnd; // Handle drag end
+            const itemId = `item-${Date.now()}`; // Unique ID for the item
+            newItem.dataset.itemId = itemId; // Assign unique ID
+            items[itemId] = {}; // Initialize item data
             newItem.innerHTML = `
                 <input type="number" name="itemQuantity" value="1" placeholder="Quantity">
                 <input type="text" name="itemName" placeholder="Item Name">
@@ -699,7 +773,7 @@
                 <select name="itemSubType" style="display:none; max-width: 120px;">
                     <!-- Options will be added based on the item type -->
                 </select>
-                <input type="number" name="itemValue" placeholder="Value">
+                <input type="number" name="itemValue" placeholder="Value" oninput="formatCurrency(this)">
                 <button class="info-button" onclick="showInfoPopup(this)">Info</button>
                 <button class="delete-button" onclick="showDeleteConfirmation(this)">🗑️</button>
             `;
@@ -795,6 +869,8 @@
         function showInfoPopup(button) {
             currentItemEditing = button.closest('.inventory-item');
 
+            const itemId = currentItemEditing.dataset.itemId;
+
             const itemName = currentItemEditing.querySelector('input[name="itemName"]').value;
             const itemType = currentItemEditing.querySelector('select[name="itemType"]').value;
             const subType = currentItemEditing.querySelector('select[name="itemSubType"]').value;
@@ -806,6 +882,10 @@
             document.getElementById('popupSubType').value = subType;
             document.getElementById('popupItemValue').value = itemValue;
             document.getElementById('popupItemQuantity').value = itemQuantity;
+
+            // Update the item image if it exists
+            const itemImage = document.getElementById('itemImage');
+            itemImage.src = items[itemId].image || 'https://via.placeholder.com/150';
 
             toggleSubTypeFields(document.getElementById('popupItemType'));
 
@@ -824,6 +904,8 @@
 
         function saveItem() {
             if (currentItemEditing) {
+                const itemId = currentItemEditing.dataset.itemId;
+
                 const itemName = document.getElementById('popupItemName').value;
                 const itemType = document.getElementById('popupItemType').value;
                 const subType = document.getElementById('popupSubType').value;
@@ -835,6 +917,16 @@
                 currentItemEditing.querySelector('select[name="itemSubType"]').value = subType;
                 currentItemEditing.querySelector('input[name="itemValue"]').value = itemValue;
                 currentItemEditing.querySelector('input[name="itemQuantity"]').value = itemQuantity;
+
+                // Save the item data
+                items[itemId] = {
+                    name: itemName,
+                    type: itemType,
+                    subType: subType,
+                    value: itemValue,
+                    quantity: itemQuantity,
+                    image: items[itemId].image
+                };
 
                 closePopup('infoPopup');
 
@@ -968,121 +1060,61 @@
             popup.style.display = 'none';
         }
 
-        function showUnlockPopup() {
-            const packMuleLevel = inventoryLimit / 25;
-            const unlockMessage = document.getElementById('unlockMessage');
-            
-            let packMuleText;
-            switch (inventoryLimit) {
-                case 25:
-                    packMuleText = "Pack Mule";
-                    break;
-                case 50:
-                    packMuleText = "Pack Mule II";
-                    break;
-                case 75:
-                    packMuleText = "Pack Mule III";
-                    break;
-                case 100:
-                    packMuleText = "Pack Mule IV";
-                    break;
-                default:
-                    packMuleText = "Pack Mule";
-                    break;
-            }
+        // Currency-related functionality
+        document.getElementById('addCurrencyButton').addEventListener('click', function() {
+            showCurrencyPopup('add');
+        });
 
-            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the ${packMuleText} skill.`;
+        document.getElementById('subtractCurrencyButton').addEventListener('click', function() {
+            showCurrencyPopup('subtract');
+        });
 
-            const unlockPopup = document.getElementById('unlockPopup');
-            unlockPopup.style.display = 'flex';
+        function showCurrencyPopup(action) {
+            const popupOverlay = document.createElement('div');
+            popupOverlay.classList.add('popup-overlay');
+            popupOverlay.style.display = 'flex';
+            popupOverlay.innerHTML = `
+                <div class="popup">
+                    <p>${action === 'add' ? 'Add UGC?' : 'Subtract UGC?'}</p>
+                    <div class="form-group">
+                        <label for="currencyInput">${action === 'add' ? 'Add Amount' : 'Subtract Amount'}</label>
+                        <input type="number" id="currencyInput" class="aligned-input" placeholder="Amount">
+                    </div>
+                    <div class="action-buttons">
+                        <button class="save-button" onclick="${action}Currency()">Confirm</button>
+                        <button class="close-button" onclick="closeCurrencyPopup()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(popupOverlay);
         }
 
-        function handleUnlockInventory() {
-            inventoryLimit += 25;
-            updateInventoryCounter();
-            closePopup('unlockPopup');
-
-            const addItemButton = document.getElementById('addItemButton');
-            const unlockButton = document.getElementById('unlockButton');
-
-            if (currentInventoryCount < inventoryLimit) {
-                addItemButton.style.display = 'block';
-                unlockButton.style.display = 'none';
-            }
-
-            if (inventoryLimit > 25) {
-                document.getElementById('revertItemButton').style.display = 'block';
-            }
-
-            const packMuleLevel = inventoryLimit / 25;
-            const nextPackMuleLevel = packMuleLevel + 1;
-            const unlockMessage = document.getElementById('unlockMessage');
-            
-            let packMuleText;
-            switch (inventoryLimit) {
-                case 50:
-                    packMuleText = "Pack Mule II";
-                    break;
-                case 75:
-                    packMuleText = "Pack Mule III";
-                    break;
-                case 100:
-                    packMuleText = "Pack Mule IV";
-                    break;
-                case 150:
-                    packMuleText = "No Further Upgrades";
-                    break;
-                default:
-                    packMuleText = "Pack Mule";
-                    break;
-            }
-
-            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the ${packMuleText} skill.`;
-        }
-
-        function showRevertPopup() {
-            if (inventoryLimit > 25) {
-                document.getElementById('revertPopup').style.display = 'flex';
+        function closeCurrencyPopup() {
+            const popupOverlay = document.querySelector('.popup-overlay');
+            if (popupOverlay) {
+                popupOverlay.remove();
             }
         }
 
-        function revertInventory() {
-            if (currentInventoryCount > inventoryLimit - 25) {
-                alert(`You must reduce inventory count to ${inventoryLimit - 25} before reverting back a tier.`);
-                return;
-            }
+        function addCurrency() {
+            const currencyInput = document.getElementById('currencyInput').value;
+            const currentCurrency = parseInt(document.getElementById('currencyField').value, 10);
+            const newCurrency = currentCurrency + parseInt(currencyInput, 10);
+            document.getElementById('currencyField').value = newCurrency;
+            closeCurrencyPopup();
+        }
 
-            inventoryLimit -= 25;
-            updateInventoryCounter();
-            closePopup('revertPopup');
+        function subtractCurrency() {
+            const currencyInput = document.getElementById('currencyInput').value;
+            const currentCurrency = parseInt(document.getElementById('currencyField').value, 10);
+            const newCurrency = currentCurrency - parseInt(currencyInput, 10);
+            document.getElementById('currencyField').value = newCurrency < 0 ? 0 : newCurrency;
+            closeCurrencyPopup();
+        }
 
-            if (inventoryLimit <= 25) {
-                document.getElementById('revertItemButton').style.display = 'none';
-            }
-
-            const packMuleLevel = inventoryLimit / 25;
-            const unlockMessage = document.getElementById('unlockMessage');
-            
-            let packMuleText;
-            switch (inventoryLimit) {
-                case 25:
-                    packMuleText = "Pack Mule";
-                    break;
-                case 50:
-                    packMuleText = "Pack Mule II";
-                    break;
-                case 75:
-                    packMuleText = "Pack Mule III";
-                    break;
-                case 100:
-                    packMuleText = "Pack Mule IV";
-                    break;
-                default:
-                    packMuleText = "Pack Mule";
-                    break;
-            }
-
-            unlockMessage.textContent = `Inventory Full. Upgrade inventory capacity by acquiring the ${packMuleText} skill.`;
+        // Format currency fields and item value fields to include UGC text
+        function formatCurrency(input) {
+            input.value = input.value.replace(/[^\d]/g, ''); // Only allow numbers
         }
 
         fetch('nav.html')
