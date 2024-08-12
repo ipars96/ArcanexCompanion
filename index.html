@@ -597,6 +597,24 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('chatbox').innerHTML = data;
+
+                // Re-initialize chatbox-related scripts
+                const script = document.createElement('script');
+                script.textContent = `
+                    function sendMessage() {
+                        const messageInput = document.getElementById('chatMessage');
+                        const messageText = messageInput.value.trim();
+
+                        if (messageText) {
+                            const messageContainer = document.createElement('div');
+                            messageContainer.textContent = messageText;
+                            document.getElementById('chatboxMessages').appendChild(messageContainer);
+                            messageInput.value = '';
+                            messageInput.focus();
+                        }
+                    }
+                `;
+                document.body.appendChild(script);
             });
     </script>
 </body>
