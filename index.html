@@ -442,6 +442,9 @@
         <button onclick="closePopup()">Close</button>
     </div>
 
+    <!-- Load chatbox into main content -->
+    <div id="chatboxContainer"></div>
+
     <script>
         document.getElementById("uploadImage").addEventListener("change", function() {
             const file = this.files[0];
@@ -514,6 +517,13 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('navbar').innerHTML = data;
+            });
+
+        // Load the chatbox
+        fetch('chatbox.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('chatboxContainer').innerHTML = data;
             });
     </script>
 </body>
