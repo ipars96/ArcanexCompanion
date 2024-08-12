@@ -1,1 +1,101 @@
+<!-- chatbox.html -->
+<div class="chatbox">
+    <div class="chatbox-messages" id="chatboxMessages">
+        <!-- Messages will be dynamically added here -->
+    </div>
+    <div class="chatbox-input">
+        <input type="text" id="chatboxInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<style>
+    /* Chatbox Styles */
+    .chatbox {
+        width: 300px;
+        background-color: #DFE0E2;
+        border-radius: 15px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: calc(100vh - 40px); /* Full height minus a margin to fit under header */
+        position: fixed;
+        right: 0;
+        top: 20px;
+        z-index: 1000; /* Ensure it's on top of other content */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .chatbox-messages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        border: 1px solid #AAAAAA;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #FFF;
+        display: flex;
+        flex-direction: column-reverse; /* Newest messages at the bottom */
+    }
+
+    .chatbox-message {
+        margin-bottom: 10px;
+        border-bottom: 1px solid #AAAAAA;
+        padding-bottom: 5px;
+        color: #071013;
+    }
+
+    .chatbox-message .chatbox-meta {
+        font-size: 12px;
+        color: #555;
+    }
+
+    .chatbox-input {
+        display: flex;
+        gap: 10px;
+    }
+
+    .chatbox-input input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #AAAAAA;
+        font-family: inherit;
+    }
+
+    .chatbox-input button {
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: none;
+        background-color: #EB5160;
+        color: white;
+        cursor: pointer;
+        font-family: inherit;
+    }
+</style>
+
+<script>
+    // Function to handle sending messages
+    function sendMessage() {
+        const input = document.getElementById('chatboxInput');
+        const message = input.value.trim();
+        const username = "User"; // Replace with dynamic username if available
+        if (message) {
+            const timestamp = new Date().toLocaleTimeString(); // Get current time
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('chatbox-message');
+            messageContainer.innerHTML = `
+                <div class="chatbox-meta">${username} | ${timestamp}</div>
+                <div>${message}</div>
+            `;
+            document.getElementById('chatboxMessages').appendChild(messageContainer);
+            input.value = '';
+
+            // Scroll to the bottom after adding a message
+            const chatboxMessages = document.getElementById('chatboxMessages');
+            chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
+        }
+    }
+</script>
 
