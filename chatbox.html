@@ -5,65 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbox</title>
     <style>
-        /* Chatbox container styles, adjusted to remove ID duplication */
+        /* Chatbox container styles */
+        #chatboxContainer {
+            width: 300px;
+            height: calc(100vh - 60px); /* Full height minus the navbar height */
+            position: fixed;
+            top: 60px; /* Starts just under the navbar */
+            right: 0;
+            background-color: #DFE0E2;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000; /* Ensure it stays above other content */
+        }
+
+        /* Chatbox header */
         #chatboxHeader {
             font-size: 18px;
             font-weight: bold;
             text-align: center;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #DFE0E2;
+            padding: 15px 0;
+            background-color: #DFE0E2;
+            border-bottom: 1px solid #AAAAAA;
+            color: #071013;
         }
+
+        /* Chatbox messages */
         #chatboxMessages {
             flex-grow: 1;
             overflow-y: auto;
-            margin: 10px 0;
-        }
-        #chatboxInput {
-            display: flex;
-            gap: 5px;
-        }
-        #chatboxInput input[type="text"] {
-            flex-grow: 1;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #AAAAAA;
-            background-color: #DFE0E2;
+            padding: 10px;
             color: #071013;
         }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #FFFFFF;
+            border: 1px solid #AAAAAA;
+            border-radius: 5px;
+            word-break: break-word;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .chat-message:hover {
+            background-color: #F0F0F0;
+        }
+
+        .chat-message .message-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .chat-message .message-body {
+            position: relative;
+        }
+
+        .chat-message .message-body.fade {
+            max-height: 50px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-message .message-body.fade::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, #FFFFFF);
+        }
+
+        /* Chatbox input area */
+        #chatboxInput {
+            display: flex;
+            padding: 10px;
+            gap: 5px;
+            background-color: #DFE0E2;
+            border-top: 1px solid #AAAAAA;
+        }
+
+        #chatboxInput input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #AAAAAA;
+            background-color: #FFFFFF;
+            color: #071013;
+        }
+
         #chatboxInput button {
-            padding: 5px 10px;
+            padding: 10px 15px;
             border-radius: 5px;
             border: none;
             background-color: #EB5160;
             color: #FFFFFF;
             cursor: pointer;
         }
+
+        /* Popup styles */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #DFE0E2;
+            color: #071013;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 2000;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            word-wrap: break-word;
+        }
+
+        #popup button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #EB5160;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <!-- Direct chatbox content, without an outer container -->
-    <div id="chatboxHeader">Chatbox</div>
-    <div id="chatboxMessages">
-        <!-- Messages will be loaded here -->
+    <div id="chatboxContainer">
+        <div id="chatboxHeader">Chatbox</div>
+        <div id="chatboxMessages">
+            <!-- Messages will be loaded here -->
+        </div>
+        <div id="chatboxInput">
+            <input type="text" id="chatMessage" placeholder="Type a message..." maxlength="3000">
+            <button type="button" onclick="sendMessage()">Send</button>
+        </div>
     </div>
-    <div id="chatboxInput">
-        <input type="text" id="chatMessage" placeholder="Type a message...">
-        <button type="button" onclick="sendMessage()">Send</button>
+
+    <div id="popup">
+        <p id="popupMessage"></p>
+        <button onclick="closePopup()">Close</button>
     </div>
 
     <script>
         function sendMessage() {
             const messageInput = document.getElementById('chatMessage');
             const messageText = messageInput.value.trim();
+            const characterName = document.getElementById('characterName')?.value || "User"; // Get the character's name or default to "User"
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Get the current time
 
             if (messageText) {
                 const messageContainer = document.createElement('div');
-                messageContainer.textContent = messageText;
+                messageContainer.classList.add('chat-message');
+
+                const isLongMessage = messageText.length > 200;
+                const displayedText = isLongMessage ? messageText.slice(0, 200) + '...' : messageText;
+
+                messageContainer.innerHTML = `
+                    <div class="message-header">${characterName} | @ ${timestamp}</div>
+                    <div class="message-body ${isLongMessage ? 'fade' : ''}">${displayedText}</div>
+                `;
+
+                if (isLongMessage) {
+                    messageContainer.addEventListener('click', function() {
+                        openPopup(messageText);
+                    });
+                }
+
                 document.getElementById('chatboxMessages').appendChild(messageContainer);
                 messageInput.value = '';
                 messageInput.focus();
+
+                // Scroll to the latest message
+                const chatboxMessages = document.getElementById('chatboxMessages');
+                chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
             }
         }
+
+        function openPopup(messageText) {
+            const popup = document.getElementById('popup');
+            const popupMessage = document.getElementById('popupMessage');
+            popupMessage.textContent = messageText;
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+
+        // Send message on Enter key press
+        document.getElementById('chatMessage').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 </html>
