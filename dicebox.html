@@ -1,5 +1,5 @@
 <style>
-    /* Adjusted Button styling to position it below the navbar */
+    /* Adjusted Button styling to position it lower than before */
     .dice-button {
         display: inline-block;
         padding: 10px 20px;
@@ -12,11 +12,11 @@
         border-radius: 5px;
         font-size: 18px;
 
-        /* Positioning to float under the navbar */
+        /* Lowering the position */
         position: fixed;
-        top: 75px; /* Adjust this value based on the height of your navbar */
-        left: 20px; /* Adjust the position horizontally as needed */
-        z-index: 1000; /* Ensure it stays above other content */
+        top: 90px; /* Lowered by 15px */
+        left: 20px;
+        z-index: 1000;
     }
 
     /* Modal styling (invisible by default) */
@@ -88,11 +88,28 @@
         color: #000;
     }
 
-    .dice-modal button {
-        width: 100%;
+    /* Styling for Roll and Cancel buttons */
+    .dice-modal .action-buttons {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .dice-modal #rollButton {
+        width: 48%; /* 48% width for Roll button */
         padding: 10px;
-        background-color: #EB5160;
-        color: #fff;
+        background-color: #FFFFFF; /* White background */
+        color: #EB5160; /* Red text */
+        border: 2px solid #EB5160; /* Red border */
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+    .dice-modal #cancelButton {
+        width: 48%; /* 48% width for Cancel button */
+        padding: 10px;
+        background-color: #EB5160; /* Red background */
+        color: #FFFFFF; /* White text */
         border: none;
         cursor: pointer;
         font-size: 16px;
@@ -118,7 +135,11 @@
         <button id="advantageBtn">Advantage</button>
     </div>
     
-    <button id="rollButton">Roll</button>
+    <!-- Action buttons for Roll and Cancel -->
+    <div class="action-buttons">
+        <button id="rollButton">Roll</button>
+        <button id="cancelButton">Cancel</button>
+    </div>
 </div>
 
 <script>
@@ -126,6 +147,7 @@
     const rollDiceButton = document.getElementById('rollDiceButton');
     const diceModal = document.getElementById('diceModal');
     const rollButton = document.getElementById('rollButton');
+    const cancelButton = document.getElementById('cancelButton');
 
     let selectedRollType = 'Normal';
 
@@ -143,6 +165,11 @@
         });
     });
 
+    // Cancel button logic
+    cancelButton.addEventListener('click', () => {
+        diceModal.classList.remove('active');
+    });
+
     // Dice Roll Logic
     rollButton.addEventListener('click', () => {
         const numberOfDice = parseInt(document.getElementById('diceNumber').value);
@@ -156,14 +183,14 @@
                 const roll1 = rollD20();
                 const roll2 = rollD20();
                 finalRoll = Math.max(roll1, roll2);
-                rollResults.push(`Advantage: Roll 1 (${roll1}) Roll 2 (${roll2})`);
+                rollResults.push(`Advantage: Roll 1 (${roll1}), Roll 2 (${roll2})`);
             }
         } else if (selectedRollType === 'Disadvantage') {
             for (let i = 0; i < numberOfDice; i++) {
                 const roll1 = rollD20();
                 const roll2 = rollD20();
                 finalRoll = Math.min(roll1, roll2);
-                rollResults.push(`Disadvantage: Roll 1 (${roll1}) Roll 2 (${roll2})`);
+                rollResults.push(`Disadvantage: Roll 1 (${roll1}), Roll 2 (${roll2})`);
             }
         } else {
             for (let i = 0; i < numberOfDice; i++) {
@@ -173,13 +200,20 @@
         }
 
         const total = finalRoll + bonus;
-        let resultMessage = `<strong>${selectedRollType}</strong>: ${rollResults.join(' + ')}<br> Total: <strong>${total}</strong>`;
-        
+        let resultMessage = `${selectedRollType}: ${rollResults.join(' + ')}<br>Total: <strong>${total}</strong>`;
+
+        // Formatting the result message
+        if (selectedRollType === 'Advantage' || selectedRollType === 'Disadvantage') {
+            resultMessage = `Advantage: Roll 1 (${roll1}), Roll 2 (${roll2})<br>Roll (${finalRoll}) + (${bonus}) bonus<br>Total: (${total})`;
+        } else {
+            resultMessage = `Roll (${finalRoll}) + (${bonus}) bonus<br>Total: (${total})`;
+        }
+
         // Check for critical success or failure
         if (finalRoll === 20) {
-            resultMessage = `Critical Success!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Roll (${finalRoll}) + ${bonus} bonus<br>Total: <strong>${total}</strong>`;
+            resultMessage = `Critical Success!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Total: <strong>${total}</strong>`;
         } else if (finalRoll === 1) {
-            resultMessage = `Critical Failure!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Roll (${finalRoll}) + ${bonus} bonus<br>Total: <strong>${total}</strong>`;
+            resultMessage = `Critical Failure!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Total: <strong>${total}</strong>`;
         }
 
         // Send the result to the chatbox
