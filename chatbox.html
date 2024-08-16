@@ -1,212 +1,228 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbox</title>
-    <style>
-        /* Chatbox container styles */
-        #chatboxContainer {
-            width: 300px;
-            height: calc(100vh - 60px); /* Full height minus the navbar height */
-            position: fixed;
-            top: 60px; /* Starts just under the navbar */
-            right: 0;
-            background-color: #DFE0E2;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #ccc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 1000; /* Ensure it stays above other content */
-        }
+<style>
+    /* Adjusted Button styling to position it lower than before */
+    .dice-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #EB5160;
+        color: #FFFFFF;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
 
-        /* Chatbox header */
-        #chatboxHeader {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            padding: 15px 0;
-            background-color: #DFE0E2;
-            border-bottom: 1px solid #AAAAAA;
-            color: #071013;
-        }
+        /* Lowering the position */
+        position: fixed;
+        top: 90px; /* Lowered by 15px */
+        left: 20px;
+        z-index: 1000;
+    }
 
-        /* Chatbox messages */
-        #chatboxMessages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-            color: #071013;
-        }
+    /* Modal styling (invisible by default) */
+    .dice-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #DFE0E2;
+        color: #071013;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        width: 300px;
+        max-width: 80%;
+    }
 
-        .chat-message {
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #FFFFFF;
-            border: 1px solid #AAAAAA;
-            border-radius: 5px;
-            word-break: break-word;
-            cursor: pointer;
-            position: relative;
-        }
+    .dice-modal.active {
+        display: block;
+    }
 
-        .chat-message:hover {
-            background-color: #F0F0F0;
-        }
+    /* Modal content */
+    .dice-modal h3 {
+        margin: 0 0 20px;
+        font-size: 20px;
+    }
 
-        .chat-message .message-header {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+    .dice-modal label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
 
-        .chat-message .message-body {
-            position: relative;
-        }
+    .dice-modal input[type="number"] {
+        width: calc(50% - 10px);
+        padding: 8px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        margin-right: 10px;
+    }
 
-        .chat-message .message-body.fade {
-            max-height: 50px;
-            overflow: hidden;
-            position: relative;
-        }
+    /* Roll Type Buttons */
+    .dice-modal .roll-type {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px; /* Increased space between roll-type buttons and the Roll button */
+    }
 
-        .chat-message .message-body.fade::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            background: linear-gradient(to bottom, transparent, #FFFFFF);
-        }
+    .dice-modal .roll-type button {
+        flex: 1;
+        padding: 10px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        background-color: #f4f4f4;
+        font-weight: bold;
+        color: #000; /* Ensure text is black */
+        text-align: center;
+    }
 
-        /* Chatbox input area */
-        #chatboxInput {
-            display: flex;
-            padding: 10px;
-            gap: 5px;
-            background-color: #DFE0E2;
-            border-top: 1px solid #AAAAAA;
-        }
+    .dice-modal .roll-type button:last-child {
+        margin-right: 0;
+    }
 
-        #chatboxInput input[type="text"] {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #AAAAAA;
-            background-color: #FFFFFF;
-            color: #071013;
-        }
+    .dice-modal .roll-type button.active {
+        background-color: #ddd;
+        color: #000;
+    }
 
-        #chatboxInput button {
-            padding: 10px 15px;
-            border-radius: 5px;
-            border: none;
-            background-color: #EB5160;
-            color: #FFFFFF;
-            cursor: pointer;
-        }
+    /* Styling for Roll and Cancel buttons */
+    .dice-modal .action-buttons {
+        display: flex;
+        justify-content: space-between;
+    }
 
-        /* Popup styles */
-        #popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #DFE0E2;
-            color: #071013;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            z-index: 2000;
-            max-width: 80%;
-            max-height: 80%;
-            overflow-y: auto;
-            word-wrap: break-word;
-        }
+    .dice-modal #rollButton {
+        width: 48%; /* 48% width for Roll button */
+        padding: 10px;
+        background-color: #FFFFFF; /* White background */
+        color: #EB5160; /* Red text */
+        border: 2px solid #EB5160; /* Red border */
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
 
-        #popup button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #EB5160;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <div id="chatboxContainer">
-        <div id="chatboxHeader">Chatbox</div>
-        <div id="chatboxMessages">
-            <!-- Messages will be loaded here -->
-        </div>
-        <div id="chatboxInput">
-            <input type="text" id="chatMessage" placeholder="Type a message..." maxlength="3000">
-            <button type="button" onclick="sendMessage()">Send</button>
-        </div>
+    .dice-modal #cancelButton {
+        width: 48%; /* 48% width for Cancel button */
+        padding: 10px;
+        background-color: #EB5160; /* Red background */
+        color: #FFFFFF; /* White text */
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+</style>
+
+<!-- Dice Roll Button -->
+<div class="dice-button" id="rollDiceButton">Roll Dice</div>
+
+<!-- Dice Roll Modal -->
+<div class="dice-modal" id="diceModal">
+    <h3>Roll the Dice</h3>
+    <label for="diceNumber">Number of Dice</label>
+    <input type="number" id="diceNumber" value="1" min="1">
+    
+    <label for="bonus">Bonus</label>
+    <input type="number" id="bonus" value="0" min="0">
+    
+    <div class="roll-type">
+        <button id="disadvantageBtn">Disadvantage</button>
+        <button id="normalBtn" class="active">Normal</button>
+        <button id="advantageBtn">Advantage</button>
     </div>
-
-    <div id="popup">
-        <p id="popupMessage"></p>
-        <button onclick="closePopup()">Close</button>
+    
+    <!-- Action buttons for Roll and Cancel -->
+    <div class="action-buttons">
+        <button id="rollButton">Roll</button>
+        <button id="cancelButton">Cancel</button>
     </div>
+</div>
 
-    <script>
-        function sendMessage() {
-            const messageInput = document.getElementById('chatMessage');
-            const messageText = messageInput.value.trim();
-            const characterName = document.getElementById('characterName')?.value || "User"; // Get the character's name or default to "User"
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Get the current time
+<script>
+    // Opening and closing the modal
+    const rollDiceButton = document.getElementById('rollDiceButton');
+    const diceModal = document.getElementById('diceModal');
+    const rollButton = document.getElementById('rollButton');
+    const cancelButton = document.getElementById('cancelButton');
 
-            if (messageText) {
-                const messageContainer = document.createElement('div');
-                messageContainer.classList.add('chat-message');
+    let selectedRollType = 'Normal';
 
-                const isLongMessage = messageText.length > 200;
-                const displayedText = isLongMessage ? messageText.slice(0, 200) + '...' : messageText;
+    rollDiceButton.addEventListener('click', () => {
+        diceModal.classList.add('active');
+    });
 
-                messageContainer.innerHTML = `
-                    <div class="message-header">${characterName} | @ ${timestamp}</div>
-                    <div class="message-body ${isLongMessage ? 'fade' : ''}">${displayedText}</div>
-                `;
-
-                if (isLongMessage) {
-                    messageContainer.addEventListener('click', function() {
-                        openPopup(messageText);
-                    });
-                }
-
-                document.getElementById('chatboxMessages').appendChild(messageContainer);
-                messageInput.value = '';
-                messageInput.focus();
-
-                // Scroll to the latest message
-                const chatboxMessages = document.getElementById('chatboxMessages');
-                chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
-            }
-        }
-
-        function openPopup(messageText) {
-            const popup = document.getElementById('popup');
-            const popupMessage = document.getElementById('popupMessage');
-            popupMessage.textContent = messageText;
-            popup.style.display = 'block';
-        }
-
-        function closePopup() {
-            const popup = document.getElementById('popup');
-            popup.style.display = 'none';
-        }
-
-        // Send message on Enter key press
-        document.getElementById('chatMessage').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+    // Roll Type Selection
+    const rollTypeButtons = document.querySelectorAll('.roll-type button');
+    rollTypeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            rollTypeButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            selectedRollType = this.textContent;
         });
-    </script>
-</body>
-</html>
+    });
+
+    // Cancel button logic
+    cancelButton.addEventListener('click', () => {
+        diceModal.classList.remove('active');
+    });
+
+    // Dice Roll Logic
+    rollButton.addEventListener('click', () => {
+        const numberOfDice = parseInt(document.getElementById('diceNumber').value);
+        const bonus = parseInt(document.getElementById('bonus').value);
+        let rollResults = [];
+        let finalRoll;
+
+        // Perform the roll based on the selected type
+        if (selectedRollType === 'Advantage') {
+            for (let i = 0; i < numberOfDice; i++) {
+                const roll1 = rollD20();
+                const roll2 = rollD20();
+                finalRoll = Math.max(roll1, roll2);
+                rollResults.push(`Advantage: Roll 1 (${roll1}), Roll 2 (${roll2})`);
+            }
+        } else if (selectedRollType === 'Disadvantage') {
+            for (let i = 0; i < numberOfDice; i++) {
+                const roll1 = rollD20();
+                const roll2 = rollD20();
+                finalRoll = Math.min(roll1, roll2);
+                rollResults.push(`Disadvantage: Roll 1 (${roll1}), Roll 2 (${roll2})`);
+            }
+        } else {
+            for (let i = 0; i < numberOfDice; i++) {
+                finalRoll = rollD20();
+                rollResults.push(`Roll (${finalRoll})`);
+            }
+        }
+
+        const total = finalRoll + bonus;
+        let resultMessage = `${selectedRollType}: ${rollResults.join(' + ')}<br>Total: <strong>${total}</strong>`;
+
+        // Formatting the result message
+        if (selectedRollType === 'Advantage' || selectedRollType === 'Disadvantage') {
+            resultMessage = `Advantage: Roll 1 (${roll1}), Roll 2 (${roll2})<br>Roll (${finalRoll}) + (${bonus}) bonus<br>Total: (${total})`;
+        } else {
+            resultMessage = `Roll (${finalRoll}) + (${bonus}) bonus<br>Total: (${total})`;
+        }
+
+        // Check for critical success or failure
+        if (finalRoll === 20) {
+            resultMessage = `Critical Success!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Total: <strong>${total}</strong>`;
+        } else if (finalRoll === 1) {
+            resultMessage = `Critical Failure!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Total: <strong>${total}</strong>`;
+        }
+
+        // Send the result to the chatbox
+        window.parent.postMessage(resultMessage, '*');
+
+        diceModal.classList.remove('active');
+    });
+
+    function rollD20() {
+        return Math.floor(Math.random() * 20) + 1;
+    }
+</script>
