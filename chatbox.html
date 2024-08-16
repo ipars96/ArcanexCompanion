@@ -59,6 +59,12 @@
             margin-bottom: 5px;
         }
 
+        .chat-message hr {
+            border: none;
+            border-top: 1px solid #AAAAAA;
+            margin: 10px 0;
+        }
+
         .chat-message .message-body {
             position: relative;
         }
@@ -145,7 +151,7 @@
         </div>
         <div id="chatboxInput">
             <input type="text" id="chatMessage" placeholder="Type a message..." maxlength="3000">
-            <button type="button" onclick="sendMessage()">Send</button>
+            <button type="button" id="sendButton">Send</button>
         </div>
     </div>
 
@@ -170,6 +176,7 @@
 
                 messageContainer.innerHTML = `
                     <div class="message-header">${characterName} | @ ${timestamp}</div>
+                    <hr>
                     <div class="message-body ${isLongMessage ? 'fade' : ''}">${displayedText}</div>
                 `;
 
@@ -201,11 +208,15 @@
             popup.style.display = 'none';
         }
 
-        // Send message on Enter key press
+        // Ensure both Enter key and Send button trigger the message send
         document.getElementById('chatMessage').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 sendMessage();
             }
+        });
+
+        document.getElementById('sendButton').addEventListener('click', function() {
+            sendMessage();
         });
     </script>
 </body>
