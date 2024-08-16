@@ -1,5 +1,5 @@
 <style>
-    /* Button styling to match the nav and chatbox */
+    /* Adjusted Button styling to position it below the navbar */
     .dice-button {
         display: inline-block;
         padding: 10px 20px;
@@ -10,8 +10,13 @@
         font-weight: bold;
         border: none;
         border-radius: 5px;
-        margin: 20px;
         font-size: 18px;
+
+        /* Positioning to float under the navbar */
+        position: fixed;
+        top: 75px; /* Adjust this value based on the height of your navbar */
+        left: 20px; /* Adjust the position horizontally as needed */
+        z-index: 1000; /* Ensure it stays above other content */
     }
 
     /* Modal styling (invisible by default) */
@@ -55,10 +60,11 @@
         margin-right: 10px;
     }
 
+    /* Roll Type Buttons */
     .dice-modal .roll-type {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 20px; /* Increased space between roll-type buttons and the Roll button */
     }
 
     .dice-modal .roll-type button {
@@ -69,6 +75,8 @@
         cursor: pointer;
         background-color: #f4f4f4;
         font-weight: bold;
+        color: #000; /* Ensure text is black */
+        text-align: center;
     }
 
     .dice-modal .roll-type button:last-child {
@@ -77,6 +85,7 @@
 
     .dice-modal .roll-type button.active {
         background-color: #ddd;
+        color: #000;
     }
 
     .dice-modal button {
