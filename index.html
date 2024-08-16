@@ -573,8 +573,8 @@
             if (newCount === 10) {
                 incrementValue('inspirationDice', 1);
                 resetInspirationPoints();
-                showPopup();
-                sendInspirationDiceMessage();
+                showPopup(); // Show the popup
+                sendInspirationDiceMessage(); // Also send the message to the chatbox
             }
         }
 
@@ -585,8 +585,9 @@
         }
 
         // Show popup
-        function showPopup() {
+        function showPopup(message = "You have gained an Inspiration Dice!") {
             const popup = document.getElementById('popup');
+            popup.querySelector('p').textContent = message;
             popup.style.display = 'block';
         }
 
@@ -651,7 +652,63 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('diceboxPlaceholder').innerHTML = data;
-                // Re-initialize dicebox-related scripts if necessary
+                // Re-initialize dicebox-related scripts
+                const diceboxScript = document.createElement('script');
+                diceboxScript.textContent = `
+                    document.getElementById('rollDiceButton').addEventListener('click', () => {
+                        document.getElementById('diceModal').classList.add('active');
+                    });
+
+                    const rollTypeButtons = document.querySelectorAll('.roll-type button');
+                    let selectedRollType = 'Normal';
+
+                    rollTypeButtons.forEach(button => {
+                        button.addEventListener('click', function() {
+                            rollTypeButtons.forEach(btn => btn.classList.remove('active'));
+                            this.classList.add('active');
+                            selectedRollType = this.textContent;
+                        });
+                    });
+
+                    document.getElementById('rollButton').addEventListener('click', () => {
+                        const numberOfDice = parseInt(document.getElementById('diceNumber').value);
+                        const bonus = parseInt(document.getElementById('bonus').value);
+                        let rollResults = [];
+                        let finalRoll;
+
+                        if (selectedRollType === 'Advantage') {
+                            const roll1 = rollD20();
+                            const roll2 = rollD20();
+                            finalRoll = Math.max(roll1, roll2);
+                            rollResults.push(\`Advantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
+                        } else if (selectedRollType === 'Disadvantage') {
+                            const roll1 = rollD20();
+                            const roll2 = rollD20();
+                            finalRoll = Math.min(roll1, roll2);
+                            rollResults.push(\`Disadvantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
+                        } else {
+                            finalRoll = rollD20();
+                            rollResults.push(\`Roll (\${finalRoll})\`);
+                        }
+
+                        const total = finalRoll + bonus;
+                        let resultMessage = \`<strong>\${selectedRollType}</strong>: \${rollResults.join(' + ')}<br> Total: <strong>\${total}</strong>\`;
+
+                        if (finalRoll === 20) {
+                            resultMessage = \`Critical Success!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}</strong>\`;
+                        } else if (finalRoll === 1) {
+                            resultMessage = \`Critical Failure!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}</strong>\`;
+                        }
+
+                        window.parent.postMessage(resultMessage, '*');
+                        document.getElementById('diceModal').classList.remove('active');
+                    });
+
+                    function rollD20() {
+                        return Math.floor(Math.random() * 20) + 1;
+                    }
+                `;
+                document.body.appendChild(diceboxScript);
             });
     </script>
 </body>
