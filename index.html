@@ -303,6 +303,8 @@
 <body>
     <div id="navbar"></div> <!-- Placeholder for the navbar -->
 
+    <div id="diceboxPlaceholder"></div> <!-- Placeholder for the Roll Dice button -->
+
     <div class="content-wrapper">
         <div class="main-container">
             <!-- Top Row: Character Image and Title Box -->
@@ -642,6 +644,14 @@
                     }
                 `;
                 document.body.appendChild(script);
+            });
+
+        // Load the Dice Box
+        fetch('dicebox.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('diceboxPlaceholder').innerHTML = data;
+                // Re-initialize dicebox-related scripts if necessary
             });
     </script>
 </body>
