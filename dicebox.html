@@ -1,0 +1,185 @@
+<style>
+    /* Button styling to match the nav and chatbox */
+    .dice-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #EB5160;
+        color: #FFFFFF;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        margin: 20px;
+        font-size: 18px;
+    }
+
+    /* Modal styling (invisible by default) */
+    .dice-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #DFE0E2;
+        color: #071013;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        width: 300px;
+        max-width: 80%;
+    }
+
+    .dice-modal.active {
+        display: block;
+    }
+
+    /* Modal content */
+    .dice-modal h3 {
+        margin: 0 0 20px;
+        font-size: 20px;
+    }
+
+    .dice-modal label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .dice-modal input[type="number"] {
+        width: calc(50% - 10px);
+        padding: 8px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        margin-right: 10px;
+    }
+
+    .dice-modal .roll-type {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .dice-modal .roll-type button {
+        flex: 1;
+        padding: 10px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .dice-modal .roll-type button:last-child {
+        margin-right: 0;
+    }
+
+    .dice-modal .roll-type button.active {
+        background-color: #ddd;
+    }
+
+    .dice-modal button {
+        width: 100%;
+        padding: 10px;
+        background-color: #EB5160;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+</style>
+
+<!-- Dice Roll Button -->
+<div class="dice-button" id="rollDiceButton">Roll Dice</div>
+
+<!-- Dice Roll Modal -->
+<div class="dice-modal" id="diceModal">
+    <h3>Roll the Dice</h3>
+    <label for="diceNumber">Number of Dice</label>
+    <input type="number" id="diceNumber" value="1" min="1">
+    
+    <label for="bonus">Bonus</label>
+    <input type="number" id="bonus" value="0" min="0">
+    
+    <div class="roll-type">
+        <button id="disadvantageBtn">Disadvantage</button>
+        <button id="normalBtn" class="active">Normal</button>
+        <button id="advantageBtn">Advantage</button>
+    </div>
+    
+    <button id="rollButton">Roll</button>
+</div>
+
+<script>
+    // Opening and closing the modal
+    const rollDiceButton = document.getElementById('rollDiceButton');
+    const diceModal = document.getElementById('diceModal');
+    const rollButton = document.getElementById('rollButton');
+
+    let selectedRollType = 'Normal';
+
+    rollDiceButton.addEventListener('click', () => {
+        diceModal.classList.add('active');
+    });
+
+    // Roll Type Selection
+    const rollTypeButtons = document.querySelectorAll('.roll-type button');
+    rollTypeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            rollTypeButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            selectedRollType = this.textContent;
+        });
+    });
+
+    // Dice Roll Logic
+    rollButton.addEventListener('click', () => {
+        const numberOfDice = parseInt(document.getElementById('diceNumber').value);
+        const bonus = parseInt(document.getElementById('bonus').value);
+        let rollResults = [];
+        let finalRoll;
+
+        // Perform the roll based on the selected type
+        if (selectedRollType === 'Advantage') {
+            for (let i = 0; i < numberOfDice; i++) {
+                const roll1 = rollD20();
+                const roll2 = rollD20();
+                finalRoll = Math.max(roll1, roll2);
+                rollResults.push(`Advantage: Roll 1 (${roll1}) Roll 2 (${roll2})`);
+            }
+        } else if (selectedRollType === 'Disadvantage') {
+            for (let i = 0; i < numberOfDice; i++) {
+                const roll1 = rollD20();
+                const roll2 = rollD20();
+                finalRoll = Math.min(roll1, roll2);
+                rollResults.push(`Disadvantage: Roll 1 (${roll1}) Roll 2 (${roll2})`);
+            }
+        } else {
+            for (let i = 0; i < numberOfDice; i++) {
+                finalRoll = rollD20();
+                rollResults.push(`Roll (${finalRoll})`);
+            }
+        }
+
+        const total = finalRoll + bonus;
+        let resultMessage = `<strong>${selectedRollType}</strong>: ${rollResults.join(' + ')}<br> Total: <strong>${total}</strong>`;
+        
+        // Check for critical success or failure
+        if (finalRoll === 20) {
+            resultMessage = `Critical Success!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Roll (${finalRoll}) + ${bonus} bonus<br>Total: <strong>${total}</strong>`;
+        } else if (finalRoll === 1) {
+            resultMessage = `Critical Failure!<br>${selectedRollType}: ${rollResults.join(' + ')}<br>Roll (${finalRoll}) + ${bonus} bonus<br>Total: <strong>${total}</strong>`;
+        }
+
+        // Send the result to the chatbox
+        window.parent.postMessage(resultMessage, '*');
+
+        diceModal.classList.remove('active');
+    });
+
+    function rollD20() {
+        return Math.floor(Math.random() * 20) + 1;
+    }
+</script>
