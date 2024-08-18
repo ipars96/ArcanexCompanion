@@ -3,649 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcanex Character Sheet</title>
+    <title>Arcanex - Login</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #071013;
-            color: #071013;
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
             height: 100vh;
-            margin-top: 60px; /* Ensure content starts below the navbar */
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
         }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin-top: 20px;
-            display: flex;
-            gap: 20px;
-            padding: 0 20px;
+
+        #logo {
+            width: 300px;
+            margin-bottom: 50px;
         }
-        .content-wrapper {
-            display: flex;
-            width: 100%;
-            max-width: 1200px;
-            flex-grow: 1;
-            margin-top: 20px;
-        }
-        .main-container {
-            flex: 1;
-            margin: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .top-row {
-            display: flex;
-            gap: 20px;
-        }
-        .character-image {
-            background-color: #071013;
-            width: 180px;
-            height: 180px;
-            border-radius: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            cursor: pointer;
-            border: 2px solid #DFE0E2;
-        }
-        .character-image input {
-            display: none;
-        }
-        .character-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            clip-path: polygon(25% 5%, 75% 5%, 95% 25%, 95% 75%, 75% 95%, 25% 95%, 5% 75%, 5% 25%);
-            border: 2px solid #DFE0E2;
-            display: none;
-        }
-        .character-image::after {
-            content: '+';
-            color: #AAAAAA;
-            font-size: 50px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-        .character-image img.show {
-            display: block;
-        }
-        .title-box {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background-color: #DFE0E2;
-            padding: 20px;
-            border-radius: 15px;
-            flex-grow: 1;
-            height: 180px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .title-box label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .title-box input {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #AAAAAA;
-            width: calc(100% - 20px);
-        }
-        .info-container {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-        }
-        .info-box {
-            background-color: #DFE0E2;
-            padding: 10px;
-            border-radius: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .attribute-row, .stat-row, .inspiration-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-        }
-        .attribute {
-            background-color: #DFE0E2;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            flex: 1;
-        }
-        .attribute .title {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        .attribute .input-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .attribute .input-row input {
-            width: 75%; /* Increase the width of the input fields */
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #AAAAAA;
-            font-size: 16px;
-            text-align: center;
-        }
-        .attribute .input-row label {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 5px;
-            width: 25%; /* Make the label width consistent */
-            text-align: right;
-            padding-right: 5px;
-        }
-        .attribute .total-label {
-            font-size: 14px;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-        .attribute .total {
-            background-color: #AAAAAA;
-            color: #FFFFFF;
-            font-weight: bold;
-            border-radius: 5px;
-            padding: 5px;
+
+        #loginButton {
+            padding: 15px 30px;
             font-size: 20px;
-            text-align: center;
-        }
-        .stat-box {
-            background-color: #DFE0E2;
-            padding: 10px;
-            border-radius: 15px;
-            text-align: center;
-            flex: 1;
-        }
-        .stat-box label {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 16px;
-            display: block;
-        }
-        .inspiration-box {
-            background-color: #DFE0E2;
-            padding: 10px;
-            border-radius: 15px;
-            display: flex;
-            flex-grow: 3;
-            flex-direction: column;
-            align-items: center;
-        }
-        .inspiration-box label {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 16px;
-            text-align: center;
-        }
-        .inspiration-points-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-        }
-        .inspiration-points {
-            display: flex;
-            gap: 5px;
-        }
-        .inspiration-point {
-            width: 30px;
-            height: 30px;
-            background-color: #071013;
-            border: 2px solid #DFE0E2;
+            color: #ffffff;
+            background-color: transparent;
+            border: 2px solid #ffffff;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
         }
-        .inspiration-point.checked {
-            background-color: #EB5160;
-        }
-        .inspiration-dice {
-            background-color: #DFE0E2;
-            padding: 10px;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            text-align: center;
-        }
-        .inspiration-dice label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 16px;
-            text-align: center;
-        }
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #DFE0E2;
-            color: #071013;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            z-index: 1000;
-        }
-        .popup button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #EB5160;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .inspiration-points-container .arrow {
-            cursor: pointer;
-            user-select: none;
-            font-weight: bold;
-            font-size: 36px;
-            color: #EB5160;
+
+        #loginButton:hover {
+            background-color: #ffffff;
+            color: #1a1a1a;
         }
     </style>
 </head>
 <body>
-    <div id="navbar"></div> <!-- Placeholder for the navbar -->
+    <img id="logo" src="images/logo.png" alt="Arcanex - The Roleplaying Game">
+    <button id="loginButton">Login</button>
 
-    <div id="diceboxPlaceholder"></div> <!-- Placeholder for the Roll Dice button -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
-    <div class="content-wrapper">
-        <div class="main-container">
-            <!-- Top Row: Character Image and Title Box -->
-            <div class="top-row">
-                <div class="character-image">
-                    <input type="file" id="uploadImage" accept="image/*">
-                    <img id="characterImg" alt="">
-                </div>
-                <div class="title-box">
-                    <div class="info-container">
-                        <div class="info-box">
-                            <label for="characterName">Name:</label>
-                            <input type="text" id="characterName" name="characterName">
-                        </div>
-                        <div class="info-box">
-                            <label for="characterSpecies">Species:</label>
-                            <input type="text" id="characterSpecies" name="characterSpecies">
-                        </div>
-                        <div class="info-box">
-                            <label for="characterBackground">Background:</label>
-                            <input type="text" id="characterBackground" name="characterBackground">
-                        </div>
-                    </div>
-                    <div class="info-container">
-                        <div class="info-box">
-                            <label for="characterLevel">Level:</label>
-                            <input type="text" id="characterLevel" name="characterLevel">
-                        </div>
-                        <div class="info-box">
-                            <label for="characterTBD">TBD:</label>
-                            <input type="text" id="characterTBD" name="characterTBD">
-                        </div>
-                    </div>
-                </div>
-            </div>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrlgCiT3cbERNCOaZFT_UjgSVi81y_wKU",
+            authDomain: "arcanex-the-roleplaying-game.firebaseapp.com",
+            projectId: "arcanex-the-roleplaying-game",
+            storageBucket: "arcanex-the-roleplaying-game.appspot.com",
+            messagingSenderId: "212898746712",
+            appId: "1:212898746712:web:f1f448418c5b79fb70952d",
+            measurementId: "G-N30B0RRGXL"
+        };
 
-            <!-- Second Row: Attribute Points -->
-            <div class="attribute-row">
-                <div class="attribute">
-                    <div class="title">Strength</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="strengthBase">Base</label>
-                            <input type="number" id="strengthBase" name="strengthBase" oninput="updateTotal('strength')">
-                        </div>
-                        <div>
-                            <label for="strengthBonus">Bonus</label>
-                            <input type="number" id="strengthBonus" name="strengthBonus" oninput="updateTotal('strength')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="strengthTotal" class="total">0</div>
-                </div>
-                <div class="attribute">
-                    <div class="title">Agility</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="agilityBase">Base</label>
-                            <input type="number" id="agilityBase" name="agilityBase" oninput="updateTotal('agility')">
-                        </div>
-                        <div>
-                            <label for="agilityBonus">Bonus</label>
-                            <input type="number" id="agilityBonus" name="agilityBonus" oninput="updateTotal('agility')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="agilityTotal" class="total">0</div>
-                </div>
-                <div class="attribute">
-                    <div class="title">Perception</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="perceptionBase">Base</label>
-                            <input type="number" id="perceptionBase" name="perceptionBase" oninput="updateTotal('perception')">
-                        </div>
-                        <div>
-                            <label for="perceptionBonus">Bonus</label>
-                            <input type="number" id="perceptionBonus" name="perceptionBonus" oninput="updateTotal('perception')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="perceptionTotal" class="total">0</div>
-                </div>
-                <div class="attribute">
-                    <div class="title">Intelligence</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="intelligenceBase">Base</label>
-                            <input type="number" id="intelligenceBase" name="intelligenceBase" oninput="updateTotal('intelligence')">
-                        </div>
-                        <div>
-                            <label for="intelligenceBonus">Bonus</label>
-                            <input type="number" id="intelligenceBonus" name="intelligenceBonus" oninput="updateTotal('intelligence')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="intelligenceTotal" class="total">0</div>
-                </div>
-                <div class="attribute">
-                    <div class="title">Charisma</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="charismaBase">Base</label>
-                            <input type="number" id="charismaBase" name="charismaBase" oninput="updateTotal('charisma')">
-                        </div>
-                        <div>
-                            <label for="charismaBonus">Bonus</label>
-                            <input type="number" id="charismaBonus" name="charismaBonus" oninput="updateTotal('charisma')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="charismaTotal" class="total">0</div>
-                </div>
-                <div class="attribute">
-                    <div class="title">Arcana</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="arcanaBase">Base</label>
-                            <input type="number" id="arcanaBase" name="arcanaBase" oninput="updateTotal('arcana')">
-                        </div>
-                        <div>
-                            <label for="arcanaBonus">Bonus</label>
-                            <input type="number" id="arcanaBonus" name="arcanaBonus" oninput="updateTotal('arcana')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="arcanaTotal" class="total">0</div>
-                </div>
-                <div class="attribute">
-                    <div class="title">Spirituality</div>
-                    <div class="input-row">
-                        <div>
-                            <label for="spiritualityBase">Base</label>
-                            <input type="number" id="spiritualityBase" name="spiritualityBase" oninput="updateTotal('spirituality')">
-                        </div>
-                        <div>
-                            <label for="spiritualityBonus">Bonus</label>
-                            <input type="number" id="spiritualityBonus" name="spiritualityBonus" oninput="updateTotal('spirituality')">
-                        </div>
-                    </div>
-                    <div class="total-label">Total</div>
-                    <div id="spiritualityTotal" class="total">0</div>
-                </div>
-            </div>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth();
 
-            <!-- Third Row: Stat Points -->
-            <div class="stat-row">
-                <div class="stat-box">
-                    <label for="healthPoints">Health Points</label>
-                    <input type="number" id="healthPoints" name="healthPoints" value="0">
-                </div>
-                <div class="stat-box">
-                    <label for="actionPoints">Action Points</label>
-                    <input type="number" id="actionPoints" name="actionPoints" value="0">
-                </div>
-                <div class="stat-box">
-                    <label for="manaPoints">Mana Points</label>
-                    <input type="number" id="manaPoints" name="manaPoints" value="0">
-                </div>
-                <div class="stat-box">
-                    <label for="shieldCapacity">Shield Capacity</label>
-                    <input type="number" id="shieldCapacity" name="shieldCapacity" value="0">
-                </div>
-            </div>
+        // Initialize Google Auth Provider
+        const provider = new GoogleAuthProvider();
 
-            <!-- Fourth Row: Inspiration Points and Dice -->
-            <div class="inspiration-row">
-                <div class="inspiration-box">
-                    <label>Inspiration Points</label>
-                    <div class="inspiration-points-container">
-                        <div class="arrow" onclick="incrementInspirationPoints(-1)">&#9664;</div>
-                        <div class="inspiration-points">
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                            <div class="inspiration-point"></div>
-                        </div>
-                        <div class="arrow" onclick="incrementInspirationPoints(1)">&#9654;</div>
-                    </div>
-                </div>
-                <div class="inspiration-dice">
-                    <label for="inspirationDice">Inspiration Dice</label>
-                    <input type="number" id="inspirationDice" name="inspirationDice" value="0" style="text-align: center;">
-                </div>
-            </div>
-        </div>
-        <div id="chatbox"></div> <!-- Chatbox will be loaded here -->
-    </div>
-
-    <div class="popup" id="popup">
-        <p>You have gained an Inspiration Dice!</p>
-        <button onclick="closePopup()">Close</button>
-    </div>
-
-    <script>
-        // Handle character image upload
-        document.getElementById("uploadImage").addEventListener("change", function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById("characterImg");
-                    img.src = e.target.result;
-                    img.classList.add("show");
-                    sendMessageToChatbox("Character image updated.");
-                };
-                reader.readAsDataURL(file);
-            }
+        // Attach login functionality to the button
+        const loginButton = document.getElementById('loginButton');
+        loginButton.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    // User signed in successfully
+                    const user = result.user;
+                    console.log('User signed in: ', user);
+                    // Redirect or show logged-in state here
+                })
+                .catch((error) => {
+                    // Handle Errors here.
+                    console.error('Error during sign-in: ', error);
+                });
         });
-
-        // Update total attribute score
-        function updateTotal(attribute) {
-            const base = parseInt(document.getElementById(attribute + "Base").value) || 0;
-            const bonus = parseInt(document.getElementById(attribute + "Bonus").value) || 0;
-            const total = base + bonus;
-            document.getElementById(attribute + "Total").textContent = total;
-        }
-
-        // Increment stat points
-        function incrementValue(id, amount) {
-            const input = document.getElementById(id);
-            let value = parseInt(input.value) || 0;
-            value += amount;
-            if (value < 0) value = 0; // Prevent negative values
-            input.value = value;
-        }
-
-        // Handle inspiration points increment and dice awarding
-        function incrementInspirationPoints(amount) {
-            const points = document.querySelectorAll('.inspiration-point');
-            let currentCount = Array.from(points).filter(point => point.classList.contains('checked')).length;
-            let newCount = currentCount + amount;
-
-            if (newCount > 10) newCount = 10;
-            if (newCount < 0) newCount = 0;
-
-            points.forEach((point, index) => {
-                if (index < newCount) {
-                    point.classList.add('checked');
-                } else {
-                    point.classList.remove('checked');
-                }
-            });
-
-            if (newCount === 10) {
-                incrementValue('inspirationDice', 1);
-                resetInspirationPoints();
-                showPopup(); // Show the popup
-                sendInspirationDiceMessage(); // Also send the message to the chatbox
-            }
-        }
-
-        // Reset inspiration points display
-        function resetInspirationPoints() {
-            const points = document.querySelectorAll('.inspiration-point');
-            points.forEach(point => point.classList.remove('checked'));
-        }
-
-        // Show popup
-        function showPopup(message = "You have gained an Inspiration Dice!") {
-            const popup = document.getElementById('popup');
-            popup.querySelector('p').textContent = message;
-            popup.style.display = 'block';
-        }
-
-        // Close popup
-        function closePopup() {
-            const popup = document.getElementById('popup');
-            popup.style.display = 'none';
-        }
-
-        // Send message to chatbox
-        function sendMessageToChatbox(message) {
-            const chatboxContent = document.getElementById('chatboxMessages');
-            const characterName = document.getElementById('characterName').value || "A player";
-            const timestamp = new Date().toLocaleTimeString();
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('chat-message');
-            messageElement.innerHTML = `
-                <div class="message-header">${characterName} @ ${timestamp}</div>
-                <div class="message-body">${message}</div>
-            `;
-            chatboxContent.appendChild(messageElement);
-            chatboxContent.scrollTop = chatboxContent.scrollHeight;
-        }
-
-        // Send inspiration dice message
-        function sendInspirationDiceMessage() {
-            sendMessageToChatbox("You have gained an Inspiration Dice!");
-        }
-
-        // Load the navigation bar
-        fetch('nav.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navbar').innerHTML = data;
-            });
-
-        // Load the chatbox
-        fetch('chatbox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('chatbox').innerHTML = data;
-            });
-
-        // Load the Dice Box
-        fetch('dicebox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('diceboxPlaceholder').innerHTML = data;
-
-                // Re-initialize dicebox-related scripts
-                const diceboxScript = document.createElement('script');
-                diceboxScript.textContent = `
-                    document.getElementById('rollDiceButton').addEventListener('click', () => {
-                        document.getElementById('diceModal').classList.add('active');
-                    });
-
-                    const rollTypeButtons = document.querySelectorAll('.roll-type button');
-                    let selectedRollType = 'Normal';
-
-                    rollTypeButtons.forEach(button => {
-                        button.addEventListener('click', function() {
-                            rollTypeButtons.forEach(btn => btn.classList.remove('active'));
-                            this.classList.add('active');
-                            selectedRollType = this.textContent;
-                        });
-                    });
-
-                    document.getElementById('rollButton').addEventListener('click', () => {
-                        const numberOfDice = parseInt(document.getElementById('diceNumber').value);
-                        const bonus = parseInt(document.getElementById('bonus').value);
-                        let rollResults = [];
-                        let finalRoll;
-
-                        if (selectedRollType === 'Advantage') {
-                            const roll1 = rollD20();
-                            const roll2 = rollD20();
-                            finalRoll = Math.max(roll1, roll2);
-                            rollResults.push(\`Advantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
-                        } else if (selectedRollType === 'Disadvantage') {
-                            const roll1 = rollD20();
-                            const roll2 = rollD20();
-                            finalRoll = Math.min(roll1, roll2);
-                            rollResults.push(\`Disadvantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
-                        } else {
-                            finalRoll = rollD20();
-                            rollResults.push(\`Roll (\${finalRoll})\`);
-                        }
-
-                        const total = finalRoll + bonus;
-                        let resultMessage = \`<strong>\${selectedRollType}</strong>: \${rollResults.join(' + ')}<br> Total: <strong>\${total}</strong>\`;
-
-                        if (finalRoll === 20) {
-                            resultMessage = \`Critical Success!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}</strong>\`;
-                        } else if (finalRoll === 1) {
-                            resultMessage = \`Critical Failure!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}\`;
-                        }
-
-                        sendMessageToChatbox(resultMessage);
-                        document.getElementById('diceModal').classList.remove('active');
-                    });
-
-                    function rollD20() {
-                        return Math.floor(Math.random() * 20) + 1;
-                    }
-                `;
-                document.body.appendChild(diceboxScript);
-            });
     </script>
 </body>
 </html>

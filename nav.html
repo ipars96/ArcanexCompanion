@@ -51,6 +51,42 @@
     nav a.active {
         color: white; /* Change text color when active */
     }
+
+    /* Popup Styles */
+    .popup {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1100; /* Ensure it stays above the navbar */
+    }
+    .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .popup-content h2 {
+        margin-bottom: 15px;
+    }
+    .popup-content button {
+        padding: 10px 20px;
+        background-color: #EB5160;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .popup-content button:hover {
+        background-color: #d03e4f;
+    }
 </style>
 
 <nav>
@@ -61,14 +97,68 @@
     <a href="ship_crew.html" class="nav-link" data-page="ship_crew.html">Ship & Crew</a>
     <a href="companions.html" class="nav-link" data-page="companions.html">Companions</a>
     <a href="affinity.html" class="nav-link" data-page="affinity.html">Affinity</a>
+    <a href="settings.html" class="nav-link" data-page="settings.html">Settings</a>
+    <a href="#" class="nav-link" id="exit-link">Exit</a>
 </nav>
 
-<script>
+<!-- Exit Popup -->
+<div class="popup" id="exit-popup">
+    <div class="popup-content">
+        <h2>Exit to Main Menu?</h2>
+        <button id="confirm-exit">Exit</button>
+    </div>
+</div>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyBrlgCiT3cbERNCOaZFT_UjgSVi81y_wKU",
+        authDomain: "arcanex-the-roleplaying-game.firebaseapp.com",
+        projectId: "arcanex-the-roleplaying-game",
+        storageBucket: "arcanex-the-roleplaying-game.appspot.com",
+        messagingSenderId: "212898746712",
+        appId: "1:212898746712:web:f1f448418c5b79fb70952d",
+        measurementId: "G-N30B0RRGXL"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
     // Highlight the current page in the navigation
     const links = document.querySelectorAll('.nav-link');
     links.forEach(link => {
         if (link.getAttribute('href') === window.location.pathname.split('/').pop()) {
             link.classList.add('active');
+        }
+    });
+
+    // Exit Popup Functionality
+    const exitLink = document.getElementById('exit-link');
+    const exitPopup = document.getElementById('exit-popup');
+    const confirmExitButton = document.getElementById('confirm-exit');
+
+    exitLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        exitPopup.style.display = 'flex';
+    });
+
+    confirmExitButton.addEventListener('click', function() {
+        exitPopup.style.display = 'none';
+        window.location.href = 'main_menu.html'; // Change this to your main menu page
+    });
+
+    // Optional: Close popup if user clicks outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target === exitPopup) {
+            exitPopup.style.display = 'none';
         }
     });
 </script>

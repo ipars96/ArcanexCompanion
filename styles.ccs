@@ -1,0 +1,163 @@
+/* Font Setup */
+@font-face {
+    font-family: 'Orbitron';
+    src: url('assets/fonts/orbitron-bold-webfont.ttf') format('truetype');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('assets/fonts/orbitron-medium-webfont.ttf') format('truetype');
+    font-weight: medium;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('assets/fonts/orbitron-light-webfont.ttf') format('truetype');
+    font-weight: light;
+}
+
+/* General Body Style */
+body {
+    font-family: 'Orbitron', sans-serif;
+    color: #E0E0E0; /* Light grey text */
+    background-color: #2B2B2B; /* Deep rich grey background */
+    background-image: url('assets/textures/grunge-texture.png'); /* Example texture file */
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Color Variables */
+:root {
+    --bg-color: #2B2B2B; /* Dark, deep grey */
+    --fg-color: #D3D3D3; /* Lighter grey-white */
+    --accent-red: #FF4D4D; /* Subtle red accent */
+    --accent-purple: #A18DFF; /* Light bluish purple accent */
+    --text-color: #E0E0E0; /* Default text color */
+}
+
+/* Heading and Text Colors */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--fg-color);
+    font-weight: bold;
+}
+
+p {
+    color: var(--fg-color);
+    font-weight: medium;
+}
+
+.accent-text {
+    font-weight: light;
+    color: var(--accent-purple);
+}
+
+/* Button Styles */
+button, .btn {
+    font-family: 'Orbitron', sans-serif;
+    background-color: var(--fg-color);
+    border: 2px solid var(--accent-red);
+    color: var(--bg-color);
+    padding: 10px 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-purple);
+    color: var(--fg-color);
+}
+
+/* Popup Styles */
+.popup {
+    background-color: var(--bg-color);
+    border: 2px solid var(--accent-purple);
+    color: var(--fg-color);
+    padding: 20px;
+    position: fixed; /* Ensure it's fixed on the screen */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the popup */
+    box-shadow: 0 0 15px var(--accent-purple);
+    z-index: 9999; /* Ensure it's on top */
+    display: none; /* Start hidden, will be shown via JS */
+    max-width: 90%; /* Ensure it fits within smaller screens */
+    max-height: 90%; /* Prevent overflow on small screens */
+    overflow-y: auto; /* Add scroll if content exceeds the height */
+}
+
+/* Removed the weird red floating border */
+.popup:before {
+    content: none; /* Completely remove the before pseudo-element */
+}
+
+/* Responsive Typography */
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+p {
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+
+    button, .btn {
+        padding: 8px 16px;
+    }
+}
+
+/* Responsive Popups */
+@media (max-width: 768px) {
+    .popup {
+        padding: 15px;
+    }
+}
+
+/* Grunge Texture Overlay for Foreground Elements */
+.container, .info-box, .stat-box, .attribute, .inspiration-box, .title-box, .popup {
+    background-color: var(--fg-color); /* Grey color */
+    color: var(--text-color);
+    position: relative;
+}
+
+.container::before, .info-box::before, .stat-box::before, .attribute::before, .inspiration-box::before, .title-box::before, .popup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/textures/grunge-texture.png'); /* Grunge texture overlay */
+    background-size: cover;
+    opacity: 0.1; /* Adjust opacity for subtle effect */
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Ensure content is above the texture */
+.container > *, .info-box > *, .stat-box > *, .attribute > *, .inspiration-box > *, .title-box > *, .popup > * {
+    position: relative;
+    z-index: 1;
+}
