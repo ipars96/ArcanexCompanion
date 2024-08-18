@@ -22,6 +22,11 @@
             margin-bottom: 50px;
         }
 
+        #firebaseui-auth-container {
+            width: 300px;
+            display: none; /* Hidden by default */
+        }
+
         #loginButton {
             padding: 15px 30px;
             font-size: 20px;
@@ -31,6 +36,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
+            margin-top: 20px;
         }
 
         #loginButton:hover {
@@ -38,16 +44,23 @@
             color: #1a1a1a;
         }
     </style>
+    <!-- Include FirebaseUI CSS -->
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
 </head>
 <body>
     <img id="logo" src="images/logo.png" alt="Arcanex - The Roleplaying Game">
+    
+    <!-- FirebaseUI container -->
+    <div id="firebaseui-auth-container"></div>
+
     <button id="loginButton">Login</button>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        import * as firebaseui from 'https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js';
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -65,23 +78,34 @@
         const analytics = getAnalytics(app);
         const auth = getAuth();
 
-        // Initialize Google Auth Provider
-        const provider = new GoogleAuthProvider();
+        // Initialize the FirebaseUI Widget using Firebase.
+        const ui = new firebaseui.auth.AuthUI(auth);
 
-        // Attach login functionality to the button
+        // FirebaseUI configuration
+        const uiConfig = {
+            signInSuccessUrl: '/',  // URL to redirect to after a successful sign-in
+            signInOptions: [
+                {
+                    provider: 'google.com',
+                    providerName: 'Google',
+                    clientId: 'YOUR_CLIENT_ID.apps.googleusercontent.com'
+                },
+                'password',  // Allows email/password sign-in
+            ],
+            tosUrl: '<your-tos-url>', // Terms of Service URL
+            privacyPolicyUrl: '<your-privacy-policy-url>' // Privacy Policy URL
+        };
+
+        // Attach click event to the login button
         const loginButton = document.getElementById('loginButton');
+        const authContainer = document.getElementById('firebaseui-auth-container');
+
         loginButton.addEventListener('click', () => {
-            signInWithPopup(auth, provider)
-                .then((result) => {
-                    // User signed in successfully
-                    const user = result.user;
-                    console.log('User signed in: ', user);
-                    // Redirect or show logged-in state here
-                })
-                .catch((error) => {
-                    // Handle Errors here.
-                    console.error('Error during sign-in: ', error);
-                });
+            // Show the FirebaseUI container when the login button is clicked
+            authContainer.style.display = 'block';
+            
+            // Start the FirebaseUI auth interface
+            ui.start('#firebaseui-auth-container', uiConfig);
         });
     </script>
 </body>
