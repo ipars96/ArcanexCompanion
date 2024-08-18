@@ -18,7 +18,7 @@
         }
 
         #logo {
-            width: 300px;
+            width: 750px; /* Increased by 2.5 times (300px * 2.5) */
             margin-bottom: 50px;
         }
 
@@ -85,12 +85,8 @@
         const uiConfig = {
             signInSuccessUrl: '/',  // URL to redirect to after a successful sign-in
             signInOptions: [
-                {
-                    provider: 'google.com',
-                    providerName: 'Google',
-                    clientId: 'YOUR_CLIENT_ID.apps.googleusercontent.com'
-                },
-                'password',  // Allows email/password sign-in
+                firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID,
+                firebaseui.auth.EmailAuthProvider.PROVIDER_ID
             ],
             tosUrl: '<your-tos-url>', // Terms of Service URL
             privacyPolicyUrl: '<your-privacy-policy-url>' // Privacy Policy URL
@@ -101,6 +97,8 @@
         const authContainer = document.getElementById('firebaseui-auth-container');
 
         loginButton.addEventListener('click', () => {
+            console.log("Login button clicked");
+
             // Show the FirebaseUI container when the login button is clicked
             authContainer.style.display = 'block';
             
