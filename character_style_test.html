@@ -72,6 +72,11 @@
             cursor: pointer;
             border: 2px solid #DFE0E2;
             overflow: hidden;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .character-image:hover {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6); /* Bluish-purple glow on hover */
         }
 
         .character-image input {
@@ -128,6 +133,12 @@
             font-family: 'Orbitron', sans-serif;
             background-color: #FFFFFF;
             color: #071013;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .title-box input:hover, .title-box input:focus,
+        .title-box select:hover, .title-box select:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6); /* Bluish-purple glow on hover or focus */
         }
 
         .info-container {
@@ -183,6 +194,11 @@
             border: 1px solid #AAAAAA;
             font-size: 16px;
             text-align: center;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .attribute .input-row input:hover, .attribute .input-row input:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6); /* Bluish-purple glow on hover or focus */
         }
 
         .attribute .input-row label {
@@ -209,6 +225,11 @@
             font-size: 20px;
             text-align: center;
             cursor: pointer;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .attribute .total:hover {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6); /* Bluish-purple glow on hover */
         }
 
         .stat-box {
@@ -264,10 +285,15 @@
             border: 2px solid #DFE0E2;
             border-radius: 5px;
             cursor: pointer;
+            transition: box-shadow 0.3s ease-in-out;
         }
 
         .inspiration-point.checked {
             background-color: #EB5160;
+        }
+
+        .inspiration-point:hover {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6); /* Bluish-purple glow on hover */
         }
 
         .inspiration-dice {
@@ -304,16 +330,27 @@
             text-align: center;
             z-index: 1000;
             border: 2px solid #FFFFFF; /* White border around the popup */
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.7); /* Bluish-purple glow */
         }
 
         .popup button {
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #EB5160;
+            background-color: #AAAAAA;
             color: #FFFFFF;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            min-width: 100px;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .popup button.close-btn {
+            background-color: #EB5160; /* Red color for the close button */
+        }
+
+        .popup button:hover {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6); /* Bluish-purple glow on hover */
         }
 
         .inspiration-points-container .arrow {
@@ -533,13 +570,13 @@
     <div class="popup" id="skillCheckPopup">
         <p id="skillCheckMessage"></p>
         <button onclick="rollSkillCheck()">Roll</button>
-        <button onclick="closeSkillCheckPopup()">Cancel</button>
+        <button class="close-btn" onclick="closeSkillCheckPopup()">Cancel</button>
     </div>
 
     <!-- Popup for Other Actions -->
     <div class="popup" id="popup">
         <p>You have gained an Inspiration Dice!</p>
-        <button onclick="closePopup()">Close</button>
+        <button class="close-btn" onclick="closePopup()">Close</button>
     </div>
 
     <script>
