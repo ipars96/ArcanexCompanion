@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <style>
+        /* Reuse styling from existing pages */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2B2B2B; /* Deep rich grey */
+            font-family: 'Orbitron', sans-serif;
+            color: #DFE0E2; /* Light grey-white for general text */
+        }
+
+        #logo {
+            max-width: 750px;
+            margin-bottom: 40px;
+        }
+
+        /* Buttons styling similar to the login button */
+        .menu-button {
+            padding: 12px 24px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #AAAAAA; /* Medium grey */
+            color: #FFFFFF; /* White text */
+            border-radius: 5px;
+            transition: box-shadow 0.3s ease-in-out;
+            border: 1px solid #AAAAAA;
+            margin-bottom: 10px;
+            width: 250px; /* Fixed width for all buttons */
+            text-align: center;
+        }
+
+        .menu-button:hover,
+        .menu-button:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        /* Popup Styling */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #071013;
+            color: #DFE0E2;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.7); /* Bluish-purple glow */
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .popup .close-btn {
+            cursor: pointer;
+            background-color: #EB5160;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .popup .close-btn:hover {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        .popup .list-item {
+            background-color: #2B2B2B;
+            color: #DFE0E2;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #AAAAAA;
+        }
+
+        .popup .list-item:hover {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <img id="logo" src="images/logo.png" alt="Logo">
+
+    <!-- Menu Buttons -->
+    <button id="charactersBtn" class="menu-button">Characters</button>
+    <button id="gameMasterBtn" class="menu-button">Game Master</button>
+    <button id="storeBtn" class="menu-button">Store</button>
+    <button id="settingsBtn" class="menu-button">Settings</button>
+
+    <!-- Characters Popup -->
+    <div id="charactersPopup" class="popup">
+        <h3>Your Characters</h3>
+        <button id="createCharacterBtn" class="menu-button">Create a Character</button>
+        <div id="charactersList">
+            <!-- Character items will be inserted here dynamically -->
+        </div>
+        <button class="close-btn" onclick="closePopup('charactersPopup')">Close</button>
+    </div>
+
+    <!-- Game Master Popup -->
+    <div id="gameMasterPopup" class="popup">
+        <h3>Your Game Sessions</h3>
+        <button id="createGameBtn" class="menu-button">Create a Game</button>
+        <div id="gamesList">
+            <!-- Game items will be inserted here dynamically -->
+        </div>
+        <button class="close-btn" onclick="closePopup('gameMasterPopup')">Close</button>
+    </div>
+
+    <script>
+        // Event Listeners for buttons
+        document.getElementById('charactersBtn').addEventListener('click', () => {
+            openPopup('charactersPopup');
+            loadCharacters();
+        });
+
+        document.getElementById('gameMasterBtn').addEventListener('click', () => {
+            openPopup('gameMasterPopup');
+            loadGames();
+        });
+
+        document.getElementById('storeBtn').addEventListener('click', () => {
+            window.location.href = 'store.html';
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            window.location.href = 'settings.html';
+        });
+
+        // Popup Control Functions
+        function openPopup(popupId) {
+            document.getElementById(popupId).style.display = 'block';
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        // Load Characters - Simulated for now
+        function loadCharacters() {
+            const charactersList = document.getElementById('charactersList');
+            charactersList.innerHTML = ''; // Clear previous content
+
+            const characters = [
+                { name: 'Aragorn', background: 'Ranger', level: 10 },
+                { name: 'Legolas', background: 'Archer', level: 8 },
+            ]; // Replace with actual data from your backend
+
+            if (characters.length > 0) {
+                characters.forEach(character => {
+                    const charElement = document.createElement('div');
+                    charElement.className = 'list-item';
+                    charElement.textContent = `${character.name} - ${character.background} (Level ${character.level})`;
+                    charactersList.appendChild(charElement);
+                });
+            } else {
+                charactersList.textContent = 'No characters found.';
+            }
+        }
+
+        // Load Games - Simulated for now
+        function loadGames() {
+            const gamesList = document.getElementById('gamesList');
+            gamesList.innerHTML = ''; // Clear previous content
+
+            const games = [
+                { name: 'Dungeon of Doom', date: '2024-08-20' },
+                { name: 'Elven Tower', date: '2024-08-21' },
+            ]; // Replace with actual data from your backend
+
+            if (games.length > 0) {
+                games.forEach(game => {
+                    const gameElement = document.createElement('div');
+                    gameElement.className = 'list-item';
+                    gameElement.textContent = `${game.name} - Created on ${game.date}`;
+                    gamesList.appendChild(gameElement);
+                });
+            } else {
+                gamesList.textContent = 'No game sessions found.';
+            }
+        }
+    </script>
+</body>
+</html>
