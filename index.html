@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login and Sign-Up</title>
     <style>
+        /* Your existing styles */
         body {
             display: flex;
             flex-direction: column;
@@ -22,7 +23,6 @@
             margin-bottom: 40px;
         }
 
-        /* Centered Login Button */
         #loginBtn {
             padding: 12px 24px;
             font-size: 20px;
@@ -41,7 +41,6 @@
             box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
         }
 
-        /* Buttons */
         .button {
             padding: 12px 24px;
             font-size: 20px;
@@ -61,7 +60,6 @@
             box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
         }
 
-        /* Popup Styling */
         .popup {
             display: none;
             position: fixed;
@@ -97,7 +95,6 @@
             box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
         }
 
-        /* Close Button Styling */
         .close-btn {
             cursor: pointer;
             font-size: 20px;
@@ -116,7 +113,6 @@
             box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
         }
 
-        /* Checkbox and link styling */
         .popup .checkbox {
             margin-bottom: 20px;
             display: flex;
@@ -124,8 +120,8 @@
         }
 
         .popup .checkbox input[type="checkbox"] {
-            transform: scale(1.5); /* Make the checkbox 1.5x larger */
-            margin-right: 10px; /* Add some space between the checkbox and label */
+            transform: scale(1.5);
+            margin-right: 10px;
         }
 
         .popup .checkbox label {
@@ -143,7 +139,6 @@
             box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
         }
 
-        /* Error Message Styling */
         .error-message {
             color: #EB5160;
             font-size: 14px;
@@ -201,25 +196,10 @@
         <button id="closeTermsPopup" class="close-btn">Close</button>
     </div>
 
-    <!-- Firebase SDKs and Initialization -->
+    <!-- Import the firebase_config.js file -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrlgCiT3cbERNCOaZFT_UjgSVi81y_wKU",
-            authDomain: "arcanex-the-roleplaying-game.firebaseapp.com",
-            projectId: "arcanex-the-roleplaying-game",
-            storageBucket: "arcanex-the-roleplaying-game.appspot.com",
-            messagingSenderId: "212898746712",
-            appId: "1:212898746712:web:f1f448418c5b79fb70952d",
-            measurementId: "G-N30B0RRGXL"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        import { auth } from './firebase_config.js';
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
         // Get references to UI elements
         const loginBtn = document.getElementById('loginBtn');
@@ -279,12 +259,15 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
+            console.log("Attempting to sign in"); // Debugging line to ensure the event fires
+
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    // Signed in successfully
+                    console.log("Signed in successfully"); // Debugging line to confirm success
                     window.location.href = 'main_menu.php';  // Redirect to main menu
                 })
                 .catch((error) => {
+                    console.error("Login Failed:", error.message); // Log the error to understand it
                     loginErrorMessage.style.display = 'block';
                     loginErrorMessage.textContent = 'Login Failed: ' + error.message;
                 });
@@ -294,7 +277,6 @@
         signUpFormBtn.addEventListener('click', () => {
             const email = document.getElementById('signUpEmail').value;
             const password = document.getElementById('signUpPassword').value;
-            const username = document.getElementById('signUpUsername').value;
 
             if (!termsCheckbox.checked) {
                 signUpErrorMessage.textContent = 'You must agree to the terms and conditions.';
@@ -313,6 +295,7 @@
                         });
                 })
                 .catch((error) => {
+                    console.error("Signup Failed:", error.message); // Log the error to understand it
                     signUpErrorMessage.textContent = 'Signup Failed: ' + error.message;
                     signUpErrorMessage.style.display = 'block';
                 });
