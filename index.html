@@ -198,9 +198,23 @@
 
     <!-- Firebase and Authentication Script -->
     <script type="module">
-        // Import Firebase configuration and authentication
-        import { auth } from './firebase_config.js';
-        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        // Firebase configuration
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrlgCiT3cbERNCOaZFT_UjgSVi81y_wKU",
+            authDomain: "arcanex-the-roleplaying-game.firebaseapp.com",
+            projectId: "arcanex-the-roleplaying-game",
+            storageBucket: "arcanex-the-roleplaying-game.appspot.com",
+            messagingSenderId: "212898746712",
+            appId: "1:212898746712:web:f1f448418c5b79fb70952d",
+            measurementId: "G-N30B0RRGXL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
         // Get references to UI elements
         const loginBtn = document.getElementById('loginBtn');
@@ -262,7 +276,8 @@
 
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    window.location.href = 'main_menu.php';  // Redirect to main menu
+                    // Corrected redirection to the HTML version
+                    window.location.href = 'main_menu.html';
                 })
                 .catch((error) => {
                     loginErrorMessage.style.display = 'block';
