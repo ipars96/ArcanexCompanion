@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login and Sign-Up</title>
     <style>
-        /* Your existing styles */
+        /* Styles */
         body {
             display: flex;
             flex-direction: column;
@@ -196,8 +196,9 @@
         <button id="closeTermsPopup" class="close-btn">Close</button>
     </div>
 
-    <!-- Import the firebase_config.js file -->
+    <!-- Firebase and Authentication Script -->
     <script type="module">
+        // Import Firebase configuration and authentication
         import { auth } from './firebase_config.js';
         import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
@@ -259,15 +260,11 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            console.log("Attempting to sign in"); // Debugging line to ensure the event fires
-
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    console.log("Signed in successfully"); // Debugging line to confirm success
                     window.location.href = 'main_menu.php';  // Redirect to main menu
                 })
                 .catch((error) => {
-                    console.error("Login Failed:", error.message); // Log the error to understand it
                     loginErrorMessage.style.display = 'block';
                     loginErrorMessage.textContent = 'Login Failed: ' + error.message;
                 });
@@ -287,7 +284,6 @@
             createUserWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    // Send email verification
                     sendEmailVerification(user)
                         .then(() => {
                             signUpErrorMessage.style.display = 'block';
@@ -295,7 +291,6 @@
                         });
                 })
                 .catch((error) => {
-                    console.error("Signup Failed:", error.message); // Log the error to understand it
                     signUpErrorMessage.textContent = 'Signup Failed: ' + error.message;
                     signUpErrorMessage.style.display = 'block';
                 });
