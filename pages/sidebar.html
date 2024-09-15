@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Existing meta tags and title -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar</title>
     <style>
         /* General styles */
         body {
@@ -167,7 +169,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        function initializeSidebar() {
             // Get all icon wrappers
             const iconWrappers = document.querySelectorAll('.icon-wrapper');
             const popupContainer = document.getElementById('popup-container');
@@ -227,7 +229,14 @@
                     }
                 });
             });
-        });
+        }
+
+        // Check if the sidebar is loaded directly or via fetch in another page
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeSidebar);
+        } else {
+            initializeSidebar();
+        }
     </script>
 </body>
 </html>

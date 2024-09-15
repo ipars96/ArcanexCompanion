@@ -279,13 +279,13 @@
         }
 
         .inspiration-point {
-    width: 30px;
-    height: 30px;
-    background-color: #071013;
-    /* Removed border: */
-    border-radius: 3px; /* Reduced rounding */
-    cursor: pointer;
-    transition: box-shadow 0.3s ease-in-out;
+            width: 30px;
+            height: 30px;
+            background-color: #071013;
+            /* Removed border: */
+            border-radius: 3px; /* Reduced rounding */
+            cursor: pointer;
+            transition: box-shadow 0.3s ease-in-out;
         }
 
         .inspiration-point.checked {
@@ -354,22 +354,19 @@
         }
 
         /* Updated arrow style */
-/* Updated arrow style */
-.inspiration-points-container .arrow {
-    cursor: pointer; /* Set cursor to pointer */
-    user-select: none;
-    font-weight: bold;
-    font-size: 42px; /* Slightly decrease arrow size */
-    color: #70129e; /* Arrow color */
-    /* Removed glow effect */
-}
+        .inspiration-points-container .arrow {
+            cursor: pointer; /* Set cursor to pointer */
+            user-select: none;
+            font-weight: bold;
+            font-size: 42px; /* Slightly decrease arrow size */
+            color: #70129e; /* Arrow color */
+            /* Removed glow effect */
+        }
 
     </style>
 </head>
 <body>
-    <div id="navbar"></div> <!-- Placeholder for the navbar -->
-
-    <div id="diceboxPlaceholder"></div> <!-- Placeholder for the Roll Dice button -->
+    <div id="sidebar"></div> <!-- Placeholder for the sidebar -->
 
     <div class="content-wrapper">
         <div class="main-container">
@@ -567,7 +564,6 @@
                 </div>
             </div>
         </div>
-        <div id="chatbox"></div> <!-- Chatbox will be loaded here -->
     </div>
 
     <!-- Popup for Skill Check -->
@@ -711,83 +707,11 @@
             sendMessageToChatbox("You have gained an Inspiration Dice!");
         }
 
-        // Load the navigation bar
-        fetch('nav.html')
+        // Load the sidebar
+        fetch('sidebar.html')
             .then(response => response.text())
             .then(data => {
-                document.getElementById('navbar').innerHTML = data;
-            });
-
-        // Load the chatbox
-        fetch('chatbox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('chatbox').innerHTML = data;
-            });
-
-        // Load the Dice Box
-        fetch('dicebox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('diceboxPlaceholder').innerHTML = data;
-
-                // Re-initialize dicebox-related scripts
-                const diceboxScript = document.createElement('script');
-                diceboxScript.textContent = `
-                    document.getElementById('rollDiceButton').addEventListener('click', () => {
-                        document.getElementById('diceModal').classList.add('active');
-                    });
-
-                    const rollTypeButtons = document.querySelectorAll('.roll-type button');
-                    let selectedRollType = 'Normal';
-
-                    rollTypeButtons.forEach(button => {
-                        button.addEventListener('click', function() {
-                            rollTypeButtons.forEach(btn => btn.classList.remove('active'));
-                            this.classList.add('active');
-                            selectedRollType = this.textContent;
-                        });
-                    });
-
-                    document.getElementById('rollButton').addEventListener('click', () => {
-                        const numberOfDice = parseInt(document.getElementById('diceNumber').value);
-                        const bonus = parseInt(document.getElementById('bonus').value);
-                        let rollResults = [];
-                        let finalRoll;
-
-                        if (selectedRollType === 'Advantage') {
-                            const roll1 = rollD20();
-                            const roll2 = rollD20();
-                            finalRoll = Math.max(roll1, roll2);
-                            rollResults.push(\`Advantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
-                        } else if (selectedRollType === 'Disadvantage') {
-                            const roll1 = rollD20();
-                            const roll2 = rollD20();
-                            finalRoll = Math.min(roll1, roll2);
-                            rollResults.push(\`Disadvantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
-                        } else {
-                            finalRoll = rollD20();
-                            rollResults.push(\`Roll (\${finalRoll})\`);
-                        }
-
-                        const total = finalRoll + bonus;
-                        let resultMessage = \`<strong>\${selectedRollType}</strong>: \${rollResults.join(' + ')}<br> Total: <strong>\${total}\`;
-
-                        if (finalRoll === 20) {
-                            resultMessage = \`Critical Success!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}\`;
-                        } else if (finalRoll === 1) {
-                            resultMessage = \`Critical Failure!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}\`;
-                        }
-
-                        sendMessageToChatbox(resultMessage);
-                        document.getElementById('diceModal').classList.remove('active');
-                    });
-
-                    function rollD20() {
-                        return Math.floor(Math.random() * 20) + 1;
-                    }
-                `;
-                document.body.appendChild(diceboxScript);
+                document.getElementById('sidebar').innerHTML = data;
             });
     </script>
 </body>

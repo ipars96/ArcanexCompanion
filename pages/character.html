@@ -5,67 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Character</title>
     <style>
+        /* Font Setup */
+        @font-face {
+            font-family: 'Orbitron';
+            src: url('../fonts/orbitron-bold-webfont.ttf') format('truetype');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'Orbitron';
+            src: url('../fonts/orbitron-medium-webfont.ttf') format('truetype');
+            font-weight: medium;
+        }
+
+        @font-face {
+            font-family: 'Orbitron';
+            src: url('../fonts/orbitron-light-webfont.ttf') format('truetype');
+            font-weight: light;
+        }
+
+        /* General Body Style */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #071013;
-            color: #071013;
+            font-family: 'Orbitron', sans-serif;
+            background-color: #11181A; /* Updated background color */
+            color: #dfe0e2; /* Main text against a dark background */
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
-            margin-top: 60px; /* Ensure content starts below the navbar */
+            min-height: 100vh;
+            margin-top: 60px;
         }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin-top: 20px;
-            display: flex;
-            gap: 20px;
-            padding: 0 20px;
-        }
+
         .content-wrapper {
             display: flex;
+            flex-direction: column;
             width: 100%;
             max-width: 1200px;
             flex-grow: 1;
             margin-top: 20px;
+            padding: 20px;
         }
+
         .main-container {
             flex: 1;
-            margin: 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .top-row {
             display: flex;
             gap: 20px;
         }
+
         .character-image {
-            background-color: #071013;
+            background-color: #071013; /* Dark text background color */
             width: 180px;
             height: 180px;
-            border-radius: 15px;
+            border-radius: 3px; /* Reduced rounding */
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             cursor: pointer;
-            border: 2px solid #DFE0E2;
+            border: 2px solid #dfe0e2; /* Main text color */
+            overflow: hidden;
+            transition: box-shadow 0.3s ease-in-out;
         }
+
+        .character-image:hover {
+            box-shadow: 0 0 8px 4px #70129e; /* Glow effect on hover */
+        }
+
         .character-image input {
-            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
+
         .character-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            clip-path: polygon(25% 5%, 75% 5%, 95% 25%, 95% 75%, 75% 95%, 25% 95%, 5% 75%, 5% 25%);
-            border: 2px solid #DFE0E2;
             display: none;
+            border-radius: 3px; /* Reduced rounding */
         }
+
+        .character-image img.show {
+            display: block;
+        }
+
         .character-image::after {
             content: '+';
             color: #AAAAAA;
@@ -76,151 +109,198 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
         }
-        .character-image img.show {
-            display: block;
-        }
+
         .title-box {
+            background-color: #AAAAAA; /* Updated background color */
+            color: #071013; /* Dark text against a light background */
+            padding: 20px;
+            border-radius: 3px; /* Reduced rounding */
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            background-color: #DFE0E2;
-            padding: 20px;
-            border-radius: 15px;
-            flex-grow: 1;
-            height: 180px;
-            display: flex;
-            justify-content: space-between;
         }
+
         .title-box label {
             font-weight: bold;
-            margin-bottom: 5px;
         }
-        .title-box input {
+
+        .title-box input, .title-box select {
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 3px; /* Reduced rounding */
             border: 1px solid #AAAAAA;
-            width: calc(100% - 20px);
+            width: 100%;
+            font-family: 'Orbitron', sans-serif;
+            background-color: #FFFFFF;
+            color: #071013;
+            transition: box-shadow 0.3s ease-in-out;
         }
+
+        .title-box input:hover, .title-box input:focus,
+        .title-box select:hover, .title-box select:focus {
+            box-shadow: 0 0 8px 4px #70129e; /* Updated glow color */
+        }
+
         .info-container {
             display: flex;
             gap: 20px;
-            width: 100%;
+            flex-wrap: wrap;
         }
+
         .info-box {
-            background-color: #DFE0E2;
+            background-color: #AAAAAA; /* Updated background color */
+            color: #071013;
             padding: 10px;
-            border-radius: 15px;
-            flex-grow: 1;
+            border-radius: 3px; /* Reduced rounding */
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-width: 200px;
         }
+
         .attribute-row, .stat-row, .inspiration-row {
             display: flex;
             justify-content: space-between;
             gap: 20px;
         }
+
         .attribute {
-            background-color: #DFE0E2;
+            background-color: #AAAAAA; /* Updated background color */
+            color: #071013;
             padding: 15px;
-            border-radius: 15px;
+            border-radius: 3px; /* Reduced rounding */
             text-align: center;
             flex: 1;
         }
+
         .attribute .title {
             font-weight: bold;
             font-size: 18px;
             margin-bottom: 10px;
         }
+
         .attribute .input-row {
             display: flex;
             justify-content: space-between;
             gap: 10px;
             margin-bottom: 10px;
         }
+
         .attribute .input-row input {
-            width: 75%; /* Increase the width of the input fields */
+            width: 75%;
             padding: 5px;
-            border-radius: 5px;
+            border-radius: 3px; /* Reduced rounding */
             border: 1px solid #AAAAAA;
             font-size: 16px;
             text-align: center;
+            transition: box-shadow 0.3s ease-in-out;
         }
+
+        .attribute .input-row input:hover, .attribute .input-row input:focus {
+            box-shadow: 0 0 8px 4px #70129e; /* Updated glow color */
+        }
+
         .attribute .input-row label {
             display: block;
             font-size: 14px;
             margin-bottom: 5px;
-            width: 25%; /* Make the label width consistent */
+            width: 25%;
             text-align: right;
             padding-right: 5px;
         }
+
         .attribute .total-label {
             font-size: 14px;
             margin-top: 10px;
             margin-bottom: 5px;
         }
+
         .attribute .total {
-            background-color: #AAAAAA;
+            background-color: #071013;
             color: #FFFFFF;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 3px; /* Reduced rounding */
             padding: 5px;
             font-size: 20px;
             text-align: center;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease-in-out;
         }
+
+        .attribute .total:hover {
+            box-shadow: 0 0 8px 4px #70129e; /* Updated glow color */
+        }
+
         .stat-box {
-            background-color: #DFE0E2;
+            background-color: #AAAAAA; /* Updated background color */
+            color: #071013;
             padding: 10px;
-            border-radius: 15px;
+            border-radius: 3px; /* Reduced rounding */
             text-align: center;
             flex: 1;
         }
+
         .stat-box label {
             font-weight: bold;
             margin-bottom: 10px;
             font-size: 16px;
             display: block;
         }
+
         .inspiration-box {
-            background-color: #DFE0E2;
+            background-color: #AAAAAA; /* Updated background color */
+            color: #071013;
             padding: 10px;
-            border-radius: 15px;
+            border-radius: 3px; /* Reduced rounding */
             display: flex;
             flex-grow: 3;
             flex-direction: column;
             align-items: center;
         }
+
         .inspiration-box label {
             font-weight: bold;
             margin-bottom: 10px;
             font-size: 16px;
             text-align: center;
         }
+
         .inspiration-points-container {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
         }
+
         .inspiration-points {
             display: flex;
             gap: 5px;
         }
+
         .inspiration-point {
             width: 30px;
             height: 30px;
             background-color: #071013;
-            border: 2px solid #DFE0E2;
-            border-radius: 5px;
+            /* Removed border: */
+            border-radius: 3px; /* Reduced rounding */
             cursor: pointer;
+            transition: box-shadow 0.3s ease-in-out;
         }
+
         .inspiration-point.checked {
-            background-color: #EB5160;
+            background-color: #70129e;
         }
+
+        .inspiration-point:hover {
+            box-shadow: none; /* Removed glow */
+        }
+
         .inspiration-dice {
-            background-color: #DFE0E2;
+            background-color: #AAAAAA; /* Updated background color */
+            color: #071013;
             padding: 10px;
-            border-radius: 15px;
+            border-radius: 3px; /* Reduced rounding */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -228,48 +308,65 @@
             flex-grow: 1;
             text-align: center;
         }
+
         .inspiration-dice label {
             font-weight: bold;
             margin-bottom: 5px;
             font-size: 16px;
             text-align: center;
         }
+
         .popup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #DFE0E2;
-            color: #071013;
+            background-color: #232627; /* Updated background color */
+            color: #dfe0e2; /* Main text color */
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 3px; /* Reduced rounding */
             text-align: center;
             z-index: 1000;
+            border: 2px solid #dfe0e2; /* Updated border color */
+            /* Removed glow effect */
         }
+
         .popup button {
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #EB5160;
-            color: #FFFFFF;
+            background-color: #dfe0e2; /* Main button background color */
+            color: #071013; /* Main button text color */
             border: none;
-            border-radius: 5px;
+            border-radius: 3px; /* Reduced rounding */
             cursor: pointer;
+            min-width: 100px;
+            transition: box-shadow 0.3s ease-in-out;
         }
+
+        .popup button.close-btn {
+            background-color: #70129e; /* Deep red color for the close button */
+            color: #dfe0e2; /* Change text color to white */
+        }
+
+        .popup button:hover {
+            box-shadow: 0 0 8px 4px #70129e; /* Updated glow color */
+        }
+
+        /* Updated arrow style */
         .inspiration-points-container .arrow {
-            cursor: pointer;
+            cursor: pointer; /* Set cursor to pointer */
             user-select: none;
             font-weight: bold;
-            font-size: 36px;
-            color: #EB5160;
+            font-size: 42px; /* Slightly decrease arrow size */
+            color: #70129e; /* Arrow color */
+            /* Removed glow effect */
         }
+
     </style>
 </head>
 <body>
-    <div id="navbar"></div> <!-- Placeholder for the navbar -->
-
-    <div id="diceboxPlaceholder"></div> <!-- Placeholder for the Roll Dice button -->
+    <div id="sidebar"></div> <!-- Placeholder for the sidebar -->
 
     <div class="content-wrapper">
         <div class="main-container">
@@ -297,11 +394,15 @@
                     <div class="info-container">
                         <div class="info-box">
                             <label for="characterLevel">Level:</label>
-                            <input type="text" id="characterLevel" name="characterLevel">
+                            <input type="number" id="characterLevel" name="characterLevel"> <!-- Changed to number input -->
                         </div>
                         <div class="info-box">
-                            <label for="characterTBD">TBD:</label>
-                            <input type="text" id="characterTBD" name="characterTBD">
+                            <label for="characterSkillPoints">Skill Points:</label>
+                            <input type="number" id="characterSkillPoints" name="characterSkillPoints">
+                        </div>
+                        <div class="info-box">
+                            <label for="characterStatus">Status:</label>
+                            <select id="characterStatus" name="characterStatus"></select>
                         </div>
                     </div>
                 </div>
@@ -322,7 +423,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="strengthTotal" class="total">0</div>
+                    <div id="strengthTotal" class="total" onclick="showSkillCheckPopup('Strength')">0</div>
                 </div>
                 <div class="attribute">
                     <div class="title">Agility</div>
@@ -337,7 +438,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="agilityTotal" class="total">0</div>
+                    <div id="agilityTotal" class="total" onclick="showSkillCheckPopup('Agility')">0</div>
                 </div>
                 <div class="attribute">
                     <div class="title">Perception</div>
@@ -352,7 +453,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="perceptionTotal" class="total">0</div>
+                    <div id="perceptionTotal" class="total" onclick="showSkillCheckPopup('Perception')">0</div>
                 </div>
                 <div class="attribute">
                     <div class="title">Intelligence</div>
@@ -367,7 +468,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="intelligenceTotal" class="total">0</div>
+                    <div id="intelligenceTotal" class="total" onclick="showSkillCheckPopup('Intelligence')">0</div>
                 </div>
                 <div class="attribute">
                     <div class="title">Charisma</div>
@@ -382,7 +483,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="charismaTotal" class="total">0</div>
+                    <div id="charismaTotal" class="total" onclick="showSkillCheckPopup('Charisma')">0</div>
                 </div>
                 <div class="attribute">
                     <div class="title">Arcana</div>
@@ -397,7 +498,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="arcanaTotal" class="total">0</div>
+                    <div id="arcanaTotal" class="total" onclick="showSkillCheckPopup('Arcana')">0</div>
                 </div>
                 <div class="attribute">
                     <div class="title">Spirituality</div>
@@ -412,7 +513,7 @@
                         </div>
                     </div>
                     <div class="total-label">Total</div>
-                    <div id="spiritualityTotal" class="total">0</div>
+                    <div id="spiritualityTotal" class="total" onclick="showSkillCheckPopup('Spirituality')">0</div>
                 </div>
             </div>
 
@@ -463,12 +564,19 @@
                 </div>
             </div>
         </div>
-        <div id="chatbox"></div> <!-- Chatbox will be loaded here -->
     </div>
 
+    <!-- Popup for Skill Check -->
+    <div class="popup" id="skillCheckPopup">
+        <p id="skillCheckMessage"></p>
+        <button onclick="rollSkillCheck()">Roll</button>
+        <button class="close-btn" onclick="closeSkillCheckPopup()">Cancel</button>
+    </div>
+
+    <!-- Popup for Other Actions -->
     <div class="popup" id="popup">
         <p>You have gained an Inspiration Dice!</p>
-        <button onclick="closePopup()">Close</button>
+        <button class="close-btn" onclick="closePopup()">Close</button>
     </div>
 
     <script>
@@ -481,6 +589,11 @@
                     const img = document.getElementById("characterImg");
                     img.src = e.target.result;
                     img.classList.add("show");
+
+                    // Hide the file input after image upload
+                    const uploadImageInput = document.getElementById("uploadImage");
+                    uploadImageInput.style.display = "none"; // Hide the input element
+
                     sendMessageToChatbox("Character image updated.");
                 };
                 reader.readAsDataURL(file);
@@ -535,6 +648,32 @@
             points.forEach(point => point.classList.remove('checked'));
         }
 
+        // Show skill check popup
+        function showSkillCheckPopup(attributeName) {
+            const skillCheckPopup = document.getElementById('skillCheckPopup');
+            const message = `Make a ${attributeName} skill check?`;
+            document.getElementById('skillCheckMessage').textContent = message;
+            skillCheckPopup.setAttribute('data-attribute', attributeName);
+            skillCheckPopup.style.display = 'block';
+        }
+
+        // Roll skill check
+        function rollSkillCheck() {
+            const skillCheckPopup = document.getElementById('skillCheckPopup');
+            const attributeName = skillCheckPopup.getAttribute('data-attribute');
+            const total = parseInt(document.getElementById(attributeName.toLowerCase() + 'Total').textContent);
+            const roll = Math.floor(Math.random() * 20) + 1;
+            const result = roll + total;
+
+            closeSkillCheckPopup();
+            sendMessageToChatbox(`Rolled a ${roll} + ${total} (${attributeName}) = ${result}`);
+        }
+
+        // Close skill check popup
+        function closeSkillCheckPopup() {
+            document.getElementById('skillCheckPopup').style.display = 'none';
+        }
+
         // Show popup
         function showPopup(message = "You have gained an Inspiration Dice!") {
             const popup = document.getElementById('popup');
@@ -568,84 +707,30 @@
             sendMessageToChatbox("You have gained an Inspiration Dice!");
         }
 
-        // Load the navigation bar
-        fetch('nav.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navbar').innerHTML = data;
-            });
+        // Load the sidebar and execute scripts within it
+fetch('sidebar.html') // Fetch the content of sidebar.html
+    .then(response => response.text()) // Convert the response to text
+    .then(data => {
+        // Insert the HTML content into the #sidebar div
+        document.getElementById('sidebar').innerHTML = data;
 
-        // Load the chatbox
-        fetch('chatbox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('chatbox').innerHTML = data;
-            });
-
-        // Load the Dice Box
-        fetch('dicebox.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('diceboxPlaceholder').innerHTML = data;
-
-                // Re-initialize dicebox-related scripts
-                const diceboxScript = document.createElement('script');
-                diceboxScript.textContent = `
-                    document.getElementById('rollDiceButton').addEventListener('click', () => {
-                        document.getElementById('diceModal').classList.add('active');
-                    });
-
-                    const rollTypeButtons = document.querySelectorAll('.roll-type button');
-                    let selectedRollType = 'Normal';
-
-                    rollTypeButtons.forEach(button => {
-                        button.addEventListener('click', function() {
-                            rollTypeButtons.forEach(btn => btn.classList.remove('active'));
-                            this.classList.add('active');
-                            selectedRollType = this.textContent;
-                        });
-                    });
-
-                    document.getElementById('rollButton').addEventListener('click', () => {
-                        const numberOfDice = parseInt(document.getElementById('diceNumber').value);
-                        const bonus = parseInt(document.getElementById('bonus').value);
-                        let rollResults = [];
-                        let finalRoll;
-
-                        if (selectedRollType === 'Advantage') {
-                            const roll1 = rollD20();
-                            const roll2 = rollD20();
-                            finalRoll = Math.max(roll1, roll2);
-                            rollResults.push(\`Advantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
-                        } else if (selectedRollType === 'Disadvantage') {
-                            const roll1 = rollD20();
-                            const roll2 = rollD20();
-                            finalRoll = Math.min(roll1, roll2);
-                            rollResults.push(\`Disadvantage: Roll 1 (\${roll1}) Roll 2 (\${roll2})\`);
-                        } else {
-                            finalRoll = rollD20();
-                            rollResults.push(\`Roll (\${finalRoll})\`);
-                        }
-
-                        const total = finalRoll + bonus;
-                        let resultMessage = \`<strong>\${selectedRollType}</strong>: \${rollResults.join(' + ')}<br> Total: <strong>\${total}</strong>\`;
-
-                        if (finalRoll === 20) {
-                            resultMessage = \`Critical Success!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}</strong>\`;
-                        } else if (finalRoll === 1) {
-                            resultMessage = \`Critical Failure!<br>\${selectedRollType}: \${rollResults.join(' + ')}<br>Roll (\${finalRoll}) + \${bonus} bonus<br>Total: <strong>\${total}\`;
-                        }
-
-                        sendMessageToChatbox(resultMessage);
-                        document.getElementById('diceModal').classList.remove('active');
-                    });
-
-                    function rollD20() {
-                        return Math.floor(Math.random() * 20) + 1;
-                    }
-                `;
-                document.body.appendChild(diceboxScript);
-            });
+        // Find all script tags in the loaded HTML
+        const scripts = document.getElementById('sidebar').querySelectorAll('script');
+        scripts.forEach(script => {
+            // Create a new script element
+            const newScript = document.createElement('script');
+            if (script.src) {
+                // If the script has a src attribute (external script), set the src attribute
+                newScript.src = script.src;
+            } else {
+                // Otherwise, set the script text content
+                newScript.textContent = script.textContent;
+            }
+            // Append the new script to the document body to execute it
+            document.body.appendChild(newScript);
+        });
+    })
+    .catch(error => console.error('Error loading sidebar:', error)); // Handle any errors
     </script>
 </body>
 </html>
