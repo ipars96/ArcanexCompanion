@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Sign-Up</title>
+    <style>
+        /* Styles */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2B2B2B; /* Deep rich grey */
+            font-family: Arial, sans-serif;
+            color: #DFE0E2; /* Light grey-white for general text */
+        }
+
+        #logo {
+            max-width: 750px;
+            margin-bottom: 40px;
+        }
+
+        #loginBtn {
+            padding: 12px 24px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #AAAAAA; /* Medium grey */
+            color: #FFFFFF; /* White text */
+            border-radius: 5px;
+            transition: box-shadow 0.3s ease-in-out;
+            border: 1px solid #AAAAAA;
+            margin-bottom: 10px;
+            width: auto;
+        }
+
+        #loginBtn:hover,
+        #loginBtn:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #AAAAAA; /* Medium grey */
+            color: #FFFFFF; /* White text */
+            border-radius: 5px;
+            transition: box-shadow 0.3s ease-in-out;
+            border: 1px solid #AAAAAA;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .button:hover,
+        .button:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            padding: 30px;
+            background-color: #071013; /* Very dark blue */
+            color: #DFE0E2;
+            border-radius: 10px;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .popup input {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #FFFFFF;
+            color: #071013;
+            border: 1px solid #AAAAAA;
+            border-radius: 5px;
+            box-shadow: none;
+            transition: box-shadow 0.3s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .popup input:hover,
+        .popup input:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-size: 20px;
+            background-color: #EB5160;
+            color: #FFFFFF;
+            border-radius: 5px;
+            padding: 12px 24px;
+            border: 1px solid #AAAAAA;
+            width: 100%;
+            text-align: center;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        .popup .checkbox {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .popup .checkbox input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-right: 10px;
+        }
+
+        .popup .checkbox label {
+            color: #DFE0E2;
+        }
+
+        .popup .checkbox a {
+            color: #EB5160;
+            text-decoration: underline;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .popup .checkbox a:hover,
+        .popup .checkbox a:focus {
+            box-shadow: 0 0 8px 4px rgba(138, 43, 226, 0.6);
+        }
+
+        .error-message {
+            color: #EB5160;
+            font-size: 14px;
+            display: none;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logo -->
+    <img id="logo" src="images/logo.png" alt="Logo">
+
+    <!-- Login Button -->
+    <button id="loginBtn" class="button">Login</button>
+
+    <!-- Login Popup -->
+    <div id="loginPopup" class="popup">
+        <div id="loginErrorMessage" class="error-message"></div>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button id="signInBtn" class="button">Sign In</button>
+        <button id="showSignUpPopup" class="button">Sign Up</button>
+        <button id="closeLoginPopup" class="close-btn">Close</button>
+    </div>
+
+    <!-- Sign-Up Popup -->
+    <div id="signUpPopup" class="popup">
+        <div id="signUpErrorMessage" class="error-message"></div>
+        <input type="text" id="signUpUsername" placeholder="Name">
+        <input type="email" id="signUpEmail" placeholder="Email">
+        <input type="password" id="signUpPassword" placeholder="Password">
+        <div class="checkbox">
+            <input type="checkbox" id="termsCheckbox">
+            <label for="termsCheckbox">I have read and accept the <a href="#" id="termsLink">user terms and conditions</a>.</label>
+        </div>
+        <button id="signUpFormBtn" class="button">Sign Up</button>
+        <button id="closeSignUpPopup" class="close-btn">Close</button>
+    </div>
+
+    <!-- Terms and Conditions Popup -->
+    <div id="termsPopup" class="popup">
+        <div id="termsContent">
+            <h2>Terms and Conditions</h2>
+            <p>By using the Arcanex Companion, you agree to the following terms and conditions:</p>
+            <ul>
+                <li>You agree to use the platform responsibly and in accordance with all applicable laws and regulations.</li>
+                <li>You agree not to use the platform for any unlawful or prohibited activities.</li>
+                <li>We reserve the right to terminate your access to the platform at any time, without notice, for conduct that we believe violates these terms or is harmful to other users of the platform.</li>
+                <li>Your account data will be deleted after 2 years of inactivity. Inactivity is defined as not logging in to your account for a consecutive period of 2 years.</li>
+                <li>You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer, and you agree to accept responsibility for all activities that occur under your account or password.</li>
+            </ul>
+            <p>Thank you for using the Arcanex Companion!</p>
+        </div>
+        <button id="closeTermsPopup" class="close-btn">Close</button>
+    </div>
+
+    <!-- Firebase and Authentication Script -->
+    <script type="module">
+        // Firebase configuration
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrlgCiT3cbERNCOaZFT_UjgSVi81y_wKU",
+            authDomain: "arcanex-the-roleplaying-game.firebaseapp.com",
+            projectId: "arcanex-the-roleplaying-game",
+            storageBucket: "arcanex-the-roleplaying-game.appspot.com",
+            messagingSenderId: "212898746712",
+            appId: "1:212898746712:web:f1f448418c5b79fb70952d",
+            measurementId: "G-N30B0RRGXL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Get references to UI elements
+        const loginBtn = document.getElementById('loginBtn');
+        const loginPopup = document.getElementById('loginPopup');
+        const signUpPopup = document.getElementById('signUpPopup');
+        const termsPopup = document.getElementById('termsPopup');
+
+        const closeLoginPopup = document.getElementById('closeLoginPopup');
+        const closeSignUpPopup = document.getElementById('closeSignUpPopup');
+        const closeTermsPopup = document.getElementById('closeTermsPopup');
+
+        const signInBtn = document.getElementById('signInBtn');
+        const showSignUpPopup = document.getElementById('showSignUpPopup');
+        const signUpFormBtn = document.getElementById('signUpFormBtn');
+
+        const termsLink = document.getElementById('termsLink');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const loginErrorMessage = document.getElementById('loginErrorMessage');
+        const signUpErrorMessage = document.getElementById('signUpErrorMessage');
+
+        // Show login popup
+        loginBtn.addEventListener('click', () => {
+            loginPopup.style.display = 'block';
+        });
+
+        // Close login popup
+        closeLoginPopup.addEventListener('click', () => {
+            loginPopup.style.display = 'none';
+            loginErrorMessage.style.display = 'none';
+        });
+
+        // Show sign-up popup
+        showSignUpPopup.addEventListener('click', () => {
+            loginPopup.style.display = 'none';
+            signUpPopup.style.display = 'block';
+        });
+
+        // Close sign-up popup
+        closeSignUpPopup.addEventListener('click', () => {
+            signUpPopup.style.display = 'none';
+            signUpErrorMessage.style.display = 'none';
+        });
+
+        // Show terms and conditions popup
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            termsPopup.style.display = 'block';
+        });
+
+        // Close terms and conditions popup
+        closeTermsPopup.addEventListener('click', () => {
+            termsPopup.style.display = 'none';
+        });
+
+        // Handle sign-in
+        signInBtn.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    // Corrected redirection to the HTML version
+                    window.location.href = 'main_menu.html';
+                })
+                .catch((error) => {
+                    loginErrorMessage.style.display = 'block';
+                    loginErrorMessage.textContent = 'Login Failed: ' + error.message;
+                });
+        });
+
+        // Handle sign-up
+        signUpFormBtn.addEventListener('click', () => {
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+
+            if (!termsCheckbox.checked) {
+                signUpErrorMessage.textContent = 'You must agree to the terms and conditions.';
+                signUpErrorMessage.style.display = 'block';
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    sendEmailVerification(user)
+                        .then(() => {
+                            signUpErrorMessage.style.display = 'block';
+                            signUpErrorMessage.textContent = 'Verification email sent. Please verify your email before logging in.';
+                        });
+                })
+                .catch((error) => {
+                    signUpErrorMessage.textContent = 'Signup Failed: ' + error.message;
+                    signUpErrorMessage.style.display = 'block';
+                });
+        });
+    </script>
+
+</body>
+</html>
