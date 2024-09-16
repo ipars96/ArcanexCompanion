@@ -1117,8 +1117,8 @@ function displayItemDetails() {
     dropdownFields.style.width = fieldWidth; // Set width to be consistent
 
     // Determine the number of dropdowns
-    let dropdownCount = item.type === 'Weapons' ? 3 : 2;
-
+    let dropdownCount = item.type === 'Weapons' ? 3 : (item.type === 'Equipment' && item.equipmentType === 'Armor' ? 4 : 2);
+    
     // Calculate the width of each dropdown based on the number of dropdowns
     let dropdownWidth = `${100 / dropdownCount}%`;
 
@@ -1204,35 +1204,6 @@ function displayItemDetails() {
     raritySelectWrapper.appendChild(raritySelect);
     dropdownFields.appendChild(raritySelectWrapper);
 
-    // Weapon Class dropdown (only for Weapons)
-    if (item.type === 'Weapons') {
-        const weaponClassSelectWrapper = document.createElement('div');
-        weaponClassSelectWrapper.style.width = dropdownWidth;
-        const weaponClassLabel = document.createElement('label');
-        weaponClassLabel.textContent = 'Weapon Class';
-        weaponClassLabel.style.color = '#071013'; // Header color
-        weaponClassSelectWrapper.appendChild(weaponClassLabel);
-
-        const weaponClassSelect = document.createElement('select');
-        weaponClassSelect.classList.add('select-field');
-        weaponClassSelect.style.width = '100%';
-
-        const weaponClasses = ['Light Melee', 'Heavy Melee', 'Light Ranged', 'Heavy Ranged', 'Shield'];
-        weaponClasses.forEach(weaponClass => {
-            const option = document.createElement('option');
-            option.value = weaponClass;
-            option.textContent = weaponClass;
-            weaponClassSelect.appendChild(option);
-        });
-        weaponClassSelect.value = item.weaponClass || '';
-        weaponClassSelect.addEventListener('change', function () {
-            item.weaponClass = weaponClassSelect.value;
-        });
-
-        weaponClassSelectWrapper.appendChild(weaponClassSelect);
-        dropdownFields.appendChild(weaponClassSelectWrapper);
-    }
-
     // Equipment Type dropdown (only for Equipment)
     if (item.type === 'Equipment') {
         const equipmentTypeSelectWrapper = document.createElement('div');
@@ -1246,7 +1217,6 @@ function displayItemDetails() {
         equipmentTypeSelect.classList.add('select-field');
         equipmentTypeSelect.style.width = '100%';
 
-        // Add Equipment Type options
         const equipmentTypes = ['Armor', 'Mana Shield', 'Head', 'Back', 'Hands', 'Feet', 'Ring'];
         equipmentTypes.forEach(type => {
             const option = document.createElement('option');
@@ -1254,13 +1224,43 @@ function displayItemDetails() {
             option.textContent = type;
             equipmentTypeSelect.appendChild(option);
         });
-        equipmentTypeSelect.value = item.equipmentType || ''; // Default value
+        equipmentTypeSelect.value = item.equipmentType || '';
         equipmentTypeSelect.addEventListener('change', function () {
             item.equipmentType = equipmentTypeSelect.value;
+            displayItemDetails(); // Re-render details to show/hide Armor Type
         });
 
         equipmentTypeSelectWrapper.appendChild(equipmentTypeSelect);
         dropdownFields.appendChild(equipmentTypeSelectWrapper);
+
+        // Armor Type dropdown (only for Equipment Type: Armor)
+        if (item.equipmentType === 'Armor') {
+            const armorTypeSelectWrapper = document.createElement('div');
+            armorTypeSelectWrapper.style.width = dropdownWidth;
+            const armorTypeLabel = document.createElement('label');
+            armorTypeLabel.textContent = 'Armor Type';
+            armorTypeLabel.style.color = '#071013'; // Header color
+            armorTypeSelectWrapper.appendChild(armorTypeLabel);
+
+            const armorTypeSelect = document.createElement('select');
+            armorTypeSelect.classList.add('select-field');
+            armorTypeSelect.style.width = '100%';
+
+            const armorTypes = ['Light Armor', 'Medium Armor', 'Heavy Armor'];
+            armorTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                armorTypeSelect.appendChild(option);
+            });
+            armorTypeSelect.value = item.armorType || '';
+            armorTypeSelect.addEventListener('change', function () {
+                item.armorType = armorTypeSelect.value;
+            });
+
+            armorTypeSelectWrapper.appendChild(armorTypeSelect);
+            dropdownFields.appendChild(armorTypeSelectWrapper);
+        }
     }
 
     // Description Field Wrapper
@@ -1579,17 +1579,99 @@ function displayItemDetails() {
             });
         }
 
-        // Add Modifier Button for Equipment
+        // Add Modifier Button and Modifiers Container for Equipment
         if (item.type === 'Equipment') {
-            const addModifierButton = document.createElement('button');
-            addModifierButton.textContent = 'Add Modifier';
-            addModifierButton.classList.add('button', 'clickable', 'add-modifier-button');
-            // Add event listener for adding modifiers (functionality to be implemented later)
-            addModifierButton.addEventListener('click', function () {
-                // Placeholder for adding modifiers
-                console.log('Add Modifier button clicked for Equipment');
-            });
-            buttonContainer.appendChild(addModifierButton);
+    // Add Modifier Button
+    const addModifierButton = document.createElement('button');
+    addModifierButton.textContent = 'Add Modifier';
+    addModifierButton.classList.add('button', 'clickable', 'add-modifier-button');
+    addModifierButton.addEventListener('click', function () {
+        // Add a new modifier with default values
+        item.modifiers.push({ operation: 'add', value: 0, stat: '' });
+        displayItemDetails(); // Re-render to show new modifier
+    });
+    buttonContainer.appendChild(addModifierButton);
+
+    // Remove Modifier Button
+    const removeModifierButton = document.createElement('button');
+    removeModifierButton.textContent = 'Remove Modifier';
+    removeModifierButton.classList.add('button', 'clickable');
+    removeModifierButton.style.display = item.modifiers && item.modifiers.length > 0 ? 'inline-block' : 'none'; // Show only if there are modifiers
+    removeModifierButton.addEventListener('click', function () {
+        // Remove the last modifier if it exists
+        if (item.modifiers && item.modifiers.length > 0) {
+            item.modifiers.pop();
+            displayItemDetails(); // Re-render to update the modifiers list
+        }
+    });
+    buttonContainer.appendChild(removeModifierButton);
+
+    // Container for modifiers
+    const modifiersContainer = document.createElement('div');
+    modifiersContainer.classList.add('modifiers-container');
+    itemPreview.appendChild(modifiersContainer);
+
+    // Display existing modifiers
+    item.modifiers = item.modifiers || [];
+item.modifiers.forEach((modifier, index) => {
+    const modifierContainer = document.createElement('div');
+    modifierContainer.classList.add('modifier-container');
+    modifierContainer.style.border = '1px solid #888'; // Container border
+    modifierContainer.style.padding = '10px';
+    modifierContainer.style.marginTop = '10px';
+    modifierContainer.style.borderRadius = '5px';
+    modifierContainer.style.backgroundColor = '#232627'; // Background color
+    modifierContainer.style.display = 'flex'; // Display flex to align items in a row
+    modifierContainer.style.alignItems = 'center'; // Align items vertically
+    modifierContainer.style.gap = '10px'; // Add space between elements
+
+    // Add/Subtract Dropdown
+    const addSubtractSelect = document.createElement('select');
+    addSubtractSelect.classList.add('select-field');
+    addSubtractSelect.style.flex = '1'; // Use flex to make it responsive
+    ['Add', 'Subtract'].forEach(optionText => {
+        const option = document.createElement('option');
+        option.value = optionText.toLowerCase();
+        option.textContent = optionText;
+        addSubtractSelect.appendChild(option);
+    });
+    addSubtractSelect.value = modifier.operation || 'add';
+    addSubtractSelect.addEventListener('change', function () {
+        item.modifiers[index].operation = addSubtractSelect.value;
+    });
+    modifierContainer.appendChild(addSubtractSelect);
+
+    // Numeric input for the modifier value
+    const modifierValueInput = document.createElement('input');
+    modifierValueInput.type = 'number';
+    modifierValueInput.value = modifier.value || 0;
+    modifierValueInput.classList.add('input-field');
+    modifierValueInput.style.flex = '1'; // Use flex to make it responsive
+    modifierValueInput.addEventListener('input', function () {
+        item.modifiers[index].value = parseInt(modifierValueInput.value) || 0;
+    });
+    modifierContainer.appendChild(modifierValueInput);
+
+    // Stat Dropdown
+    const statSelect = document.createElement('select');
+    statSelect.classList.add('select-field');
+    statSelect.style.flex = '2'; // Use flex to make it responsive
+    const statOptions = ['HP', 'AP', 'MP', 'Strength', 'Agility', 'Perception', 'Intelligence', 'Charisma', 'Arcana', 'Spirituality'];
+    statOptions.forEach(stat => {
+        const option = document.createElement('option');
+        option.value = stat.toLowerCase();
+        option.textContent = stat;
+        statSelect.appendChild(option);
+    });
+    statSelect.value = modifier.stat || '';
+    statSelect.addEventListener('change', function () {
+        item.modifiers[index].stat = statSelect.value;
+    });
+    modifierContainer.appendChild(statSelect);
+
+    // Append the modifier container to the modifiers container
+    modifiersContainer.appendChild(modifierContainer);
+});
         }
 
         // Value Field Container
@@ -1627,6 +1709,18 @@ function displayItemDetails() {
     }
 
     itemPreviewColumn.appendChild(itemPreview);
+}
+
+// Function to add a modifier to an equipment
+function addModifier(item) {
+    item.modifiers.push({ operation: 'add', value: 0, stat: '' });
+    displayItemDetails(); // Re-render to show new modifier
+}
+
+// Function to add a modifier to an equipment
+function addModifier(item) {
+    item.modifiers.push({ operation: 'add', value: 0, stat: '' });
+    displayItemDetails(); // Re-render to show new modifier
 }
 
 // Function to add an attack to a weapon
