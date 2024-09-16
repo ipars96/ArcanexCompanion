@@ -11,15 +11,17 @@
     src: url('../fonts/orbitron-bold-webfont.ttf') format('truetype');
     font-weight: bold;
 }
+
 @font-face {
-    font-family: 'Orbitron';
+    font-family: 'Orbitron Medium';
     src: url('../fonts/orbitron-medium-webfont.ttf') format('truetype');
     font-weight: medium;
 }
+
 @font-face {
-    font-family: 'Orbitron';
-    src: url('../fonts/orbitron-light-webfont.ttf') format('truetype');
-    font-weight: light;
+    font-family: 'Noto Sans Condensed';
+    src: url('../fonts/NotoSans_Condensed-Regular.ttf') format('truetype');
+    font-weight: normal;
 }
 
 /* Color Palette */
@@ -33,9 +35,37 @@
     --white-color: #FFFFFF;
 }
 
+/* Add this CSS to define the attack roll popup container */
+.attack-roll-popup {
+    display: none; /* Hide by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--secondary-bg-color);
+    color: var(--main-text-color);
+    border-radius: 3px;
+    border: 2px solid var(--main-text-color);
+    box-sizing: border-box;
+    overflow: hidden; /* Hide overflow if content is larger */
+    width: 600px; /* Initial fixed width */
+    height: 400px; /* Initial fixed height */
+    max-width: 90vw; /* Maximum width to keep it responsive */
+    max-height: 90vh; /* Maximum height to keep it within the viewport */
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* Ensure the close button is always visible */
+.attack-roll-popup button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
 /* General Body Style */
 body {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Noto Sans Condensed', sans-serif;
     background-color: var(--primary-bg-color);
     color: var(--main-text-color);
     margin: 0;
@@ -90,6 +120,7 @@ body {
 }
 
 .equipment-title {
+    font-family: 'Orbitron', sans-serif; /* Use Orbitron font */
     font-size: 1.2em;
     margin-bottom: 5px;
     font-weight: bold;
@@ -114,6 +145,7 @@ body {
 }
 
 .equipment-slot label {
+    font-family: 'Orbitron', sans-serif; /* Use Orbitron */
     font-size: 0.9em;
     margin-bottom: 2px;
     color: var(--dark-text-color);
@@ -339,7 +371,7 @@ body {
     border-radius: 3px;
     border: 1px solid var(--light-gray);
     width: 100%;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Noto Sans Condensed', sans-serif;
     background-color: var(--white-color);
     color: var(--dark-text-color);
     transition: box-shadow 0.3s ease-in-out;
@@ -366,7 +398,6 @@ body {
     height: calc(100% - 200px); /* Adjust this value if needed */
 }
 
-/* Item List Column */
 /* Item List Column */
 .item-list-column {
     flex: 1;
@@ -406,7 +437,6 @@ body {
     transform: scale(1.02); /* Slightly reduce scale to avoid excessive overlap */
     z-index: 1; /* Ensure the item is on top of others */
 }
-
 
 .item-container.selected {
     box-shadow: 0 0 8px 4px var(--accent-color);
@@ -464,6 +494,13 @@ body {
     padding: 10px;
 }
 
+/* Headers in Item Preview Column */
+.item-preview label {
+    font-family: 'Orbitron', sans-serif; /* Use Orbitron */
+    font-weight: bold;
+    color: var(--dark-text-color);
+}
+
 .item-preview .input-field {
     width: 100%;
 }
@@ -481,6 +518,13 @@ body {
 
 .item-preview .value-field {
     width: 100px;
+}
+
+/* Value Header in Item Preview */
+.item-preview .value-field ~ label {
+    font-family: 'Orbitron', sans-serif; /* Apply Orbitron font */
+    font-weight: bold; /* Use bold weight */
+    color: var(--dark-text-color); /* Ensure correct text color */
 }
 
 .item-preview .add-attack-button {
@@ -661,6 +705,15 @@ body {
         </div>
     </div>                
 </div>
+
+<!-- Attack Roll Popup -->
+<div class="attack-roll-popup" id="attack-roll-popup">
+    <button class="button clickable" onclick="closeAttackRollPopup()">Close</button>
+    <div id="attack-roll-popup-content">
+        <!-- Attack roll content will be dynamically injected here -->
+    </div>
+</div>
+
 <!-- JavaScript -->
 <script>
 
@@ -1374,7 +1427,7 @@ function displayItemDetails() {
                 });
 
                 rollButton.addEventListener('click', function () {
-                    alert('Rolling attack for ' + attack.name);
+                    openAttackRollPopup(attack);
                 });
 
                 attackContainer.appendChild(rollButton);
@@ -1419,20 +1472,11 @@ function displayItemDetails() {
     itemPreviewColumn.appendChild(itemPreview);
 }
 
-
-// Function to add an attack to a weapon
-function addAttack(item) {
-    item.attacks.push({ name: '', description: '', range: '', damage: '' });
-    displayItemDetails(); // Re-render to show new attack
-}
-
-
 // Function to add an attack to a weapon
 function addAttack(item) {
     item.attacks.push({ name: '', description: '', range: '', damage: '', apCost: '', mpCost: '' });
     displayItemDetails(); // Re-render to show new attack
 }
-
 
 // Function to show use confirmation popup
 function showUseConfirmation() {
@@ -1571,7 +1615,6 @@ function unequipItem(item) {
     }
 }
 
-
 // Function to show delete confirmation popup
 function showDeleteConfirmation(index) {
     deleteIndex = index; // Set the index of the item to delete
@@ -1620,7 +1663,6 @@ deleteConfirmButton.addEventListener('click', function () {
     }
 });
 
-
 deleteCancelButton.addEventListener('click', function () {
     // Hide the popup
     const deletePopup = document.getElementById('delete-popup');
@@ -1639,6 +1681,29 @@ window.addEventListener('click', function(event) {
         deleteIndex = null;
     }
 });
+
+// Function to open the attack roll popup
+function openAttackRollPopup(attack) {
+    const attackRollPopup = document.getElementById('attack-roll-popup');
+    const attackRollContent = document.getElementById('attack-roll-popup-content');
+
+    // Inject attack roll content
+    attackRollContent.innerHTML = `
+        <h2>${attack.name}</h2>
+        <p>AP Cost: ${attack.apCost}</p>
+        <p>MP Cost: ${attack.mpCost}</p>
+        <!-- Add more attack details as needed -->
+    `;
+
+    // Show the popup
+    attackRollPopup.style.display = 'block';
+}
+
+// Function to close the attack roll popup
+function closeAttackRollPopup() {
+    const attackRollPopup = document.getElementById('attack-roll-popup');
+    attackRollPopup.style.display = 'none'; // Hide the popup
+}
 
 // Initialize the item list
 renderItemList();

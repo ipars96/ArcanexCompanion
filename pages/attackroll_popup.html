@@ -12,14 +12,9 @@
             font-weight: bold;
         }
         @font-face {
-            font-family: 'Orbitron';
-            src: url('../fonts/orbitron-medium-webfont.ttf') format('truetype');
-            font-weight: medium;
-        }
-        @font-face {
-            font-family: 'Orbitron';
-            src: url('../fonts/orbitron-light-webfont.ttf') format('truetype');
-            font-weight: light;
+            font-family: 'Noto Sans Condensed';
+            src: url('../fonts/NotoSans_Condensed-Regular.ttf') format('truetype');
+            font-weight: normal;
         }
 
         /* Color Palette */
@@ -35,7 +30,7 @@
 
         /* General Body Style */
         body {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Noto Sans Condensed', sans-serif;
             background-color: var(--primary-bg-color);
             color: var(--main-text-color);
             margin: 0;
@@ -48,7 +43,7 @@
 
         /* Centered Popup Styles */
         .centered-popup {
-            display: none; /* Default to hidden */
+            display: none;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -60,28 +55,42 @@
             text-align: center;
             z-index: 1000;
             border: 2px solid var(--main-text-color);
-            width: 300px; /* Adjust width */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow for better visibility */
+            width: 300px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
         /* Dice Roll Result Popup Styles */
         #dice-roll-result-popup {
-            width: 300px; /* Adjust width */
+            width: 300px;
         }
 
         #dice-icon {
-            width: 50px; /* Size of the dice icon */
+            width: 50px;
             margin-bottom: 20px;
         }
 
+        /* Roll result number */
         #roll-result {
             font-size: 3em;
             margin: 10px 0;
+            font-family: 'Orbitron', sans-serif;
         }
 
-        #roll-message {
+        /* Header styles for roll outcomes (Critical Failure, Not Effective, etc.) */
+        .roll-header {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Description text */
+        #roll-message p {
+            font-family: 'Noto Sans Condensed', sans-serif;
             font-size: 1em;
             margin-top: 10px;
+        }
+
+        /* Headers */
+        h2 {
+            font-family: 'Orbitron', sans-serif;
         }
 
         /* Button Group */
@@ -104,9 +113,9 @@
         }
 
         .button:hover {
-            box-shadow: 0 0 8px 4px var(--accent-color); /* Purple glow */
-            transform: scale(1.1); /* Slight size increase */
-            transition: transform 0.1s, box-shadow 0.3s; /* Smooth transition */
+            box-shadow: 0 0 8px 4px var(--accent-color);
+            transform: scale(1.1);
+            transition: transform 0.1s, box-shadow 0.3s;
         }
 
         /* Spinning animation for the dice */
@@ -121,7 +130,7 @@
 
         /* Apply spin animation */
         .spin {
-            animation: spin 1s ease-out; /* Duration of 2 seconds */
+            animation: spin 1s ease-out;
         }
     </style>
 </head>
@@ -160,6 +169,9 @@
 
             // Show the popup
             document.getElementById('attack-roll-popup').style.display = 'block';
+            
+            // Notify the parent to resize the iframe
+            resizeIframe();
         }
 
         // Handle the Attack Roll
@@ -199,23 +211,36 @@
             // Determine the roll outcome
             if (roll === 1) {
                 rollResultElement.style.color = 'red';
-                rollMessageElement.innerHTML = `<h3>Critical Failure</h3><p>The attack misses dealing no damage.</p>`;
+                rollMessageElement.innerHTML = `<h3 class="roll-header">Critical Failure</h3><p>The attack misses dealing no damage.</p>`;
             } else if (roll >= 2 && roll <= 10) {
-                rollResultElement.style.color = '#dfe0e2'; // Default text color
-                rollMessageElement.innerHTML = `<h3>Not Effective</h3><p>Attack deals half damage.</p>`;
+                rollResultElement.style.color = '#dfe0e2';
+                rollMessageElement.innerHTML = `<h3 class="roll-header">Not Effective</h3><p>Attack deals half damage.</p>`;
             } else if (roll >= 11 && roll <= 19) {
-                rollResultElement.style.color = '#dfe0e2'; // Default text color
-                rollMessageElement.innerHTML = `<h3>Effective</h3><p>Attack deals full damage.</p>`;
+                rollResultElement.style.color = '#dfe0e2';
+                rollMessageElement.innerHTML = `<h3 class="roll-header">Effective</h3><p>Attack deals full damage.</p>`;
             } else if (roll === 20) {
                 rollResultElement.style.color = 'green';
-                rollMessageElement.innerHTML = `<h3>Critical Success</h3><p>Attack deals double damage.</p>`;
+                rollMessageElement.innerHTML = `<h3 class="roll-header">Critical Success</h3><p>Attack deals double damage.</p>`;
             }
+            
+            // Notify the parent to resize the iframe
+            resizeIframe();
         }
 
         // Close the Popups
         function closePopups() {
             document.getElementById('attack-roll-popup').style.display = 'none';
             document.getElementById('dice-roll-result-popup').style.display = 'none';
+
+            // Notify the parent to close the iframe
+            window.parent.postMessage({ type: 'close-iframe' }, '*');
+        }
+
+        // Notify the parent page to resize the iframe
+        function resizeIframe() {
+            const width = document.documentElement.scrollWidth;
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'resize-iframe', width, height }, '*');
         }
 
         // Event Listeners
@@ -231,7 +256,7 @@
         let currentAttack = { name: "Example Attack", apCost: 2, mpCost: 5 };
 
         // Trigger the popup (example usage)
-        openAttackRollPopup(currentAttack); // Call this function when you want to open the popup
+        openAttackRollPopup(currentAttack);
     </script>
 </body>
 </html>
