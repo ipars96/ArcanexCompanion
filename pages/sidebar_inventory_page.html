@@ -35,6 +35,103 @@
     --white-color: #FFFFFF;
 }
 
+/* Styles for the centered popups */
+.centered-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--secondary-bg-color);
+    color: var(--main-text-color);
+    padding: 20px;
+    border-radius: 3px;
+    text-align: center;
+    z-index: 1000;
+    border: 2px solid var(--main-text-color);
+    width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Equip Popup Button Group */
+.equip-popup .button-group {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    gap: 10px; /* Space between buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap if needed */
+    margin-top: 20px; /* Space from other elements */
+}
+
+/* Equip Popup Container */
+.equip-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--secondary-bg-color);
+    color: var(--main-text-color);
+    padding: 20px;
+    border-radius: 3px;
+    text-align: center;
+    z-index: 1000;
+    border: 2px solid var(--main-text-color);
+    width: auto; /* Auto width to fit content */
+    max-width: 90vw; /* Responsive max-width */
+    box-sizing: border-box;
+}
+
+/* Ensure buttons fit within the popup */
+.equip-popup .button {
+    min-width: 100px; /* Set a minimum width for buttons */
+    padding: 10px 20px; /* Padding for buttons */
+    box-sizing: border-box; /* Include padding and border in the width */
+}
+
+/* Additional styles for the dice roll result popup */
+#dice-roll-result-popup {
+    width: 300px;
+}
+
+#dice-icon {
+    width: 50px;
+    margin-bottom: 20px;
+}
+
+/* Roll result number */
+#roll-result {
+    font-size: 3em;
+    margin: 10px 0;
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Header styles for roll outcomes (Critical Failure, Not Effective, etc.) */
+.roll-header {
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Description text */
+#roll-message p {
+    font-family: 'Noto Sans Condensed', sans-serif;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+/* Spinning animation for the dice */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Apply spin animation */
+.spin {
+    animation: spin 1s ease-out;
+}
+
 /* Add this CSS to define the attack roll popup container */
 .attack-roll-popup {
     display: none; /* Hide by default */
@@ -707,12 +804,29 @@ body {
 </div>
 
 <!-- Attack Roll Popup -->
-<div class="attack-roll-popup" id="attack-roll-popup">
-    <button class="button clickable" onclick="closeAttackRollPopup()">Close</button>
-    <div id="attack-roll-popup-content">
-        <!-- Attack roll content will be dynamically injected here -->
+<div id="attack-roll-popup" class="centered-popup">
+    <h2 id="attack-popup-title">Attack with "AttackName"?</h2>
+    <p id="attack-popup-description">
+        This attack will cost <span id="attack-ap-cost">0</span> AP & <span id="attack-mp-cost">0</span> MP
+    </p>
+    <div class="button-group">
+        <button id="roll-attack-button" class="button clickable">Roll Attack</button>
+        <button id="cancel-attack-button" class="button clickable">Cancel</button>
     </div>
 </div>
+
+<!-- Dice Roll Result Popup -->
+<div id="dice-roll-result-popup" class="centered-popup">
+    <img src="../icons/d20_light_icon.png" alt="D20" id="dice-icon">
+    <h2 id="roll-result">0</h2>
+    <div id="roll-message">
+        <!-- Dynamic result message here -->
+    </div>
+    <div class="button-group">
+        <button id="close-result-button" class="button clickable">Close</button>
+    </div>
+</div>
+
 
 <!-- JavaScript -->
 <script>
@@ -1119,6 +1233,36 @@ function displayItemDetails() {
         dropdownFields.appendChild(weaponClassSelectWrapper);
     }
 
+    // Equipment Type dropdown (only for Equipment)
+    if (item.type === 'Equipment') {
+        const equipmentTypeSelectWrapper = document.createElement('div');
+        equipmentTypeSelectWrapper.style.width = dropdownWidth;
+        const equipmentTypeLabel = document.createElement('label');
+        equipmentTypeLabel.textContent = 'Equipment Type';
+        equipmentTypeLabel.style.color = '#071013'; // Header color
+        equipmentTypeSelectWrapper.appendChild(equipmentTypeLabel);
+
+        const equipmentTypeSelect = document.createElement('select');
+        equipmentTypeSelect.classList.add('select-field');
+        equipmentTypeSelect.style.width = '100%';
+
+        // Add Equipment Type options
+        const equipmentTypes = ['Armor', 'Mana Shield', 'Head', 'Back', 'Hands', 'Feet', 'Ring'];
+        equipmentTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            equipmentTypeSelect.appendChild(option);
+        });
+        equipmentTypeSelect.value = item.equipmentType || ''; // Default value
+        equipmentTypeSelect.addEventListener('change', function () {
+            item.equipmentType = equipmentTypeSelect.value;
+        });
+
+        equipmentTypeSelectWrapper.appendChild(equipmentTypeSelect);
+        dropdownFields.appendChild(equipmentTypeSelectWrapper);
+    }
+
     // Description Field Wrapper
     const descriptionWrapper = document.createElement('div');
     descriptionWrapper.style.margin = '0 15px'; // Add consistent margins
@@ -1435,6 +1579,19 @@ function displayItemDetails() {
             });
         }
 
+        // Add Modifier Button for Equipment
+        if (item.type === 'Equipment') {
+            const addModifierButton = document.createElement('button');
+            addModifierButton.textContent = 'Add Modifier';
+            addModifierButton.classList.add('button', 'clickable', 'add-modifier-button');
+            // Add event listener for adding modifiers (functionality to be implemented later)
+            addModifierButton.addEventListener('click', function () {
+                // Placeholder for adding modifiers
+                console.log('Add Modifier button clicked for Equipment');
+            });
+            buttonContainer.appendChild(addModifierButton);
+        }
+
         // Value Field Container
         const valueContainer = document.createElement('div');
         valueContainer.style.display = 'flex';
@@ -1537,7 +1694,7 @@ function showEquipPopup(item) {
         <div class="popup-content">
             <p>Equip item to:</p>
             ${equipmentButtonsHTML}
-            <div class="button-group" style="margin-top: 20px;">
+            <div class="button-group">
                 <button id="equip-confirm" class="button clickable">Confirm</button>
                 <button id="equip-cancel" class="button clickable">Cancel</button>
             </div>
@@ -1682,28 +1839,85 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// Function to open the attack roll popup
+// Open the Attack Roll Popup
 function openAttackRollPopup(attack) {
-    const attackRollPopup = document.getElementById('attack-roll-popup');
-    const attackRollContent = document.getElementById('attack-roll-popup-content');
-
-    // Inject attack roll content
-    attackRollContent.innerHTML = `
-        <h2>${attack.name}</h2>
-        <p>AP Cost: ${attack.apCost}</p>
-        <p>MP Cost: ${attack.mpCost}</p>
-        <!-- Add more attack details as needed -->
-    `;
+    // Set the attack name and costs
+    document.getElementById('attack-popup-title').textContent = `Attack with "${attack.name}"?`;
+    document.getElementById('attack-ap-cost').textContent = attack.apCost;
+    document.getElementById('attack-mp-cost').textContent = attack.mpCost;
 
     // Show the popup
-    attackRollPopup.style.display = 'block';
+    document.getElementById('attack-roll-popup').style.display = 'block';
 }
 
-// Function to close the attack roll popup
-function closeAttackRollPopup() {
-    const attackRollPopup = document.getElementById('attack-roll-popup');
-    attackRollPopup.style.display = 'none'; // Hide the popup
+// Handle the Attack Roll
+function handleAttackRoll(attack) {
+    // Close the attack roll popup
+    document.getElementById('attack-roll-popup').style.display = 'none';
+
+    // Show the dice roll result popup immediately
+    document.getElementById('dice-roll-result-popup').style.display = 'block';
+
+    // Get the dice icon element
+    const diceIcon = document.getElementById('dice-icon');
+
+    // Add the 'spin' class to start the animation
+    diceIcon.classList.add('spin');
+
+    // Simulate the dice roll (1d20)
+    const roll = Math.floor(Math.random() * 20) + 1;
+
+    // Display the roll result
+    displayRollResult(roll);
+
+    // Remove the 'spin' class after the animation (2 seconds)
+    setTimeout(function () {
+        diceIcon.classList.remove('spin');
+    }, 2000); // Match this duration to the animation duration
 }
+
+// Display the Roll Result
+function displayRollResult(roll) {
+    const rollResultElement = document.getElementById('roll-result');
+    const rollMessageElement = document.getElementById('roll-message');
+
+    // Set the roll result
+    rollResultElement.textContent = roll;
+
+    // Determine the roll outcome
+    if (roll === 1) {
+        rollResultElement.style.color = 'red';
+        rollMessageElement.innerHTML = `<h3 class="roll-header">Critical Failure</h3><p>The attack misses dealing no damage.</p>`;
+    } else if (roll >= 2 && roll <= 10) {
+        rollResultElement.style.color = '#dfe0e2';
+        rollMessageElement.innerHTML = `<h3 class="roll-header">Not Effective</h3><p>Attack deals half damage.</p>`;
+    } else if (roll >= 11 && roll <= 19) {
+        rollResultElement.style.color = '#dfe0e2';
+        rollMessageElement.innerHTML = `<h3 class="roll-header">Effective</h3><p>Attack deals full damage.</p>`;
+    } else if (roll === 20) {
+        rollResultElement.style.color = 'green';
+        rollMessageElement.innerHTML = `<h3 class="roll-header">Critical Success</h3><p>Attack deals double damage.</p>`;
+    }
+}
+
+// Close the Popups
+function closePopups() {
+    document.getElementById('attack-roll-popup').style.display = 'none';
+    document.getElementById('dice-roll-result-popup').style.display = 'none';
+}
+
+// Add event listeners for buttons
+document.getElementById('roll-attack-button').addEventListener('click', function () {
+    // Simulate rolling the current attack
+    handleAttackRoll(currentAttack);
+});
+document.getElementById('cancel-attack-button').addEventListener('click', closePopups);
+document.getElementById('close-result-button').addEventListener('click', closePopups);
+
+// Example: Replace with actual code to link attack button with an attack object
+let currentAttack = { name: "Example Attack", apCost: 2, mpCost: 5 };
+
+
 
 // Initialize the item list
 renderItemList();
