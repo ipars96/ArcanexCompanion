@@ -1157,52 +1157,36 @@ function displayItemDetails() {
     typeSelectWrapper.appendChild(typeSelect);
     dropdownFields.appendChild(typeSelectWrapper);
 
-    // Rarity dropdown
-    const raritySelectWrapper = document.createElement('div');
-    raritySelectWrapper.style.width = dropdownWidth;
-    const rarityLabel = document.createElement('label');
-    rarityLabel.textContent = 'Rarity';
-    rarityLabel.style.color = '#071013'; // Header color
-    raritySelectWrapper.appendChild(rarityLabel);
+    // Weapon Type dropdown (only for Weapons)
+    if (item.type === 'Weapons') {
+        const weaponTypeSelectWrapper = document.createElement('div');
+        weaponTypeSelectWrapper.style.width = dropdownWidth;
+        const weaponTypeLabel = document.createElement('label');
+        weaponTypeLabel.textContent = 'Weapon Type';
+        weaponTypeLabel.style.color = '#071013'; // Header color
+        weaponTypeSelectWrapper.appendChild(weaponTypeLabel);
 
-    const raritySelect = document.createElement('select');
-    raritySelect.classList.add('select-field');
-    raritySelect.style.width = '100%';
+        const weaponTypeSelect = document.createElement('select');
+        weaponTypeSelect.classList.add('select-field');
+        weaponTypeSelect.style.width = '100%';
 
-    // Add an empty option at the beginning
-    const emptyRarityOption = document.createElement('option');
-    emptyRarityOption.value = '';
-    emptyRarityOption.textContent = ''; // Show as blank in the dropdown
-    raritySelect.appendChild(emptyRarityOption);
+        // Add options for weapon types
+        const weaponTypes = ['Light Melee', 'Heavy Melee', 'Light Ranged', 'Heavy Ranged', 'Shields', 'Magic'];
+        weaponTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            weaponTypeSelect.appendChild(option);
+        });
 
-    const rarities = [
-        { value: 'common', text: 'Common', color: rarityColors.common },
-        { value: 'uncommon', text: 'Uncommon', color: rarityColors.uncommon },
-        { value: 'rare', text: 'Rare', color: rarityColors.rare },
-        { value: 'very-rare', text: 'Very Rare', color: rarityColors['very-rare'] },
-        { value: 'legendary', text: 'Legendary', color: rarityColors.legendary }
-    ];
-    rarities.forEach(rarity => {
-        const option = document.createElement('option');
-        option.value = rarity.value;
-        option.textContent = rarity.text;
-        option.style.color = rarity.color;
-        raritySelect.appendChild(option);
-    });
-    raritySelect.value = item.rarity;
-    raritySelect.addEventListener('change', function () {
-        item.rarity = raritySelect.value;
+        weaponTypeSelect.value = item.weaponType || ''; // Set the initial value if it exists
+        weaponTypeSelect.addEventListener('change', function () {
+            item.weaponType = weaponTypeSelect.value; // Update the item's weaponType property
+        });
 
-        // Apply glow effect based on rarity
-        raritySelect.style.boxShadow = `0 0 8px 4px ${rarityColors[item.rarity] || 'transparent'}`;
-        
-        renderItemList(); // Update the item list to reflect rarity line
-    });
-
-    // Apply initial glow effect if the item already has a rarity
-    raritySelect.style.boxShadow = `0 0 8px 4px ${rarityColors[item.rarity] || 'transparent'}`;
-    raritySelectWrapper.appendChild(raritySelect);
-    dropdownFields.appendChild(raritySelectWrapper);
+        weaponTypeSelectWrapper.appendChild(weaponTypeSelect);
+        dropdownFields.appendChild(weaponTypeSelectWrapper); // Append the weapon type dropdown to the fields
+    }
 
     // Equipment Type dropdown (only for Equipment)
     if (item.type === 'Equipment') {
@@ -1263,6 +1247,57 @@ function displayItemDetails() {
         }
     }
 
+    // Rarity dropdown
+    const raritySelectWrapper = document.createElement('div');
+    raritySelectWrapper.style.width = dropdownWidth;
+    const rarityLabel = document.createElement('label');
+    rarityLabel.textContent = 'Rarity';
+    rarityLabel.style.color = '#071013'; // Header color
+    raritySelectWrapper.appendChild(rarityLabel);
+
+    const raritySelect = document.createElement('select');
+    raritySelect.classList.add('select-field');
+    raritySelect.style.width = '100%';
+
+    // Add an empty option at the beginning
+    const emptyRarityOption = document.createElement('option');
+    emptyRarityOption.value = '';
+    emptyRarityOption.textContent = ''; // Show as blank in the dropdown
+    raritySelect.appendChild(emptyRarityOption);
+
+    const rarities = [
+        { value: 'common', text: 'Common', color: rarityColors.common },
+        { value: 'uncommon', text: 'Uncommon', color: rarityColors.uncommon },
+        { value: 'rare', text: 'Rare', color: rarityColors.rare },
+        { value: 'very-rare', text: 'Very Rare', color: rarityColors['very-rare'] },
+        { value: 'legendary', text: 'Legendary', color: rarityColors.legendary }
+    ];
+    rarities.forEach(rarity => {
+        const option = document.createElement('option');
+        option.value = rarity.value;
+        option.textContent = rarity.text;
+        option.style.color = rarity.color;
+        raritySelect.appendChild(option);
+    });
+    raritySelect.value = item.rarity;
+    raritySelect.addEventListener('change', function () {
+        item.rarity = raritySelect.value;
+
+        // Apply glow effect based on rarity
+        raritySelect.style.boxShadow = `0 0 8px 4px ${rarityColors[item.rarity] || 'transparent'}`;
+        
+        renderItemList(); // Update the item list to reflect rarity line
+    });
+
+    // Apply initial glow effect if the item already has a rarity
+    raritySelect.style.boxShadow = `0 0 8px 4px ${rarityColors[item.rarity] || 'transparent'}`;
+    raritySelectWrapper.appendChild(raritySelect);
+    dropdownFields.appendChild(raritySelectWrapper);
+
+    // Append the basic elements (name, dropdowns) to itemPreview
+    itemPreview.appendChild(nameWrapper);
+    itemPreview.appendChild(dropdownFields);
+
     // Description Field Wrapper
     const descriptionWrapper = document.createElement('div');
     descriptionWrapper.style.margin = '0 15px'; // Add consistent margins
@@ -1285,11 +1320,29 @@ function displayItemDetails() {
     });
 
     descriptionWrapper.appendChild(descriptionInput); // Add description input to its wrapper
-
-    // Append the basic elements (name, dropdowns, description)
-    itemPreview.appendChild(nameWrapper);
-    itemPreview.appendChild(dropdownFields);
     itemPreview.appendChild(descriptionWrapper);
+
+    // Create and append the "Use Item" button at the bottom
+    if (item.type === 'Consumables') {
+        // Create the "Use Item" button
+        const useItemButton = document.createElement('button');
+        useItemButton.textContent = 'Use Item';
+        useItemButton.classList.add('button', 'clickable');
+        useItemButton.addEventListener('click', function () {
+            showUseConfirmation(item); // Show confirmation popup
+        });
+
+        // Ensure the button container exists
+        let buttonContainer = itemPreview.querySelector('.button-group');
+        if (!buttonContainer) {
+            buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-group');
+        }
+
+        // Append the "Use Item" button to the button container
+        buttonContainer.appendChild(useItemButton);
+        itemPreview.appendChild(buttonContainer);
+    }
 
     // Only show buttons and value if item type is not empty
     if (item.type !== '') {
@@ -1297,14 +1350,11 @@ function displayItemDetails() {
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('button-group');
 
-        // Equip Button (Move this to the bottom-left corner of the preview)
+        // Equip Button (for Weapons and Equipment)
         if (item.type === 'Equipment' || item.type === 'Weapons') {
             const equipButton = document.createElement('button');
             equipButton.textContent = item.equipped ? 'Unequip' : 'Equip';
             equipButton.classList.add('button', 'clickable');
-            equipButton.style.position = 'absolute'; // Position the button
-            equipButton.style.bottom = '25px'; // Place it at the bottom
-            equipButton.style.left = '25px'; // Place it on the left side
             equipButton.addEventListener('click', function () {
                 if (item.equipped) {
                     unequipItem(item);
@@ -1312,366 +1362,259 @@ function displayItemDetails() {
                     showEquipPopup(item);
                 }
             });
-            itemPreview.appendChild(equipButton);
+            buttonContainer.appendChild(equipButton);
         }
 
-        // Add Attack and Remove Attack Buttons for Weapons only
+        // **Add Attack Button for Weapons** 
         if (item.type === 'Weapons') {
             const addAttackButton = document.createElement('button');
             addAttackButton.textContent = 'Add Attack';
-            addAttackButton.classList.add('button', 'clickable', 'add-attack-button');
+            addAttackButton.classList.add('button', 'clickable');
             addAttackButton.addEventListener('click', function () {
                 addAttack(item);
+                displayItemDetails(); // Re-render to show new attack
             });
             buttonContainer.appendChild(addAttackButton);
-
-            // Remove Attack Button
-            const removeAttackButton = document.createElement('button');
-            removeAttackButton.textContent = 'Remove Attack';
-            removeAttackButton.classList.add('button', 'clickable', 'remove-attack-button');
-            removeAttackButton.style.display = item.attacks && item.attacks.length > 0 ? 'inline-block' : 'none'; // Initial display state
-            removeAttackButton.addEventListener('click', function () {
-                // Directly remove the last attack if it exists
-                if (item.attacks && item.attacks.length > 0) {
-                    item.attacks.pop();
-                    displayItemDetails(); // Re-render to show updated attacks
-                }
-            });
-            buttonContainer.appendChild(removeAttackButton);
-
-            // Container for attacks
-            const attacksContainer = document.createElement('div');
-            attacksContainer.classList.add('attacks-container');
-            itemPreview.appendChild(attacksContainer);
-
-            // Display existing attacks
-            item.attacks = item.attacks || [];
-            item.attacks.forEach((attack, index) => {
-                const attackContainer = document.createElement('div');
-                attackContainer.classList.add('attack-container');
-                attackContainer.style.border = '1px solid #888'; // Container border
-                attackContainer.style.padding = '10px';
-                attackContainer.style.marginTop = '10px';
-                attackContainer.style.borderRadius = '5px';
-                attackContainer.style.backgroundColor = '#232627'; // Background color
-
-                // Attack Name, AP Cost, and MP Cost Container
-                const attackDetailsContainer = document.createElement('div');
-                attackDetailsContainer.style.display = 'flex';
-                attackDetailsContainer.style.alignItems = 'center'; // Center items vertically
-                attackDetailsContainer.style.gap = '10px'; // Space between elements
-
-                // Attack Name Wrapper
-                const attackNameWrapper = document.createElement('div');
-                attackNameWrapper.style.flex = '1.5'; // 2/3 of the space
-                attackNameWrapper.style.marginLeft = '10px'; // Adjust this value to move it more to the right
-                const attackNameLabel = document.createElement('label');
-                attackNameLabel.textContent = 'Attack Name';
-                attackNameLabel.style.color = '#dfe0e2'; // Header color
-                attackNameWrapper.appendChild(attackNameLabel);
-
-                const attackNameInput = document.createElement('input');
-                attackNameInput.type = 'text';
-                attackNameInput.value = attack.name || '';
-                attackNameInput.classList.add('input-field');
-                attackNameInput.style.paddingLeft = '10px'; // Add padding on the left
-                attackNameInput.style.width = '90%'; // Full width in the wrapper
-                attackNameInput.addEventListener('input', function () {
-                    item.attacks[index].name = attackNameInput.value;
-                });
-                attackNameWrapper.appendChild(attackNameInput);
-                attackDetailsContainer.appendChild(attackNameWrapper);
-
-                // AP Cost Wrapper
-                const apCostWrapper = document.createElement('div');
-                apCostWrapper.style.flex = '0.5'; // 1/6 of the space
-                const apCostLabel = document.createElement('label');
-                apCostLabel.textContent = 'AP Cost';
-                apCostLabel.style.color = '#dfe0e2'; // Header color
-                apCostWrapper.appendChild(apCostLabel);
-
-                const apCostInput = document.createElement('input');
-                apCostInput.type = 'number';
-                apCostInput.value = attack.apCost || 0;
-                apCostInput.classList.add('input-field');
-                apCostInput.style.paddingRight = '5px'; // Adjust padding as needed
-                apCostInput.style.width = '70%'; // Full width in the wrapper
-                apCostInput.addEventListener('input', function () {
-                    item.attacks[index].apCost = parseInt(apCostInput.value) || 0;
-                });
-                apCostWrapper.appendChild(apCostInput);
-                attackDetailsContainer.appendChild(apCostWrapper);
-
-                // MP Cost Wrapper
-                const mpCostWrapper = document.createElement('div');
-                mpCostWrapper.style.flex = '0.5'; // 1/6 of the space
-                const mpCostLabel = document.createElement('label');
-                mpCostLabel.textContent = 'MP Cost';
-                mpCostLabel.style.color = '#dfe0e2'; // Header color
-                mpCostWrapper.appendChild(mpCostLabel);
-
-                const mpCostInput = document.createElement('input');
-                mpCostInput.type = 'number';
-                mpCostInput.value = attack.mpCost || 0;
-                mpCostInput.classList.add('input-field');
-                mpCostInput.style.paddingRight = '5px'; // Adjust padding as needed
-                mpCostInput.style.width = '70%'; // Full width in the wrapper
-                mpCostInput.addEventListener('input', function () {
-                    item.attacks[index].mpCost = parseInt(mpCostInput.value) || 0;
-                });
-                mpCostWrapper.appendChild(mpCostInput);
-                attackDetailsContainer.appendChild(mpCostWrapper);
-
-                // Append attack details to attack container
-                attackContainer.appendChild(attackDetailsContainer);
-
-                // Description Header and Input
-                const attackDescriptionWrapper = document.createElement('div');
-                attackDescriptionWrapper.style.margin = '10px 10px'; // Add margin to ensure proper spacing
-                const attackDescriptionLabel = document.createElement('label');
-                attackDescriptionLabel.textContent = 'Description';
-                attackDescriptionLabel.style.color = '#dfe0e2'; // Header color
-                attackDescriptionWrapper.appendChild(attackDescriptionLabel);
-
-                const attackDescriptionInput = document.createElement('textarea');
-                attackDescriptionInput.value = attack.description || '';
-                attackDescriptionInput.classList.add('input-field');
-                attackDescriptionInput.style.width = 'calc(97% - 20px)'; // Adjust width to fit within the container
-                attackDescriptionInput.style.marginLeft = '-10'; // Add margin for centering
-                attackDescriptionInput.style.resize = 'none'; // Disable resizing
-                attackDescriptionInput.addEventListener('input', function () {
-                    item.attacks[index].description = attackDescriptionInput.value;
-                });
-                attackDescriptionWrapper.appendChild(attackDescriptionInput);
-                attackContainer.appendChild(attackDescriptionWrapper);
-
-                // Range, Target, and Damage Container
-                const rangeTargetDamageContainer = document.createElement('div');
-                rangeTargetDamageContainer.style.display = 'flex';
-                rangeTargetDamageContainer.style.justifyContent = 'space-between';
-                rangeTargetDamageContainer.style.gap = '10px'; // Gap between fields
-                rangeTargetDamageContainer.style.margin = '0 10px'; // Add margins to fit within the container
-
-                // Range Header and Input
-                const attackRangeWrapper = document.createElement('div');
-                attackRangeWrapper.style.flex = '1'; // Allow flexible width
-                const attackRangeLabel = document.createElement('label');
-                attackRangeLabel.textContent = 'Range';
-                attackRangeLabel.style.color = '#dfe0e2'; // Header color
-                attackRangeWrapper.appendChild(attackRangeLabel);
-
-                const attackRangeInput = document.createElement('input');
-                attackRangeInput.type = 'text';
-                attackRangeInput.value = attack.range || '';
-                attackRangeInput.classList.add('input-field');
-                attackRangeInput.style.width = '80%';
-                attackRangeInput.addEventListener('input', function () {
-                    item.attacks[index].range = attackRangeInput.value;
-                });
-                attackRangeWrapper.appendChild(attackRangeInput);
-                rangeTargetDamageContainer.appendChild(attackRangeWrapper);
-
-                // Target Header and Input
-                const attackTargetWrapper = document.createElement('div');
-                attackTargetWrapper.style.flex = '1'; // Allow flexible width
-                const attackTargetLabel = document.createElement('label');
-                attackTargetLabel.textContent = 'Target';
-                attackTargetLabel.style.color = '#dfe0e2'; // Header color
-                attackTargetWrapper.appendChild(attackTargetLabel);
-
-                const attackTargetInput = document.createElement('input');
-                attackTargetInput.type = 'text';
-                attackTargetInput.value = attack.target || '';
-                attackTargetInput.classList.add('input-field');
-                attackTargetInput.style.width = '80%';
-                attackTargetInput.addEventListener('input', function () {
-                    item.attacks[index].target = attackTargetInput.value;
-                });
-                attackTargetWrapper.appendChild(attackTargetInput);
-                rangeTargetDamageContainer.appendChild(attackTargetWrapper);
-
-                // Damage Header and Container
-                const attackDamageWrapper = document.createElement('div');
-                attackDamageWrapper.style.flex = '1'; // Allow flexible width
-                const attackDamageLabel = document.createElement('label');
-                attackDamageLabel.textContent = 'Damage';
-                attackDamageLabel.style.color = '#dfe0e2'; // Header color
-                attackDamageWrapper.appendChild(attackDamageLabel);
-
-                // Create a container to hold both fields
-                const damageContainer = document.createElement('div');
-                damageContainer.style.display = 'flex';
-                damageContainer.style.gap = '5px'; // Gap between number input and dropdown
-                damageContainer.style.width = '100%'; // Adjust width
-
-                // Numeric input for damage
-                const attackDamageInput = document.createElement('input');
-                attackDamageInput.type = 'number'; // Set type to number
-                attackDamageInput.value = attack.damage || '';
-                attackDamageInput.classList.add('input-field');
-                attackDamageInput.style.flex = '0.3'; // Adjust to take half the space
-                attackDamageInput.addEventListener('input', function () {
-                    item.attacks[index].damage = parseInt(attackDamageInput.value) || 0;
-                });
-                damageContainer.appendChild(attackDamageInput);
-
-                // Dropdown for damage type
-                const damageTypeSelect = document.createElement('select');
-                damageTypeSelect.classList.add('select-field');
-                damageTypeSelect.style.flex = '0.6'; // Adjust to take half the space
-
-                // Damage types (alphabetized)
-                const damageTypes = ['Cold', 'Corrosive', 'Electric', 'Energy', 'Fire', 'Poison'];
-                damageTypes.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type;
-                    option.textContent = type;
-                    damageTypeSelect.appendChild(option);
-                });
-
-                // Set initial selected value if any
-                damageTypeSelect.value = attack.damageType || '';
-                damageTypeSelect.addEventListener('change', function () {
-                    item.attacks[index].damageType = damageTypeSelect.value;
-                });
-                damageContainer.appendChild(damageTypeSelect);
-
-                attackDamageWrapper.appendChild(damageContainer);
-                rangeTargetDamageContainer.appendChild(attackDamageWrapper);
-
-                attackContainer.appendChild(rangeTargetDamageContainer);
-
-                // D20 Roll Button with Icon
-                const rollButton = document.createElement('button');
-                rollButton.classList.add('roll-button');
-                rollButton.style.backgroundColor = '#70129e';
-                rollButton.style.border = 'none';
-                rollButton.style.borderRadius = '5px';
-                rollButton.style.display = 'block';
-                rollButton.style.margin = '20px auto';
-                rollButton.style.padding = '5px 10px'; // Adjust padding to make it more rectangular
-                rollButton.style.cursor = 'pointer';
-                rollButton.style.transition = 'box-shadow 0.3s ease-in-out'; // For hover glow
-
-                const d20Icon = document.createElement('img');
-                d20Icon.src = '../icons/d20_light_icon.png';
-                d20Icon.alt = 'Roll Attack';
-                d20Icon.style.width = '40px'; // Slightly larger icon
-                rollButton.appendChild(d20Icon);
-
-                // Add purple glow effect on hover
-                rollButton.addEventListener('mouseenter', function () {
-                    rollButton.style.boxShadow = '0 0 8px 4px #dfe0e2';
-                });
-                rollButton.addEventListener('mouseleave', function () {
-                    rollButton.style.boxShadow = '0 0 8px 4px #70129e'; // Purple glow
-                });
-                rollButton.addEventListener('mouseleave', function () {
-                    rollButton.style.boxShadow = 'none';
-                });
-
-                rollButton.addEventListener('click', function () {
-                    openAttackRollPopup(attack);
-                });
-
-                attackContainer.appendChild(rollButton);
-                attacksContainer.appendChild(attackContainer);
-            });
         }
 
-        // Add Modifier Button and Modifiers Container for Equipment
+        // **Add Modifier Button for Equipment**
         if (item.type === 'Equipment') {
-    // Add Modifier Button
-    const addModifierButton = document.createElement('button');
-    addModifierButton.textContent = 'Add Modifier';
-    addModifierButton.classList.add('button', 'clickable', 'add-modifier-button');
-    addModifierButton.addEventListener('click', function () {
-        // Add a new modifier with default values
-        item.modifiers.push({ operation: 'add', value: 0, stat: '' });
-        displayItemDetails(); // Re-render to show new modifier
-    });
-    buttonContainer.appendChild(addModifierButton);
-
-    // Remove Modifier Button
-    const removeModifierButton = document.createElement('button');
-    removeModifierButton.textContent = 'Remove Modifier';
-    removeModifierButton.classList.add('button', 'clickable');
-    removeModifierButton.style.display = item.modifiers && item.modifiers.length > 0 ? 'inline-block' : 'none'; // Show only if there are modifiers
-    removeModifierButton.addEventListener('click', function () {
-        // Remove the last modifier if it exists
-        if (item.modifiers && item.modifiers.length > 0) {
-            item.modifiers.pop();
-            displayItemDetails(); // Re-render to update the modifiers list
+            const addModifierButton = document.createElement('button');
+            addModifierButton.textContent = 'Add Modifier';
+            addModifierButton.classList.add('button', 'clickable');
+            addModifierButton.addEventListener('click', function () {
+                addModifier(item); // Call the addModifier function
+            });
+            buttonContainer.appendChild(addModifierButton);
         }
-    });
-    buttonContainer.appendChild(removeModifierButton);
 
-    // Container for modifiers
-    const modifiersContainer = document.createElement('div');
-    modifiersContainer.classList.add('modifiers-container');
-    itemPreview.appendChild(modifiersContainer);
+        // Render attacks if the item is a weapon
+        if (item.type === 'Weapons') {
+    const attacksContainer = document.createElement('div');
+    attacksContainer.classList.add('attacks-container');
 
-    // Display existing modifiers
-    item.modifiers = item.modifiers || [];
-item.modifiers.forEach((modifier, index) => {
-    const modifierContainer = document.createElement('div');
-    modifierContainer.classList.add('modifier-container');
-    modifierContainer.style.border = '1px solid #888'; // Container border
-    modifierContainer.style.padding = '10px';
-    modifierContainer.style.marginTop = '10px';
-    modifierContainer.style.borderRadius = '5px';
-    modifierContainer.style.backgroundColor = '#232627'; // Background color
-    modifierContainer.style.display = 'flex'; // Display flex to align items in a row
-    modifierContainer.style.alignItems = 'center'; // Align items vertically
-    modifierContainer.style.gap = '10px'; // Add space between elements
+    // Render each attack
+    item.attacks = item.attacks || []; // Ensure the attacks array exists
+    item.attacks.forEach((attack, index) => {
+        const attackContainer = document.createElement('div');
+        attackContainer.classList.add('attack-container');
+        attackContainer.style.marginBottom = '20px'; // Add spacing between attack containers
+        attackContainer.style.border = '1px solid #ccc'; // Add border to each attack container
+        attackContainer.style.padding = '10px'; // Add padding to each attack container
+        attackContainer.style.borderRadius = '5px'; // Add rounded corners to container
 
-    // Add/Subtract Dropdown
-    const addSubtractSelect = document.createElement('select');
-    addSubtractSelect.classList.add('select-field');
-    addSubtractSelect.style.flex = '1'; // Use flex to make it responsive
-    ['Add', 'Subtract'].forEach(optionText => {
-        const option = document.createElement('option');
-        option.value = optionText.toLowerCase();
-        option.textContent = optionText;
-        addSubtractSelect.appendChild(option);
-    });
-    addSubtractSelect.value = modifier.operation || 'add';
-    addSubtractSelect.addEventListener('change', function () {
-        item.modifiers[index].operation = addSubtractSelect.value;
-    });
-    modifierContainer.appendChild(addSubtractSelect);
+        // **Top Row: Attack Name, AP Cost, MP Cost** in a single row
+        const topRow = document.createElement('div');
+        topRow.style.display = 'flex';
+        topRow.style.gap = '10px'; // Gap between input fields
+        topRow.style.flexWrap = 'wrap'; // Allow wrap on smaller screens
 
-    // Numeric input for the modifier value
-    const modifierValueInput = document.createElement('input');
-    modifierValueInput.type = 'number';
-    modifierValueInput.value = modifier.value || 0;
-    modifierValueInput.classList.add('input-field');
-    modifierValueInput.style.flex = '1'; // Use flex to make it responsive
-    modifierValueInput.addEventListener('input', function () {
-        item.modifiers[index].value = parseInt(modifierValueInput.value) || 0;
-    });
-    modifierContainer.appendChild(modifierValueInput);
+        // Helper function to create input fields with headers
+        const createField = (labelText, inputType, inputValue, placeholder, changeHandler, flexGrow = 1) => {
+            const fieldContainer = document.createElement('div');
+            fieldContainer.style.flexGrow = flexGrow; // Set flexGrow to control the width
+            fieldContainer.style.minWidth = '100px'; // Minimum width for smaller screens
 
-    // Stat Dropdown
-    const statSelect = document.createElement('select');
-    statSelect.classList.add('select-field');
-    statSelect.style.flex = '2'; // Use flex to make it responsive
-    const statOptions = ['HP', 'AP', 'MP', 'Strength', 'Agility', 'Perception', 'Intelligence', 'Charisma', 'Arcana', 'Spirituality'];
-    statOptions.forEach(stat => {
-        const option = document.createElement('option');
-        option.value = stat.toLowerCase();
-        option.textContent = stat;
-        statSelect.appendChild(option);
-    });
-    statSelect.value = modifier.stat || '';
-    statSelect.addEventListener('change', function () {
-        item.modifiers[index].stat = statSelect.value;
-    });
-    modifierContainer.appendChild(statSelect);
+            // Create label
+            const label = document.createElement('label');
+            label.textContent = labelText;
+            label.style.color = '#071013'; // Header color
+            fieldContainer.appendChild(label);
 
-    // Append the modifier container to the modifiers container
-    modifiersContainer.appendChild(modifierContainer);
-});
+            // Create input
+            const input = document.createElement('input');
+            input.type = inputType;
+            input.value = inputValue;
+            input.placeholder = placeholder;
+            input.classList.add('input-field');
+            input.addEventListener('input', changeHandler);
+            fieldContainer.appendChild(input);
+
+            return fieldContainer;
+        };
+
+        // Attack Name (2/3 of the row)
+        const attackNameField = createField(
+            'Attack Name',
+            'text',
+            attack.name,
+            'Attack Name',
+            function () { item.attacks[index].name = this.value; },
+            2 // Flex grow 2 for 2/3 width
+        );
+        topRow.appendChild(attackNameField);
+
+        // Container for AP and MP Cost to take up 1/3 of the row
+        const costContainer = document.createElement('div');
+        costContainer.style.display = 'flex';
+        costContainer.style.gap = '10px';
+        costContainer.style.flexGrow = 1; // Combined width for AP and MP costs
+
+        // AP Cost (1/6 of the row)
+        const apCostField = createField(
+            'AP Cost',
+            'number',
+            attack.apCost,
+            'AP Cost',
+            function () { item.attacks[index].apCost = this.value; },
+            1 // Flex grow 1
+        );
+        costContainer.appendChild(apCostField);
+
+        // MP Cost (1/6 of the row)
+        const mpCostField = createField(
+            'MP Cost',
+            'number',
+            attack.mpCost,
+            'MP Cost',
+            function () { item.attacks[index].mpCost = this.value; },
+            1 // Flex grow 1
+        );
+        costContainer.appendChild(mpCostField);
+
+        topRow.appendChild(costContainer); // Add cost container to the top row
+        attackContainer.appendChild(topRow); // Add top row to the attack container
+
+        // **Attack Description Field**
+        const descriptionContainer = document.createElement('div');
+        descriptionContainer.style.marginTop = '10px'; // Add margin above the description field
+
+        // Create label for Attack Description
+        const descriptionLabel = document.createElement('label');
+        descriptionLabel.textContent = 'Attack Description';
+        descriptionLabel.style.color = '#071013'; // Header color
+        descriptionContainer.appendChild(descriptionLabel);
+
+        // Create textarea for Attack Description
+        const descriptionInput = document.createElement('textarea');
+        descriptionInput.value = attack.description;
+        descriptionInput.classList.add('input-field');
+        descriptionInput.style.width = '100%'; // Full width
+        descriptionInput.style.minHeight = '60px'; // Set a min height for description
+        descriptionInput.addEventListener('input', function () {
+            item.attacks[index].description = this.value;
+        });
+        descriptionContainer.appendChild(descriptionInput);
+        attackContainer.appendChild(descriptionContainer);
+
+        // **Third Row: Range, Target, Damage, Damage Type** in a single row
+        const thirdRow = document.createElement('div');
+        thirdRow.style.display = 'flex';
+        thirdRow.style.gap = '10px'; // Gap between input fields
+        thirdRow.style.flexWrap = 'wrap'; // Allow wrap on smaller screens
+
+        // Range Field
+        const rangeField = createField(
+            'Range',
+            'text',
+            attack.range,
+            'Range',
+            function () { item.attacks[index].range = this.value; },
+            1 // Flex grow 1 for equal width
+        );
+        thirdRow.appendChild(rangeField);
+
+        // Target Field
+        const targetField = createField(
+            'Target',
+            'text',
+            attack.target,
+            'Target',
+            function () { item.attacks[index].target = this.value; },
+            1 // Flex grow 1 for equal width
+        );
+        thirdRow.appendChild(targetField);
+
+        // Damage Field
+        const damageField = createField(
+            'Damage',
+            'text',
+            attack.damage,
+            'Damage',
+            function () { item.attacks[index].damage = this.value; },
+            1 // Flex grow 1 for equal width
+        );
+        thirdRow.appendChild(damageField);
+
+        // Damage Type Dropdown
+        const damageTypeContainer = document.createElement('div');
+        damageTypeContainer.style.flexGrow = 1;
+        damageTypeContainer.style.minWidth = '100px';
+
+        // Create label for Damage Type
+        const damageTypeLabel = document.createElement('label');
+        damageTypeLabel.textContent = 'Damage Type';
+        damageTypeLabel.style.color = '#071013'; // Header color
+        damageTypeContainer.appendChild(damageTypeLabel);
+
+        // Create select dropdown for Damage Type
+        const damageTypeSelect = document.createElement('select');
+        damageTypeSelect.classList.add('select-field');
+        damageTypeSelect.addEventListener('change', function () {
+            item.attacks[index].damageType = this.value;
+        });
+
+        // Define damage types (modify as needed)
+        const damageTypes = ['Bludgeoning', 'Piercing', 'Slashing', 'Fire', 'Ice', 'Poison'];
+        damageTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            damageTypeSelect.appendChild(option);
+        });
+
+        damageTypeSelect.value = attack.damageType || ''; // Set current value
+        damageTypeContainer.appendChild(damageTypeSelect);
+        thirdRow.appendChild(damageTypeContainer);
+
+        attackContainer.appendChild(thirdRow); // Add third row to the attack container
+
+        // **Button to Roll Attack**
+        const rollButton = document.createElement('button');
+        rollButton.textContent = 'Roll Attack';
+        rollButton.classList.add('button', 'clickable');
+        rollButton.style.marginTop = '10px'; // Add margin above the button
+        rollButton.addEventListener('click', function () {
+            openAttackRollPopup(attack); // Trigger the roll attack popup
+        });
+        attackContainer.appendChild(rollButton);
+
+        attacksContainer.appendChild(attackContainer);
+    });
+
+    itemPreview.appendChild(attacksContainer);
+}
+
+        // Render modifiers if the item is equipment
+        if (item.type === 'Equipment') {
+            const modifiersContainer = document.createElement('div');
+            modifiersContainer.classList.add('modifiers-container');
+
+            // Render each modifier
+            item.modifiers = item.modifiers || []; // Ensure the modifiers array exists
+            item.modifiers.forEach((modifier, index) => {
+                const modifierContainer = document.createElement('div');
+                modifierContainer.classList.add('modifier-container');
+
+                // Example input for modifier operation
+                const operationSelect = document.createElement('select');
+                ['Add', 'Subtract'].forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op.toLowerCase();
+                    option.textContent = op;
+                    operationSelect.appendChild(option);
+                });
+                operationSelect.value = modifier.operation;
+                operationSelect.addEventListener('change', function () {
+                    item.modifiers[index].operation = operationSelect.value;
+                });
+                modifierContainer.appendChild(operationSelect);
+
+                // Add other elements for modifier details...
+                modifiersContainer.appendChild(modifierContainer);
+            });
+
+            itemPreview.appendChild(modifiersContainer);
         }
 
         // Value Field Container
@@ -1708,26 +1651,50 @@ item.modifiers.forEach((modifier, index) => {
         itemPreview.appendChild(valueContainer);
     }
 
+    // Append the entire itemPreview to itemPreviewColumn
     itemPreviewColumn.appendChild(itemPreview);
 }
 
-// Function to add a modifier to an equipment
+
+
+/// Function to add a modifier to equipment
 function addModifier(item) {
-    item.modifiers.push({ operation: 'add', value: 0, stat: '' });
+    // Ensure the modifiers array exists
+    if (!item.modifiers) {
+        item.modifiers = [];
+    }
+
+    // Add a new modifier with default values
+    item.modifiers.push({ 
+        operation: 'add', 
+        value: 0, 
+        attribute: 'HP' // Default to HP, can be changed in the UI
+    });
+
     displayItemDetails(); // Re-render to show new modifier
 }
 
-// Function to add a modifier to an equipment
-function addModifier(item) {
-    item.modifiers.push({ operation: 'add', value: 0, stat: '' });
-    displayItemDetails(); // Re-render to show new modifier
-}
 
 // Function to add an attack to a weapon
 function addAttack(item) {
-    item.attacks.push({ name: '', description: '', range: '', damage: '', apCost: '', mpCost: '' });
+    // Ensure the attacks array exists
+    if (!item.attacks) {
+        item.attacks = [];
+    }
+
+    // Add a new attack with default values
+    item.attacks.push({ 
+        name: '', 
+        description: '', 
+        range: '', 
+        damage: '', 
+        apCost: '', 
+        mpCost: '' 
+    });
+
     displayItemDetails(); // Re-render to show new attack
 }
+
 
 // Function to show use confirmation popup
 function showUseConfirmation() {
