@@ -53,6 +53,42 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Modifier Container: Ensure equal width for each field */
+.modifier-container {
+    display: flex;
+    justify-content: space-between;  /* Space fields evenly */
+    align-items: center;             /* Align vertically */
+    background-color: #232627;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    gap: 10px;                       /* Space between fields */
+}
+
+/* Ensure all children in modifier-container are equally spaced */
+.modifier-container select,
+.modifier-container input {
+    flex: 1;                         /* Each takes up equal space */
+    padding: 10px;                   /* Padding for consistent look */
+    border-radius: 3px;
+    border: 1px solid var(--light-gray);
+    background-color: var(--white-color);
+    color: var(--dark-text-color);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Consistent hover and focus effects */
+.modifier-container select:hover,
+.modifier-container input:hover,
+.modifier-container select:focus,
+.modifier-container input:focus {
+    box-shadow: 0 0 8px 4px var(--accent-color); /* Purple glow */
+}
+
+
+
+
 /* Equip Popup Button Group */
 .equip-popup .button-group {
     display: flex;
@@ -925,6 +961,35 @@ let items = [];
 let selectedItemIndex = null;
 let deleteIndex = null; // Added this line
 
+function showDeleteAttackConfirmation(attackIndex) {
+    const deletePopup = document.getElementById('delete-popup');
+    
+    // Update the popup message to reflect "attack" instead of "item"
+    const popupMessage = deletePopup.querySelector('p'); // Find the <p> tag inside the popup
+    popupMessage.textContent = 'Delete this attack?'; // Set the correct message
+
+    deletePopup.style.display = 'block'; // Show the popup
+
+    // Temporarily store the index of the attack to delete
+    deletePopup.setAttribute('data-attack-index', attackIndex);
+}
+
+function deleteAttack(attackIndex) {
+    if (selectedItemIndex !== null) {
+        const selectedItem = items[selectedItemIndex];
+
+        // Ensure the item has attacks
+        if (selectedItem.attacks && selectedItem.attacks.length > attackIndex) {
+            selectedItem.attacks.splice(attackIndex, 1); // Remove the attack from the array
+
+            // Re-render the item details and list to reflect the deletion
+            displayItemDetails();
+            renderItemList();
+        }
+    }
+}
+
+
 function renderItemList() {
     const itemListColumn = document.getElementById('item-list-column');
     itemListColumn.innerHTML = ''; // Clear existing items
@@ -1243,9 +1308,76 @@ function displayItemDetails() {
             });
 
             armorTypeSelectWrapper.appendChild(armorTypeSelect);
-            dropdownFields.appendChild(armorTypeSelectWrapper);
-        }
-    }
+dropdownFields.appendChild(armorTypeSelectWrapper); // End of Armor Type dropdown
+
+} // <- Closing the `if (item.equipmentType === 'Armor')` block properly
+
+// **Modifiers Section** - Add this new section here after Armor Type
+const modifiersContainer = document.createElement('div');
+modifiersContainer.classList.add('modifiers-container');
+modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
+modifiersContainer.innerHTML = '<h3>Modifiers</h3>';
+
+// Check if `item.modifiers` exists, or initialize it to avoid errors
+if (!item.modifiers) {
+    item.modifiers = [];
+}
+
+// Loop through each modifier and render inputs
+item.modifiers.forEach((modifier, index) => {
+    const modifierContainer = document.createElement('div');
+    modifierContainer.classList.add('modifier-container');
+    modifierContainer.style.display = 'flex';
+    modifierContainer.style.gap = '10px';
+    modifierContainer.style.marginBottom = '10px';
+
+    // Operation Select (Add/Subtract)
+    const operationSelect = document.createElement('select');
+    ['Add', 'Subtract'].forEach(op => {
+        const option = document.createElement('option');
+        option.value = op.toLowerCase();
+        option.textContent = op;
+        operationSelect.appendChild(option);
+    });
+    operationSelect.value = modifier.operation;
+    operationSelect.addEventListener('change', function () {
+        item.modifiers[index].operation = operationSelect.value;
+    });
+    modifierContainer.appendChild(operationSelect);
+
+    // Numeric Value Input
+    const valueInput = document.createElement('input');
+    valueInput.type = 'number';
+    valueInput.value = modifier.value;
+    valueInput.classList.add('input-field');
+    valueInput.addEventListener('input', function () {
+        item.modifiers[index].value = parseInt(valueInput.value) || 0;
+    });
+    modifierContainer.appendChild(valueInput);
+
+    // Attribute Dropdown (HP, AP, MP, etc.)
+    const attributeSelect = document.createElement('select');
+    const attributes = ['HP', 'AP', 'MP', 'Speed', 'Shield Capacity', 'Strength', 'Agility', 'Perception', 'Intelligence', 'Charisma', 'Arcana', 'Spirituality'];
+    attributes.forEach(attr => {
+        const option = document.createElement('option');
+        option.value = attr;
+        option.textContent = attr;
+        attributeSelect.appendChild(option);
+    });
+    attributeSelect.value = modifier.attribute;
+    attributeSelect.addEventListener('change', function () {
+        item.modifiers[index].attribute = attributeSelect.value;
+    });
+    modifierContainer.appendChild(attributeSelect);
+
+    // Add the modifier container to the main container
+    modifiersContainer.appendChild(modifierContainer);
+});
+
+
+} // <- This closes the `if (item.type === 'Equipment')` block
+
+    
 
     // Rarity dropdown
     const raritySelectWrapper = document.createElement('div');
@@ -1310,83 +1442,127 @@ function displayItemDetails() {
     descriptionWrapper.appendChild(descriptionLabel);
 
     // Description field
-    const descriptionInput = document.createElement('textarea');
-    descriptionInput.value = item.description;
-    descriptionInput.classList.add('input-field', 'description-field');
-    descriptionInput.style.width = '100%'; // Full width within the wrapper
-    descriptionInput.style.resize = 'none'; // Disable resizing
-    descriptionInput.addEventListener('input', function () {
-        item.description = descriptionInput.value;
+const descriptionInput = document.createElement('textarea');
+descriptionInput.value = item.description;
+descriptionInput.classList.add('input-field', 'description-field');
+descriptionInput.style.width = '100%'; // Full width within the wrapper
+descriptionInput.style.resize = 'none'; // Disable resizing
+descriptionInput.addEventListener('input', function () {
+    item.description = descriptionInput.value;
+});
+
+descriptionWrapper.appendChild(descriptionInput); // Add description input to its wrapper
+itemPreview.appendChild(descriptionWrapper); // Append description wrapper
+
+// **Modifiers Section** - Place it here, after the description
+if (item.type === 'Equipment') {
+    const modifiersContainer = document.createElement('div');
+    modifiersContainer.classList.add('modifiers-container');
+    modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
+    modifiersContainer.innerHTML = '<h3>Modifiers</h3>';
+
+    // Loop through each modifier and render inputs
+    item.modifiers.forEach((modifier, index) => {
+        const modifierContainer = document.createElement('div');
+        modifierContainer.classList.add('modifier-container');
+        modifierContainer.style.display = 'flex';
+        modifierContainer.style.gap = '10px';
+        modifierContainer.style.marginBottom = '10px';
+
+        // Operation Select (Add/Subtract)
+        const operationSelect = document.createElement('select');
+        ['Add', 'Subtract'].forEach(op => {
+            const option = document.createElement('option');
+            option.value = op.toLowerCase();
+            option.textContent = op;
+            operationSelect.appendChild(option);
+        });
+        operationSelect.value = modifier.operation;
+        operationSelect.addEventListener('change', function () {
+            item.modifiers[index].operation = operationSelect.value;
+        });
+        modifierContainer.appendChild(operationSelect);
+
+        // Numeric Value Input
+        const valueInput = document.createElement('input');
+        valueInput.type = 'number';
+        valueInput.value = modifier.value;
+        valueInput.classList.add('input-field');
+        valueInput.addEventListener('input', function () {
+            item.modifiers[index].value = parseInt(valueInput.value) || 0;
+        });
+        modifierContainer.appendChild(valueInput);
+
+        // Attribute Dropdown (HP, AP, MP, etc.)
+        const attributeSelect = document.createElement('select');
+        const attributes = ['HP', 'AP', 'MP', 'Speed', 'Shield Capacity', 'Strength', 'Agility', 'Perception', 'Intelligence', 'Charisma', 'Arcana', 'Spirituality'];
+        attributes.forEach(attr => {
+            const option = document.createElement('option');
+            option.value = attr;
+            option.textContent = attr;
+            attributeSelect.appendChild(option);
+        });
+        attributeSelect.value = modifier.attribute;
+        attributeSelect.addEventListener('change', function () {
+            item.modifiers[index].attribute = attributeSelect.value;
+        });
+        modifierContainer.appendChild(attributeSelect);
+
+        // Add the modifier container to the main container
+        modifiersContainer.appendChild(modifierContainer);
     });
 
-    descriptionWrapper.appendChild(descriptionInput); // Add description input to its wrapper
-    itemPreview.appendChild(descriptionWrapper);
+    // Append the modifiers container below the description and above the buttons
+    itemPreview.appendChild(modifiersContainer);
+}
 
-    // Create and append the "Use Item" button at the bottom
-    if (item.type === 'Consumables') {
-        // Create the "Use Item" button
-        const useItemButton = document.createElement('button');
-        useItemButton.textContent = 'Use Item';
-        useItemButton.classList.add('button', 'clickable');
-        useItemButton.addEventListener('click', function () {
-            showUseConfirmation(item); // Show confirmation popup
+// Now, add buttons and value field at the end
+if (item.type !== '') {
+    // Button Container
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('button-group');
+
+    // Equip Button (for Weapons and Equipment)
+    if (item.type === 'Equipment' || item.type === 'Weapons') {
+        const equipButton = document.createElement('button');
+        equipButton.textContent = item.equipped ? 'Unequip' : 'Equip';
+        equipButton.classList.add('button', 'clickable');
+        equipButton.addEventListener('click', function () {
+            if (item.equipped) {
+                unequipItem(item);
+            } else {
+                showEquipPopup(item);
+            }
         });
-
-        // Ensure the button container exists
-        let buttonContainer = itemPreview.querySelector('.button-group');
-        if (!buttonContainer) {
-            buttonContainer = document.createElement('div');
-            buttonContainer.classList.add('button-group');
-        }
-
-        // Append the "Use Item" button to the button container
-        buttonContainer.appendChild(useItemButton);
-        itemPreview.appendChild(buttonContainer);
+        buttonContainer.appendChild(equipButton);
     }
 
-    // Only show buttons and value if item type is not empty
-    if (item.type !== '') {
-        // Button Container
-        const buttonContainer = document.createElement('div');
-        buttonContainer.classList.add('button-group');
+    // Add Attack Button for Weapons
+    if (item.type === 'Weapons') {
+        const addAttackButton = document.createElement('button');
+        addAttackButton.textContent = 'Add Attack';
+        addAttackButton.classList.add('button', 'clickable');
+        addAttackButton.addEventListener('click', function () {
+            addAttack(item);
+            displayItemDetails(); // Re-render to show new attack
+        });
+        buttonContainer.appendChild(addAttackButton);
+    }
 
-        // Equip Button (for Weapons and Equipment)
-        if (item.type === 'Equipment' || item.type === 'Weapons') {
-            const equipButton = document.createElement('button');
-            equipButton.textContent = item.equipped ? 'Unequip' : 'Equip';
-            equipButton.classList.add('button', 'clickable');
-            equipButton.addEventListener('click', function () {
-                if (item.equipped) {
-                    unequipItem(item);
-                } else {
-                    showEquipPopup(item);
-                }
-            });
-            buttonContainer.appendChild(equipButton);
-        }
+    // Add Modifier Button for Equipment
+    if (item.type === 'Equipment') {
+        const addModifierButton = document.createElement('button');
+        addModifierButton.textContent = 'Add Modifier';
+        addModifierButton.classList.add('button', 'clickable');
+        addModifierButton.addEventListener('click', function () {
+            addModifier(item); // Call the addModifier function
+        });
+        buttonContainer.appendChild(addModifierButton);
+    }
 
-        // **Add Attack Button for Weapons** 
-        if (item.type === 'Weapons') {
-            const addAttackButton = document.createElement('button');
-            addAttackButton.textContent = 'Add Attack';
-            addAttackButton.classList.add('button', 'clickable');
-            addAttackButton.addEventListener('click', function () {
-                addAttack(item);
-                displayItemDetails(); // Re-render to show new attack
-            });
-            buttonContainer.appendChild(addAttackButton);
-        }
+    // Append the button container at the end of the item preview
+    itemPreview.appendChild(buttonContainer);
 
-        // **Add Modifier Button for Equipment**
-        if (item.type === 'Equipment') {
-            const addModifierButton = document.createElement('button');
-            addModifierButton.textContent = 'Add Modifier';
-            addModifierButton.classList.add('button', 'clickable');
-            addModifierButton.addEventListener('click', function () {
-                addModifier(item); // Call the addModifier function
-            });
-            buttonContainer.appendChild(addModifierButton);
-        }
 
         // Render attacks if the item is a weapon
         if (item.type === 'Weapons') {
@@ -1402,78 +1578,83 @@ function displayItemDetails() {
         attackContainer.style.border = '1px solid #ccc'; // Add border to each attack container
         attackContainer.style.padding = '10px'; // Add padding to each attack container
         attackContainer.style.borderRadius = '5px'; // Add rounded corners to container
+        attackContainer.style.backgroundColor = '#232627'; // Change this color to your preference
 
         // **Top Row: Attack Name, AP Cost, MP Cost** in a single row
-        const topRow = document.createElement('div');
-        topRow.style.display = 'flex';
-        topRow.style.gap = '10px'; // Gap between input fields
-        topRow.style.flexWrap = 'wrap'; // Allow wrap on smaller screens
+const topRow = document.createElement('div');
+topRow.style.display = 'flex';
+topRow.style.gap = '20px';  // Gap between input fields
+topRow.style.flexWrap = 'nowrap';  // Prevent wrapping
+topRow.style.width = '100%';  // Ensure it takes full width
 
-        // Helper function to create input fields with headers
-        const createField = (labelText, inputType, inputValue, placeholder, changeHandler, flexGrow = 1) => {
-            const fieldContainer = document.createElement('div');
-            fieldContainer.style.flexGrow = flexGrow; // Set flexGrow to control the width
-            fieldContainer.style.minWidth = '100px'; // Minimum width for smaller screens
+// Helper function to create input fields with headers and set widths
+const createField = (labelText, inputType, inputValue, placeholder, changeHandler, width) => {
+    const fieldContainer = document.createElement('div');
+    fieldContainer.style.width = width;  // Explicit width setting
+    fieldContainer.style.minWidth = '0';  // Prevent minimum width from messing up layout
 
-            // Create label
-            const label = document.createElement('label');
-            label.textContent = labelText;
-            label.style.color = '#071013'; // Header color
-            fieldContainer.appendChild(label);
+    // Create label
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    label.style.color = '#071013';  // Header color
+    fieldContainer.appendChild(label);
 
-            // Create input
-            const input = document.createElement('input');
-            input.type = inputType;
-            input.value = inputValue;
-            input.placeholder = placeholder;
-            input.classList.add('input-field');
-            input.addEventListener('input', changeHandler);
-            fieldContainer.appendChild(input);
+    // Create input
+    const input = document.createElement('input');
+    input.type = inputType;
+    input.value = inputValue;
+    input.placeholder = placeholder;
+    input.classList.add('input-field');
+    input.addEventListener('input', changeHandler);
+    fieldContainer.appendChild(input);
 
-            return fieldContainer;
-        };
+    return fieldContainer;
+};
 
-        // Attack Name (2/3 of the row)
-        const attackNameField = createField(
-            'Attack Name',
-            'text',
-            attack.name,
-            'Attack Name',
-            function () { item.attacks[index].name = this.value; },
-            2 // Flex grow 2 for 2/3 width
-        );
-        topRow.appendChild(attackNameField);
+// Attack Name (2/3 of the row)
+const attackNameField = createField(
+    'Attack Name',
+    'text',
+    attack.name,
+    'Attack Name',
+    function () { item.attacks[index].name = this.value; },
+    '66%'  // 2/3 width
+);
+topRow.appendChild(attackNameField);
 
-        // Container for AP and MP Cost to take up 1/3 of the row
-        const costContainer = document.createElement('div');
-        costContainer.style.display = 'flex';
-        costContainer.style.gap = '10px';
-        costContainer.style.flexGrow = 1; // Combined width for AP and MP costs
+// Container for AP and MP Cost to take up 1/3 of the row
+const costContainer = document.createElement('div');
+costContainer.style.display = 'flex';
+costContainer.style.gap = '25px';
+costContainer.style.flexGrow = 1;  // Fill remaining space for cost inputs
 
-        // AP Cost (1/6 of the row)
-        const apCostField = createField(
-            'AP Cost',
-            'number',
-            attack.apCost,
-            'AP Cost',
-            function () { item.attacks[index].apCost = this.value; },
-            1 // Flex grow 1
-        );
-        costContainer.appendChild(apCostField);
+// AP Cost (half of the remaining 1/3)
+const apCostField = createField(
+    'AP Cost',
+    'number',
+    attack.apCost,
+    'AP Cost',
+    function () { item.attacks[index].apCost = this.value; },
+    '45%'  // 1/6 of the total row
+);
+costContainer.appendChild(apCostField);
 
-        // MP Cost (1/6 of the row)
-        const mpCostField = createField(
-            'MP Cost',
-            'number',
-            attack.mpCost,
-            'MP Cost',
-            function () { item.attacks[index].mpCost = this.value; },
-            1 // Flex grow 1
-        );
-        costContainer.appendChild(mpCostField);
+// MP Cost (half of the remaining 1/3)
+const mpCostField = createField(
+    'MP Cost',
+    'number',
+    attack.mpCost,
+    'MP Cost',
+    function () { item.attacks[index].mpCost = this.value; },
+    '45%'  // 1/6 of the total row
+);
+costContainer.appendChild(mpCostField);
 
-        topRow.appendChild(costContainer); // Add cost container to the top row
-        attackContainer.appendChild(topRow); // Add top row to the attack container
+
+
+topRow.appendChild(costContainer);  // Add cost container to the top row
+attackContainer.appendChild(topRow);  // Add top row to the attack container
+
 
         // **Attack Description Field**
         const descriptionContainer = document.createElement('div');
@@ -1489,7 +1670,7 @@ function displayItemDetails() {
         const descriptionInput = document.createElement('textarea');
         descriptionInput.value = attack.description;
         descriptionInput.classList.add('input-field');
-        descriptionInput.style.width = '100%'; // Full width
+        descriptionInput.style.width = '97%'; // Full width
         descriptionInput.style.minHeight = '60px'; // Set a min height for description
         descriptionInput.addEventListener('input', function () {
             item.attacks[index].description = this.value;
@@ -1498,88 +1679,146 @@ function displayItemDetails() {
         attackContainer.appendChild(descriptionContainer);
 
         // **Third Row: Range, Target, Damage, Damage Type** in a single row
-        const thirdRow = document.createElement('div');
-        thirdRow.style.display = 'flex';
-        thirdRow.style.gap = '10px'; // Gap between input fields
-        thirdRow.style.flexWrap = 'wrap'; // Allow wrap on smaller screens
+const thirdRow = document.createElement('div');
+thirdRow.style.display = 'flex';
+thirdRow.style.gap = '25px'; // Adjust the gap to create space between fields
+thirdRow.style.flexWrap = 'nowrap'; // Prevent wrapping
+thirdRow.style.width = '100%'; // Ensure row takes the full width
 
-        // Range Field
-        const rangeField = createField(
-            'Range',
-            'text',
-            attack.range,
-            'Range',
-            function () { item.attacks[index].range = this.value; },
-            1 // Flex grow 1 for equal width
-        );
-        thirdRow.appendChild(rangeField);
+// Check that thirdRow is created successfully
+console.log("Third Row created:", thirdRow);
 
-        // Target Field
-        const targetField = createField(
-            'Target',
-            'text',
-            attack.target,
-            'Target',
-            function () { item.attacks[index].target = this.value; },
-            1 // Flex grow 1 for equal width
-        );
-        thirdRow.appendChild(targetField);
+// Range Field
+const rangeField = createField(
+    'Range',
+    'text',
+    attack.range,
+    'Range',
+    function () { item.attacks[index].range = this.value; },
+    '20%' // 1/4 of the row width
+);
+thirdRow.appendChild(rangeField); // Add range field to row
 
-        // Damage Field
-        const damageField = createField(
-            'Damage',
-            'text',
-            attack.damage,
-            'Damage',
-            function () { item.attacks[index].damage = this.value; },
-            1 // Flex grow 1 for equal width
-        );
-        thirdRow.appendChild(damageField);
+// Check that rangeField was appended
+console.log("Range Field appended:", rangeField);
 
-        // Damage Type Dropdown
-        const damageTypeContainer = document.createElement('div');
-        damageTypeContainer.style.flexGrow = 1;
-        damageTypeContainer.style.minWidth = '100px';
+// Target Field
+const targetField = createField(
+    'Target',
+    'text',
+    attack.target,
+    'Target',
+    function () { item.attacks[index].target = this.value; },
+    '25%' // 1/4 of the row width
+);
+thirdRow.appendChild(targetField); // Add target field to row
 
-        // Create label for Damage Type
-        const damageTypeLabel = document.createElement('label');
-        damageTypeLabel.textContent = 'Damage Type';
-        damageTypeLabel.style.color = '#071013'; // Header color
-        damageTypeContainer.appendChild(damageTypeLabel);
+// Check that targetField was appended
+console.log("Target Field appended:", targetField);
 
-        // Create select dropdown for Damage Type
-        const damageTypeSelect = document.createElement('select');
-        damageTypeSelect.classList.add('select-field');
-        damageTypeSelect.addEventListener('change', function () {
-            item.attacks[index].damageType = this.value;
-        });
+// Combined container for Damage and Damage Type (this takes up the remaining 1/2 of the row)
+const damageAndTypeContainer = document.createElement('div');
+damageAndTypeContainer.style.display = 'flex';
+damageAndTypeContainer.style.gap = '25px'; // Space between Damage and Damage Type
+damageAndTypeContainer.style.flexGrow = 1; // Take up remaining space
 
-        // Define damage types (modify as needed)
-        const damageTypes = ['Bludgeoning', 'Piercing', 'Slashing', 'Fire', 'Ice', 'Poison'];
-        damageTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            damageTypeSelect.appendChild(option);
-        });
+// Damage Field (1/2 of the last part of the row)
+const damageField = createField(
+    'Damage',
+    'text',
+    attack.damage,
+    'Damage',
+    function () { item.attacks[index].damage = this.value; },
+    '25%' // Half of the remaining space
+);
+damageAndTypeContainer.appendChild(damageField);
 
-        damageTypeSelect.value = attack.damageType || ''; // Set current value
-        damageTypeContainer.appendChild(damageTypeSelect);
-        thirdRow.appendChild(damageTypeContainer);
+// Damage Type Field (1/2 of the last part of the row)
+const damageTypeField = document.createElement('div');
+damageTypeField.style.flexGrow = 1;
+damageTypeField.style.minWidth = '25px';
 
-        attackContainer.appendChild(thirdRow); // Add third row to the attack container
+const damageTypeLabel = document.createElement('label');
+damageTypeLabel.textContent = 'Damage Type';
+damageTypeLabel.style.color = '#071013'; // Label color
+damageTypeField.appendChild(damageTypeLabel);
 
-        // **Button to Roll Attack**
-        const rollButton = document.createElement('button');
-        rollButton.textContent = 'Roll Attack';
-        rollButton.classList.add('button', 'clickable');
-        rollButton.style.marginTop = '10px'; // Add margin above the button
-        rollButton.addEventListener('click', function () {
-            openAttackRollPopup(attack); // Trigger the roll attack popup
-        });
-        attackContainer.appendChild(rollButton);
+// Create select dropdown for Damage Type
+const damageTypeSelect = document.createElement('select');
+damageTypeSelect.classList.add('select-field');
+damageTypeSelect.addEventListener('change', function () {
+    item.attacks[index].damageType = this.value;
+});
 
-        attacksContainer.appendChild(attackContainer);
+// Define damage types
+const damageTypes = ['Bludgeoning', 'Piercing', 'Slashing', 'Fire', 'Ice', 'Poison'];
+damageTypes.forEach(type => {
+    const option = document.createElement('option');
+    option.value = type;
+    option.textContent = type;
+    damageTypeSelect.appendChild(option);
+});
+
+damageTypeSelect.value = attack.damageType || ''; // Set the current value
+damageTypeField.appendChild(damageTypeSelect);
+
+// Append Damage Type field to the combined container
+damageAndTypeContainer.appendChild(damageTypeField);
+
+// Append the combined Damage and Damage Type container to the row
+thirdRow.appendChild(damageAndTypeContainer);
+
+// Check that damage and type container was appended
+console.log("Damage and Damage Type container appended:", damageAndTypeContainer);
+
+// Finally, append the third row to the attack container
+attackContainer.appendChild(thirdRow);
+
+// Now, loop through all labels inside the attack container and set text color to white
+const labels = attackContainer.querySelectorAll('label');
+    labels.forEach(label => {
+        label.style.color = '#FFFFFF';  // Change all label text color to white
+    });
+
+// Check that thirdRow was appended successfully
+console.log("Third Row appended:", thirdRow);
+
+        // **Row for Buttons: Roll Attack and Delete Attack**
+const buttonRow = document.createElement('div');
+buttonRow.style.display = 'flex';
+buttonRow.style.justifyContent = 'space-between'; // Align Roll Attack left, Delete Attack right
+buttonRow.style.marginTop = '10px'; // Add margin above the buttons
+
+// **Button to Roll Attack**
+const rollButton = document.createElement('button');
+rollButton.textContent = 'Roll Attack';
+rollButton.classList.add('button', 'clickable');
+rollButton.addEventListener('click', function () {
+    openAttackRollPopup(attack); // Trigger the roll attack popup
+});
+
+// **Button to Delete Attack**
+const deleteButton = document.createElement('button');
+deleteButton.textContent = 'Delete Attack';
+deleteButton.classList.add('button', 'clickable');
+deleteButton.style.backgroundColor = '#b73e3e'; // Red color for delete button
+deleteButton.style.color = '#FFFFFF'; // White text
+deleteButton.addEventListener('click', function () {
+    showDeleteAttackConfirmation(index); // Show confirmation popup for deletion
+});
+
+// Add both buttons to the button row
+buttonRow.appendChild(rollButton);
+buttonRow.appendChild(deleteButton);
+
+// Append the button row to the attack container
+attackContainer.appendChild(buttonRow);
+
+// Check that button row was appended successfully
+console.log("Button row appended:", buttonRow);
+
+// Append the attack container to the attacks container
+attacksContainer.appendChild(attackContainer);
     });
 
     itemPreview.appendChild(attacksContainer);
@@ -1614,7 +1853,7 @@ function displayItemDetails() {
                 modifiersContainer.appendChild(modifierContainer);
             });
 
-            itemPreview.appendChild(modifiersContainer);
+
         }
 
         // Value Field Container
@@ -1665,14 +1904,16 @@ function addModifier(item) {
     }
 
     // Add a new modifier with default values
-    item.modifiers.push({ 
-        operation: 'add', 
-        value: 0, 
-        attribute: 'HP' // Default to HP, can be changed in the UI
+    item.modifiers.push({
+        operation: 'add',   // Default operation: Add
+        value: 0,           // Default value: 0
+        attribute: 'HP'     // Default attribute: HP
     });
 
-    displayItemDetails(); // Re-render to show new modifier
+    // Re-render the item details to display the new modifier
+    displayItemDetails();
 }
+
 
 
 // Function to add an attack to a weapon
@@ -1833,19 +2074,36 @@ function unequipItem(item) {
     }
 }
 
-// Function to show delete confirmation popup
-function showDeleteConfirmation(index) {
-    deleteIndex = index; // Set the index of the item to delete
+function showDeleteConfirmation(itemIndex) {
     const deletePopup = document.getElementById('delete-popup');
+    
+    // Update the popup message to reflect "item" instead of "attack"
+    const popupMessage = deletePopup.querySelector('p');
+    popupMessage.textContent = 'Delete this item?';
+
     deletePopup.style.display = 'block';
+
+    // Store the index of the item to delete in `deleteIndex`
+    deleteIndex = itemIndex;  // This line was missing
 }
+
+
 
 // Set up event listeners for delete confirmation buttons
 const deleteConfirmButton = document.getElementById('delete-confirm');
 const deleteCancelButton = document.getElementById('delete-cancel');
 
 deleteConfirmButton.addEventListener('click', function () {
-    if (deleteIndex !== null) {
+    const deletePopup = document.getElementById('delete-popup');
+    
+    // Check if we are deleting an attack or an item
+    const attackIndex = deletePopup.getAttribute('data-attack-index');
+    
+    if (attackIndex !== null && attackIndex !== '') {
+        // We are deleting an attack
+        deleteAttack(parseInt(attackIndex, 10));
+    } else if (deleteIndex !== null) {
+        // We are deleting an item
         const itemToDelete = items[deleteIndex];
 
         // If the item is equipped, remove it from the equipment slot
@@ -1871,15 +2129,26 @@ deleteConfirmButton.addEventListener('click', function () {
 
         // Update the item list
         renderItemList();
-        
-        // Hide the popup
-        const deletePopup = document.getElementById('delete-popup');
-        deletePopup.style.display = 'none';
-        
-        // Reset deleteIndex
-        deleteIndex = null;
     }
+
+    // Hide the popup after deletion
+    deletePopup.style.display = 'none';
+
+    // Reset deleteIndex and data-attack-index attributes
+    deletePopup.removeAttribute('data-attack-index');
+    deleteIndex = null;
 });
+
+deleteCancelButton.addEventListener('click', function () {
+    const deletePopup = document.getElementById('delete-popup');
+    deletePopup.style.display = 'none';
+    
+    // Reset deleteIndex and data-attack-index
+    deletePopup.removeAttribute('data-attack-index');
+    deleteIndex = null;
+});
+
+
 
 deleteCancelButton.addEventListener('click', function () {
     // Hide the popup
