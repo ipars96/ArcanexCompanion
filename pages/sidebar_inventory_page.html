@@ -68,7 +68,8 @@
 
 /* Ensure all children in modifier-container are equally spaced */
 .modifier-container select,
-.modifier-container input {
+.modifier-container input,
+.modifier-container button {  /* Include the button */
     flex: 1;                         /* Each takes up equal space */
     padding: 10px;                   /* Padding for consistent look */
     border-radius: 3px;
@@ -81,10 +82,20 @@
 /* Consistent hover and focus effects */
 .modifier-container select:hover,
 .modifier-container input:hover,
+.modifier-container button:hover,   /* Include button in hover effects */
 .modifier-container select:focus,
-.modifier-container input:focus {
+.modifier-container input:focus,
+.modifier-container button:focus {  /* Include button in focus effects */
     box-shadow: 0 0 8px 4px var(--accent-color); /* Purple glow */
 }
+
+/* Delete button specific styles */
+.modifier-container button {
+    background-color: #b73e3e; /* Red color for delete button */
+    color: #FFFFFF; /* White text */
+    cursor: pointer;
+}
+
 
 
 
@@ -1370,9 +1381,21 @@ item.modifiers.forEach((modifier, index) => {
     });
     modifierContainer.appendChild(attributeSelect);
 
+    // **Add the Delete Button**
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.classList.add('button', 'clickable');
+    deleteButton.style.backgroundColor = '#b73e3e'; // Red color for delete button
+    deleteButton.style.color = '#FFFFFF'; // White text
+    deleteButton.addEventListener('click', function () {
+        showDeleteModifierConfirmation(index); // Show confirmation popup
+    });
+    modifierContainer.appendChild(deleteButton);
+
     // Add the modifier container to the main container
     modifiersContainer.appendChild(modifierContainer);
 });
+
 
 
 } // <- This closes the `if (item.type === 'Equipment')` block
@@ -1457,63 +1480,76 @@ itemPreview.appendChild(descriptionWrapper); // Append description wrapper
 // **Modifiers Section** - Place it here, after the description
 if (item.type === 'Equipment') {
     const modifiersContainer = document.createElement('div');
-    modifiersContainer.classList.add('modifiers-container');
-    modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
-    modifiersContainer.innerHTML = '<h3>Modifiers</h3>';
+modifiersContainer.classList.add('modifiers-container');
+modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
+modifiersContainer.innerHTML = '<h3>Modifiers</h3>';
 
-    // Loop through each modifier and render inputs
-    item.modifiers.forEach((modifier, index) => {
-        const modifierContainer = document.createElement('div');
-        modifierContainer.classList.add('modifier-container');
-        modifierContainer.style.display = 'flex';
-        modifierContainer.style.gap = '10px';
-        modifierContainer.style.marginBottom = '10px';
+// Loop through each modifier and render inputs
+item.modifiers.forEach((modifier, index) => {
+    const modifierContainer = document.createElement('div');
+    modifierContainer.classList.add('modifier-container');
+    modifierContainer.style.display = 'flex';
+    modifierContainer.style.gap = '10px';
+    modifierContainer.style.marginBottom = '10px';
 
-        // Operation Select (Add/Subtract)
-        const operationSelect = document.createElement('select');
-        ['Add', 'Subtract'].forEach(op => {
-            const option = document.createElement('option');
-            option.value = op.toLowerCase();
-            option.textContent = op;
-            operationSelect.appendChild(option);
-        });
-        operationSelect.value = modifier.operation;
-        operationSelect.addEventListener('change', function () {
-            item.modifiers[index].operation = operationSelect.value;
-        });
-        modifierContainer.appendChild(operationSelect);
-
-        // Numeric Value Input
-        const valueInput = document.createElement('input');
-        valueInput.type = 'number';
-        valueInput.value = modifier.value;
-        valueInput.classList.add('input-field');
-        valueInput.addEventListener('input', function () {
-            item.modifiers[index].value = parseInt(valueInput.value) || 0;
-        });
-        modifierContainer.appendChild(valueInput);
-
-        // Attribute Dropdown (HP, AP, MP, etc.)
-        const attributeSelect = document.createElement('select');
-        const attributes = ['HP', 'AP', 'MP', 'Speed', 'Shield Capacity', 'Strength', 'Agility', 'Perception', 'Intelligence', 'Charisma', 'Arcana', 'Spirituality'];
-        attributes.forEach(attr => {
-            const option = document.createElement('option');
-            option.value = attr;
-            option.textContent = attr;
-            attributeSelect.appendChild(option);
-        });
-        attributeSelect.value = modifier.attribute;
-        attributeSelect.addEventListener('change', function () {
-            item.modifiers[index].attribute = attributeSelect.value;
-        });
-        modifierContainer.appendChild(attributeSelect);
-
-        // Add the modifier container to the main container
-        modifiersContainer.appendChild(modifierContainer);
+    // Operation Select (Add/Subtract)
+    const operationSelect = document.createElement('select');
+    ['Add', 'Subtract'].forEach(op => {
+        const option = document.createElement('option');
+        option.value = op.toLowerCase();
+        option.textContent = op;
+        operationSelect.appendChild(option);
     });
+    operationSelect.value = modifier.operation;
+    operationSelect.addEventListener('change', function () {
+        item.modifiers[index].operation = operationSelect.value;
+    });
+    modifierContainer.appendChild(operationSelect);
 
-    // Append the modifiers container below the description and above the buttons
-    itemPreview.appendChild(modifiersContainer);
+    // Numeric Value Input
+    const valueInput = document.createElement('input');
+    valueInput.type = 'number';
+    valueInput.value = modifier.value;
+    valueInput.classList.add('input-field');
+    valueInput.addEventListener('input', function () {
+        item.modifiers[index].value = parseInt(valueInput.value) || 0;
+    });
+    modifierContainer.appendChild(valueInput);
+
+    // Attribute Dropdown (HP, AP, MP, etc.)
+    const attributeSelect = document.createElement('select');
+    const attributes = ['HP', 'AP', 'MP', 'Speed', 'Shield Capacity', 'Strength', 'Agility', 'Perception', 'Intelligence', 'Charisma', 'Arcana', 'Spirituality'];
+    attributes.forEach(attr => {
+        const option = document.createElement('option');
+        option.value = attr;
+        option.textContent = attr;
+        attributeSelect.appendChild(option);
+    });
+    attributeSelect.value = modifier.attribute;
+    attributeSelect.addEventListener('change', function () {
+        item.modifiers[index].attribute = attributeSelect.value;
+    });
+    modifierContainer.appendChild(attributeSelect);
+
+    // **Delete Button** - Allow deletion of the modifier
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete Modifier';
+    deleteButton.classList.add('button', 'clickable');
+    deleteButton.style.backgroundColor = '#b73e3e'; // Red color for delete button
+    deleteButton.style.color = '#FFFFFF'; // White text
+    deleteButton.addEventListener('click', function () {
+        // Delete the modifier and re-render the item details
+        item.modifiers.splice(index, 1); // Remove the modifier from the array
+        displayItemDetails(); // Re-render the details
+    });
+    modifierContainer.appendChild(deleteButton);
+
+    // Add the modifier container to the main container
+    modifiersContainer.appendChild(modifierContainer);
+});
+
+// Append the modifiers container to the item preview section
+itemPreview.appendChild(modifiersContainer);
 }
 
 // Now, add buttons and value field at the end
