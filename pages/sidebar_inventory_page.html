@@ -96,6 +96,19 @@
     cursor: pointer;
 }
 
+.modifier-container button {
+    background-color: #b73e3e;  /* Red color for delete button */
+    color: #FFFFFF;  /* White text */
+    cursor: pointer;
+    border: none;  /* Remove default border */
+    padding: 10px;  /* Consistent padding */
+    border-radius: 3px;  /* Rounded corners */
+    transition: background-color 0.3s ease;
+}
+
+.modifier-container button:hover {
+    background-color: #a33232;  /* Darker red on hover */
+}
 
 
 
@@ -230,21 +243,7 @@ body {
     height: 100%;
 }
 
-/* Centered Popup */
-.centered-popup {
-    display: none; /* Default to hidden */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--secondary-bg-color);
-    color: var(--main-text-color);
-    padding: 20px;
-    border-radius: 3px;
-    text-align: center;
-    z-index: 1000;
-    border: 2px solid var(--main-text-color);
-}
+
 
 /* Inventory Container */
 .inventory-container {
@@ -824,6 +823,18 @@ body {
                 </div>
             </div>
         </div>
+
+        <!-- Delete Modifier Confirmation Popup -->
+<div id="delete-modifier-popup" class="centered-popup">
+    <div class="delete-popup-content">
+        <p>Delete this modifier?</p>
+        <div class="button-group">
+            <button id="delete-modifier-confirm" class="button clickable">Confirm</button>
+            <button id="delete-modifier-cancel" class="button clickable">Cancel</button>
+        </div>
+    </div>
+</div>
+
     
         <!-- Delete Confirmation Popup -->
         <div class="delete-popup" id="delete-popup">
@@ -1148,6 +1159,7 @@ function displayItemDetails() {
     const item = items[selectedItemIndex];
     const itemPreview = document.createElement('div');
     itemPreview.classList.add('item-preview');
+    
 
     // Define a consistent width for all input fields and dropdowns
     const fieldWidth = 'calc(100% - 30px)'; // Adjust to leave consistent padding
@@ -1327,7 +1339,7 @@ dropdownFields.appendChild(armorTypeSelectWrapper); // End of Armor Type dropdow
 const modifiersContainer = document.createElement('div');
 modifiersContainer.classList.add('modifiers-container');
 modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
-modifiersContainer.innerHTML = '<h3>Modifiers</h3>';
+modifiersContainer.innerHTML = '<h3 id="modifiers-title">Modifiers</h3>';
 
 // Check if `item.modifiers` exists, or initialize it to avoid errors
 if (!item.modifiers) {
@@ -1477,12 +1489,35 @@ descriptionInput.addEventListener('input', function () {
 descriptionWrapper.appendChild(descriptionInput); // Add description input to its wrapper
 itemPreview.appendChild(descriptionWrapper); // Append description wrapper
 
+// **Check if the item is a consumable**
+if (item.type === 'Consumables') {
+    const useItemButton = document.createElement('button');
+    useItemButton.textContent = 'Use Item';
+    useItemButton.classList.add('button', 'clickable');
+    useItemButton.style.marginTop = '10px'; // Add some space above the button
+    
+    // Add click event to show a confirmation before using the item
+    useItemButton.addEventListener('click', function() {
+        showUseConfirmation(); // This function will handle item usage confirmation
+    });
+
+    // Append the button to the item preview area
+    itemPreview.appendChild(useItemButton);
+}
+
+
 // **Modifiers Section** - Place it here, after the description
 if (item.type === 'Equipment') {
     const modifiersContainer = document.createElement('div');
-modifiersContainer.classList.add('modifiers-container');
-modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
-modifiersContainer.innerHTML = '<h3>Modifiers</h3>';
+        modifiersContainer.classList.add('modifiers-container');
+        modifiersContainer.style.marginTop = '20px'; // Spacing above modifiers
+
+        // Create the "Modifiers" title, hidden by default
+        const modifiersTitle = document.createElement('h3');
+        modifiersTitle.id = 'modifiers-title';
+        modifiersTitle.textContent = 'Modifiers';
+        modifiersTitle.style.display = 'none'; // Hide by default
+        modifiersContainer.appendChild(modifiersTitle);
 
 // Loop through each modifier and render inputs
 item.modifiers.forEach((modifier, index) => {
@@ -1532,17 +1567,19 @@ item.modifiers.forEach((modifier, index) => {
     modifierContainer.appendChild(attributeSelect);
 
     // **Delete Button** - Allow deletion of the modifier
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete Modifier';
-    deleteButton.classList.add('button', 'clickable');
-    deleteButton.style.backgroundColor = '#b73e3e'; // Red color for delete button
-    deleteButton.style.color = '#FFFFFF'; // White text
-    deleteButton.addEventListener('click', function () {
-        // Delete the modifier and re-render the item details
-        item.modifiers.splice(index, 1); // Remove the modifier from the array
-        displayItemDetails(); // Re-render the details
-    });
-    modifierContainer.appendChild(deleteButton);
+const deleteButton = document.createElement('button');
+deleteButton.textContent = 'Delete Modifier';
+deleteButton.classList.add('button', 'clickable');
+deleteButton.style.backgroundColor = '#b73e3e'; // Red color for delete button
+deleteButton.style.color = '#FFFFFF'; // White text
+
+// Show confirmation popup when delete button is clicked
+deleteButton.addEventListener('click', function () {
+    showDeleteModifierConfirmation(index); // Show confirmation popup instead of direct delete
+});
+
+modifierContainer.appendChild(deleteButton);
+
 
     // Add the modifier container to the main container
     modifiersContainer.appendChild(modifierContainer);
@@ -1973,21 +2010,62 @@ function addAttack(item) {
 }
 
 
+// Global variable to track if usePopup is created
+let usePopup = null;
+
 // Function to show use confirmation popup
 function showUseConfirmation() {
-    const usePopup = document.createElement('div');
-    usePopup.classList.add('centered-popup', 'use-popup');
-    usePopup.innerHTML = `
-        <div class="popup-content">
-            <p>Use Item?</p>
-            <div class="button-group">
-                <button id="use-confirm" class="button clickable">Confirm</button>
-                <button id="use-cancel" class="button clickable">Cancel</button>
+    // If the popup has not been created, create it
+    if (!usePopup) {
+        usePopup = document.createElement('div');
+        usePopup.classList.add('centered-popup', 'use-popup');
+        usePopup.innerHTML = `
+            <div class="popup-content">
+                <p>Use Item?</p>
+                <div class="button-group">
+                    <button id="use-confirm" class="button clickable">Confirm</button>
+                    <button id="use-cancel" class="button clickable">Cancel</button>
+                </div>
             </div>
-        </div>
-    `;
+        `;
 
-    document.body.appendChild(usePopup);
+        document.body.appendChild(usePopup);
+
+        // Attach event listeners once (not every time the popup is shown)
+        document.getElementById('use-confirm').addEventListener('click', handleUseConfirm);
+        document.getElementById('use-cancel').addEventListener('click', function() {
+            usePopup.style.display = 'none';  // Hide the popup on cancel
+        });
+    }
+
+    // Show the popup
+    usePopup.style.display = 'block';
+}
+
+// Function to handle confirmation
+function handleUseConfirm() {
+    if (items[selectedItemIndex] && items[selectedItemIndex].quantity > 0) {
+        items[selectedItemIndex].quantity -= 1; // Remove only 1 from quantity
+
+        if (items[selectedItemIndex].quantity === 0) {
+            items.splice(selectedItemIndex, 1); // Remove item if quantity is 0
+            selectedItemIndex = null; // Deselect the item
+        }
+    }
+
+    // Update the item list and details
+    renderItemList();
+    displayItemDetails();
+
+    // Hide the popup after confirming
+    usePopup.style.display = 'none';
+
+
+
+
+// Make the popup visible
+usePopup.style.display = 'block';
+
 
     document.getElementById('use-confirm').addEventListener('click', function() {
         if (items[selectedItemIndex].quantity > 0) {
@@ -2216,6 +2294,61 @@ function openAttackRollPopup(attack) {
     document.getElementById('attack-roll-popup').style.display = 'block';
 }
 
+function showUseConfirmation() {
+    const usePopup = document.createElement('div');
+    usePopup.classList.add('centered-popup', 'use-popup');
+    usePopup.innerHTML = `
+        <div class="popup-content">
+            <p>Use Item?</p>
+            <div class="button-group">
+                <button id="use-confirm" class="button clickable">Confirm</button>
+                <button id="use-cancel" class="button clickable">Cancel</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(usePopup);  // Appends popup to the body
+    usePopup.style.display = 'block';     // Makes it visible
+
+    document.getElementById('use-confirm').addEventListener('click', function() {
+        if (items[selectedItemIndex].quantity > 0) {
+            items[selectedItemIndex].quantity -= 1;  // Decrease quantity
+            if (items[selectedItemIndex].quantity === 0) {
+                items.splice(selectedItemIndex, 1);  // Remove from list if empty
+                selectedItemIndex = null;
+            }
+        }
+        renderItemList();
+        displayItemDetails();
+        document.body.removeChild(usePopup);  // Remove popup after confirm
+    });
+
+    document.getElementById('use-cancel').addEventListener('click', function() {
+        document.body.removeChild(usePopup);  // Remove popup on cancel
+    });
+
+
+    // Handle confirm button click
+    document.getElementById('use-confirm').addEventListener('click', function() {
+        if (items[selectedItemIndex].quantity > 0) {
+            items[selectedItemIndex].quantity -= 1; // Decrease item quantity
+
+            // If item quantity is 0, remove the item from inventory
+            if (items[selectedItemIndex].quantity === 0) {
+                items.splice(selectedItemIndex, 1); // Remove item from list
+                selectedItemIndex = null; // Deselect the item
+            }
+        }
+        renderItemList(); // Re-render the list of items
+        displayItemDetails(); // Update item details
+        document.body.removeChild(usePopup); // Close the popup
+    });
+
+    // Handle cancel button click
+    document.getElementById('use-cancel').addEventListener('click', function() {
+        document.body.removeChild(usePopup); // Close the popup
+    });
+}
+
 // Handle the Attack Roll
 function handleAttackRoll(attack) {
     // Close the attack roll popup
@@ -2283,6 +2416,40 @@ document.getElementById('close-result-button').addEventListener('click', closePo
 // Example: Replace with actual code to link attack button with an attack object
 let currentAttack = { name: "Example Attack", apCost: 2, mpCost: 5 };
 
+// Show the Delete Modifier Confirmation Popup
+function showDeleteModifierConfirmation(modifierIndex) {
+    const deletePopup = document.getElementById('delete-modifier-popup');
+    deletePopup.style.display = 'block';  // Show the popup
+
+    // Temporarily store the modifier index to delete later
+    deletePopup.setAttribute('data-modifier-index', modifierIndex);
+}
+
+// Handle the Confirm Button Click for Modifier Deletion
+document.getElementById('delete-modifier-confirm').addEventListener('click', function () {
+    const deletePopup = document.getElementById('delete-modifier-popup');
+    const modifierIndex = deletePopup.getAttribute('data-modifier-index');
+
+    // Delete the modifier if the index is valid
+    if (modifierIndex !== null) {
+        const item = items[selectedItemIndex]; // Get the selected item
+        if (item.modifiers && item.modifiers.length > modifierIndex) {
+            item.modifiers.splice(modifierIndex, 1);  // Remove the modifier
+            displayItemDetails();  // Re-render the item details and list
+        }
+    }
+
+    // Hide the popup
+    deletePopup.style.display = 'none';
+    deletePopup.removeAttribute('data-modifier-index');
+});
+
+// Handle the Cancel Button Click to hide the popup without deleting
+document.getElementById('delete-modifier-cancel').addEventListener('click', function () {
+    const deletePopup = document.getElementById('delete-modifier-popup');
+    deletePopup.style.display = 'none';  // Hide the popup
+    deletePopup.removeAttribute('data-modifier-index');  // Clear stored index
+});
 
 
 // Initialize the item list
