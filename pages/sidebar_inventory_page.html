@@ -53,6 +53,28 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Custom button style for Use Item */
+.use-item-button {
+    padding: 10px 20px;
+    background-color: var(--main-text-color);
+    color: var(--dark-text-color);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    min-width: 100px; /* Keep it smaller */
+    transition: box-shadow 0.3s ease-in-out;
+    font-family: 'Orbitron', sans-serif;
+    display: inline-block;
+}
+
+/* Center the Use Item button */
+.use-item-button-group {
+    display: flex;
+    justify-content: center; /* Center the button */
+    margin-top: 10px; /* Space above the button */
+}
+
+
 /* Modifier Container: Ensure equal width for each field */
 .modifier-container {
     display: flex;
@@ -800,7 +822,7 @@ body {
                 <!-- Currency Container -->
                 <div class="currency-container" style="display: inline-block;">
                     <button id="currency-adjust-button" class="button clickable">+ / -</button>
-                    <input type="text" id="currency" class="input-field" placeholder="Currency" readonly>
+                    <input type="number" id="currency" class="input-field" placeholder="Currency">
                 </div>
             </div>
         </div>
@@ -1493,17 +1515,22 @@ itemPreview.appendChild(descriptionWrapper); // Append description wrapper
 if (item.type === 'Consumables') {
     const useItemButton = document.createElement('button');
     useItemButton.textContent = 'Use Item';
-    useItemButton.classList.add('button', 'clickable');
-    useItemButton.style.marginTop = '10px'; // Add some space above the button
-    
+    useItemButton.classList.add('use-item-button', 'clickable'); // Apply custom button class
+
     // Add click event to show a confirmation before using the item
     useItemButton.addEventListener('click', function() {
         showUseConfirmation(); // This function will handle item usage confirmation
     });
 
-    // Append the button to the item preview area
-    itemPreview.appendChild(useItemButton);
+    // Create a container for the button and apply the custom group class
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('use-item-button-group'); // Use custom button group class
+    buttonContainer.appendChild(useItemButton); // Add the button inside the container
+
+    // Append the button container to the item preview area
+    itemPreview.appendChild(buttonContainer);
 }
+
 
 
 // **Modifiers Section** - Place it here, after the description
@@ -1703,7 +1730,7 @@ costContainer.style.flexGrow = 1;  // Fill remaining space for cost inputs
 
 // AP Cost (half of the remaining 1/3)
 const apCostField = createField(
-    'AP Cost',
+    'AP Cost',  // Update here to 'AP Cost'
     'number',
     attack.apCost,
     'AP Cost',
@@ -1779,8 +1806,8 @@ console.log("Range Field appended:", rangeField);
 const targetField = createField(
     'Target',
     'text',
-    attack.target,
-    'Target',
+    attack.target || '', // Default to an empty string if attack.target is undefined or falsy
+    'Target', // Placeholder text
     function () { item.attacks[index].target = this.value; },
     '25%' // 1/4 of the row width
 );
@@ -1823,16 +1850,29 @@ damageTypeSelect.addEventListener('change', function () {
     item.attacks[index].damageType = this.value;
 });
 
-// Define damage types
-const damageTypes = ['Bludgeoning', 'Piercing', 'Slashing', 'Fire', 'Ice', 'Poison'];
+// Updated list of damage types in alphabetical order
+const damageTypes = [
+    { value: 'Basic Damage', text: 'Basic Damage' },
+    { value: 'Cold', text: 'Cold' },
+    { value: 'Corrosive', text: 'Corrosive' },
+    { value: 'Electric', text: 'Electric' },
+    { value: 'Energy', text: 'Energy' },
+    { value: 'Fire', text: 'Fire' },
+    { value: 'Poison', text: 'Poison' }
+];
+
+// Populate the dropdown
 damageTypes.forEach(type => {
     const option = document.createElement('option');
-    option.value = type;
-    option.textContent = type;
+    option.value = type.value;
+    option.textContent = type.text;
     damageTypeSelect.appendChild(option);
 });
 
-damageTypeSelect.value = attack.damageType || ''; // Set the current value
+// **After populating the options, set the default value**
+damageTypeSelect.value = 'Basic Damage'; // Set default to 'Basic Damage'
+
+// Append the dropdown to the field
 damageTypeField.appendChild(damageTypeSelect);
 
 // Append Damage Type field to the combined container
@@ -2028,18 +2068,25 @@ function showUseConfirmation() {
                 </div>
             </div>
         `;
-
+        
         document.body.appendChild(usePopup);
 
-        // Attach event listeners once (not every time the popup is shown)
-        document.getElementById('use-confirm').addEventListener('click', handleUseConfirm);
+        // Attach the cancel button event listener once
         document.getElementById('use-cancel').addEventListener('click', function() {
-            usePopup.style.display = 'none';  // Hide the popup on cancel
+            usePopup.style.display = 'none';  // Just hide the popup on cancel
         });
     }
 
     // Show the popup
     usePopup.style.display = 'block';
+
+    // Ensure the old event listener is removed before adding a new one
+    const confirmButton = document.getElementById('use-confirm');
+    const newConfirmButton = confirmButton.cloneNode(true);  // Clone the button to remove all old event listeners
+    confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);  // Replace the old button with the new one
+
+    // Attach a fresh event listener for the confirm button
+    newConfirmButton.addEventListener('click', handleUseConfirm);
 }
 
 // Function to handle confirmation
@@ -2059,31 +2106,8 @@ function handleUseConfirm() {
 
     // Hide the popup after confirming
     usePopup.style.display = 'none';
-
-
-
-
-// Make the popup visible
-usePopup.style.display = 'block';
-
-
-    document.getElementById('use-confirm').addEventListener('click', function() {
-        if (items[selectedItemIndex].quantity > 0) {
-            items[selectedItemIndex].quantity -= 1;
-            if (items[selectedItemIndex].quantity === 0) {
-                items.splice(selectedItemIndex, 1);
-                selectedItemIndex = null;
-            }
-        }
-        renderItemList();
-        displayItemDetails();
-        document.body.removeChild(usePopup);
-    });
-
-    document.getElementById('use-cancel').addEventListener('click', function() {
-        document.body.removeChild(usePopup);
-    });
 }
+
 
 // Function to show equip popup
 function showEquipPopup(item) {
@@ -2294,60 +2318,7 @@ function openAttackRollPopup(attack) {
     document.getElementById('attack-roll-popup').style.display = 'block';
 }
 
-function showUseConfirmation() {
-    const usePopup = document.createElement('div');
-    usePopup.classList.add('centered-popup', 'use-popup');
-    usePopup.innerHTML = `
-        <div class="popup-content">
-            <p>Use Item?</p>
-            <div class="button-group">
-                <button id="use-confirm" class="button clickable">Confirm</button>
-                <button id="use-cancel" class="button clickable">Cancel</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(usePopup);  // Appends popup to the body
-    usePopup.style.display = 'block';     // Makes it visible
 
-    document.getElementById('use-confirm').addEventListener('click', function() {
-        if (items[selectedItemIndex].quantity > 0) {
-            items[selectedItemIndex].quantity -= 1;  // Decrease quantity
-            if (items[selectedItemIndex].quantity === 0) {
-                items.splice(selectedItemIndex, 1);  // Remove from list if empty
-                selectedItemIndex = null;
-            }
-        }
-        renderItemList();
-        displayItemDetails();
-        document.body.removeChild(usePopup);  // Remove popup after confirm
-    });
-
-    document.getElementById('use-cancel').addEventListener('click', function() {
-        document.body.removeChild(usePopup);  // Remove popup on cancel
-    });
-
-
-    // Handle confirm button click
-    document.getElementById('use-confirm').addEventListener('click', function() {
-        if (items[selectedItemIndex].quantity > 0) {
-            items[selectedItemIndex].quantity -= 1; // Decrease item quantity
-
-            // If item quantity is 0, remove the item from inventory
-            if (items[selectedItemIndex].quantity === 0) {
-                items.splice(selectedItemIndex, 1); // Remove item from list
-                selectedItemIndex = null; // Deselect the item
-            }
-        }
-        renderItemList(); // Re-render the list of items
-        displayItemDetails(); // Update item details
-        document.body.removeChild(usePopup); // Close the popup
-    });
-
-    // Handle cancel button click
-    document.getElementById('use-cancel').addEventListener('click', function() {
-        document.body.removeChild(usePopup); // Close the popup
-    });
-}
 
 // Handle the Attack Roll
 function handleAttackRoll(attack) {
