@@ -807,25 +807,31 @@ body {
         <div class="separator"></div>
         
         <!-- Inventory Header and Create Item Button Row -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <div>
-                <!-- Inventory Header -->
-                <div class="inventory-title" style="margin-bottom: 15px;">Inventory</div> <!-- Added margin for spacing -->
-                <!-- Create Item Button -->
-                <button id="create-item" class="button clickable">Create Item</button>
-            </div>
-            
-            <!-- Currency Section (aligned to the right) -->
-            <div style="text-align: right;">
-                <!-- Currency Header -->
-                <div class="currency-title" style="text-align: right; margin-bottom: 15px;">Currency</div> <!-- Right-aligned header and spacing -->
-                <!-- Currency Container -->
-                <div class="currency-container" style="display: inline-block;">
-                    <button id="currency-adjust-button" class="button clickable">+ / -</button>
-                    <input type="number" id="currency" class="input-field" placeholder="Currency">
-                </div>
-            </div>
+<div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+        <!-- Inventory Header -->
+        <div class="inventory-title" style="margin-bottom: 15px;">Inventory</div> <!-- Added margin for spacing -->
+        <!-- Create Item Button -->
+        <button id="create-item" class="button clickable">Create Item</button>
+
+        <!-- Inventory Counter Display -->
+<div id="inventory-counter" style="margin-top: 10px; color: var(--main-text-color);">
+    Items: 0 / 25 <!-- The counter will be updated dynamically -->
+</div>
+    </div>
+
+    <!-- Currency Section (aligned to the right) -->
+    <div style="text-align: right;">
+        <!-- Currency Header -->
+        <div class="currency-title" style="text-align: right; margin-bottom: 15px;">Currency</div>
+        <!-- Currency Container -->
+        <div class="currency-container" style="display: inline-block;">
+            <button id="currency-adjust-button" class="button clickable">+ / -</button>
+            <input type="number" id="currency" class="input-field" placeholder="Currency">
         </div>
+    </div>
+</div>
+
     
         <!-- Currency Adjustment Popup -->
         <div class="currency-popup" id="currency-popup">
@@ -868,6 +874,18 @@ body {
                 </div>
             </div>
         </div>
+
+        <!-- Upgrade Inventory Popup -->
+<div id="upgrade-inventory-popup" class="centered-popup" style="display: none;">
+    <div>
+        <h2>Upgrade Inventory Capacity?</h2>
+        <p id="upgrade-message">Player must have the <span id="required-skill" style="color: var(--accent-color); font-weight: bold;">Pack Mule I</span> skill to upgrade.</p>
+        <div class="button-group">
+            <button id="upgrade-confirm" class="button clickable">Upgrade</button>
+            <button id="upgrade-cancel" class="button clickable">Cancel</button>
+        </div>
+    </div>
+</div>
     
         <!-- Item Management Section -->
         <div class="item-management">
@@ -913,11 +931,11 @@ body {
 
 // Add this at the top of your script
 const rarityColors = {
-    common: '#2e549c',
-    uncommon: '#407d39',
-    rare: '#86428e',
-    'very-rare': '#b73e3e',
-    legendary: '#e2a600'
+    common: '#1eff00',
+    uncommon: '#0070dd',
+    rare: '#EE35C7',
+    'very-rare': '#F42626',
+    legendary: '#ff8000'
 };
 
 // Initialize currency total
@@ -925,8 +943,8 @@ let currencyTotal = 0;
 const currencyDisplay = document.getElementById('currency');
 currencyDisplay.value = currencyTotal;
 
-// Handle 'Create Item' button click
-document.getElementById('create-item').addEventListener('click', function() {
+// Function to handle creating a new item
+function handleCreateItem() {
     // Create a new item object with blank type and rarity
     const newItem = {
         quantity: 1,
@@ -940,7 +958,14 @@ document.getElementById('create-item').addEventListener('click', function() {
     };
     items.push(newItem);
     renderItemList();
-});
+    updateInventoryCounter(); // Update inventory after adding an item
+}
+
+// Handle the Create Item button click, initially
+document.getElementById('create-item').addEventListener('click', handleCreateItem);
+
+
+
 
 // Handle 'Currency Adjust' button click
 const currencyAdjustButton = document.getElementById('currency-adjust-button');
@@ -1005,6 +1030,10 @@ let items = [];
 let selectedItemIndex = null;
 let deleteIndex = null; // Added this line
 
+// Inventory Capacity Management
+let maxInventoryCapacity = 25; // Default maximum inventory capacity for Tier 1
+let currentItemCount = 0; // Initialize the current item count
+
 function showDeleteAttackConfirmation(attackIndex) {
     const deletePopup = document.getElementById('delete-popup');
     
@@ -1033,10 +1062,93 @@ function deleteAttack(attackIndex) {
     }
 }
 
+function updateInventoryCounter() {
+    const inventoryCounter = document.getElementById('inventory-counter');
+    const createItemButton = document.getElementById('create-item');
+    currentItemCount = items.length; // Get the number of items in the inventory
+    inventoryCounter.textContent = `Items: ${currentItemCount} / ${maxInventoryCapacity}`;
+
+    // Check if inventory is exactly at max capacity (150/150)
+    if (currentItemCount === maxInventoryCapacity) {
+        // Inventory is full (150/150) - Show "Max Inventory" button
+        createItemButton.textContent = 'Max Inventory';
+        createItemButton.removeEventListener('click', handleCreateItem); // Disable Create Item functionality
+        createItemButton.addEventListener('click', showUpgradePopup); // Add upgrade popup event
+        createItemButton.disabled = false; // Ensure the button is clickable
+    } else {
+        // Inventory is NOT full - Restore "Create Item" functionality
+        createItemButton.textContent = 'Create Item';
+        createItemButton.disabled = false; // Make sure it's enabled
+        createItemButton.removeEventListener('click', showUpgradePopup); // Remove upgrade popup listener
+        createItemButton.addEventListener('click', handleCreateItem); // Restore item creation functionality
+    }
+}
+
+
+function showUpgradePopup() {
+    let nextCapacity = 0;
+    let requiredSkill = '';
+
+    // Determine the next capacity and required skill based on current capacity
+    if (maxInventoryCapacity === 25) {
+        nextCapacity = 50;
+        requiredSkill = 'Pack Mule';
+    } else if (maxInventoryCapacity === 50) {
+        nextCapacity = 75;
+        requiredSkill = 'Pack Mule II';
+    } else if (maxInventoryCapacity === 75) {
+        nextCapacity = 100;
+        requiredSkill = 'Pack Mule III';
+    } else if (maxInventoryCapacity === 100) {
+        nextCapacity = 150;
+        requiredSkill = 'Pack Mule IV';
+    } else if (maxInventoryCapacity === 150) {
+        // Handle the final tier case - show a "Maximum Inventory" popup
+        const upgradePopup = document.getElementById('upgrade-inventory-popup');
+        upgradePopup.innerHTML = `
+            <h2>Maximum Inventory</h2>
+            <p>You have reached the maximum inventory capacity.</p>
+            <div class="button-group">
+                <button id="max-capacity-ok" class="button clickable">OK</button>
+            </div>
+        `;
+        upgradePopup.style.display = 'block';
+
+        // Close the popup when OK is clicked
+        document.getElementById('max-capacity-ok').addEventListener('click', function () {
+            upgradePopup.style.display = 'none';
+        });
+        return; // Exit the function so the upgrade logic is skipped
+    }
+
+    // Update the popup message with the correct skill requirement for lower tiers
+    const upgradeMessage = document.getElementById('upgrade-message');
+    upgradeMessage.innerHTML = `
+        <p>Player must have the <span style="color: var(--accent-color); font-weight: bold;">${requiredSkill}</span> skill to upgrade to ${nextCapacity} slots.</p>
+    `;
+
+    // Show the regular upgrade popup
+    const upgradePopup = document.getElementById('upgrade-inventory-popup');
+    upgradePopup.style.display = 'block';
+}
+
+// Function to handle deleting an item
+function deleteItem(itemIndex) {
+    items.splice(itemIndex, 1); // Remove the item from the array
+    updateInventoryCounter(); // Update inventory after deletion
+    renderItemList(); // Re-render the item list
+    displayItemDetails(); // Clear item details if necessary
+}
 
 function renderItemList() {
     const itemListColumn = document.getElementById('item-list-column');
     itemListColumn.innerHTML = ''; // Clear existing items
+
+    // Update Inventory Counter
+    const inventoryCounter = document.getElementById('inventory-counter');
+    const totalItems = items.length;
+    const maxItems = maxInventoryCapacity; // Use the dynamic inventory limit
+    inventoryCounter.textContent = `Items: ${totalItems} / ${maxItems}`;
 
     // Define categories and their display order
     const categories = ['', 'Consumables', 'Crafting', 'Equipment', 'Loot', 'Quest Items', 'Weapons'];
@@ -1168,6 +1280,7 @@ function renderItemList() {
         }
     });
 }
+
 
 // Function to display item details in the preview column
 function displayItemDetails() {
@@ -2231,12 +2344,35 @@ function showDeleteConfirmation(itemIndex) {
 const deleteConfirmButton = document.getElementById('delete-confirm');
 const deleteCancelButton = document.getElementById('delete-cancel');
 
+// Handle the upgrade confirmation
+document.getElementById('upgrade-confirm').addEventListener('click', function() {
+    if (maxInventoryCapacity === 25) {
+        maxInventoryCapacity = 50;
+    } else if (maxInventoryCapacity === 50) {
+        maxInventoryCapacity = 75;
+    } else if (maxInventoryCapacity === 75) {
+        maxInventoryCapacity = 100;
+    } else if (maxInventoryCapacity === 100) {
+        maxInventoryCapacity = 150;
+    }
+
+    // Update the inventory counter and close the popup
+    updateInventoryCounter();
+    document.getElementById('upgrade-inventory-popup').style.display = 'none';
+});
+
+
+// Handle the upgrade cancellation
+document.getElementById('upgrade-cancel').addEventListener('click', function() {
+    document.getElementById('upgrade-inventory-popup').style.display = 'none';
+});
+
 deleteConfirmButton.addEventListener('click', function () {
     const deletePopup = document.getElementById('delete-popup');
-    
+
     // Check if we are deleting an attack or an item
     const attackIndex = deletePopup.getAttribute('data-attack-index');
-    
+
     if (attackIndex !== null && attackIndex !== '') {
         // We are deleting an attack
         deleteAttack(parseInt(attackIndex, 10));
@@ -2277,14 +2413,6 @@ deleteConfirmButton.addEventListener('click', function () {
     deleteIndex = null;
 });
 
-deleteCancelButton.addEventListener('click', function () {
-    const deletePopup = document.getElementById('delete-popup');
-    deletePopup.style.display = 'none';
-    
-    // Reset deleteIndex and data-attack-index
-    deletePopup.removeAttribute('data-attack-index');
-    deleteIndex = null;
-});
 
 
 
